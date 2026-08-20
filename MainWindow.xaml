@@ -1,0 +1,479 @@
+<Window x:Class="CallAnalog.Softphone.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:views="clr-namespace:CallAnalog.Softphone.Views"
+        xmlns:controls="clr-namespace:CallAnalog.Softphone.Views.Controls"
+        Title="CallAnalog"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ResizeMode="CanMinimize"
+        WindowStartupLocation="Manual"
+        Loaded="MainWindow_Loaded"
+        Closing="MainWindow_Closing"
+        Icon="pack://siteoforigin:,,,/Assets/favicon.png">
+
+    <Viewbox Stretch="Uniform" StretchDirection="DownOnly">
+        <Border Width="507" Height="1092"
+                Background="{StaticResource PhoneBezelOuterBrush}"
+                CornerRadius="36"
+                Padding="7"
+                BorderBrush="{StaticResource PhoneBorderBrush}"
+                BorderThickness="2">
+            <Border CornerRadius="28"
+                    Background="{StaticResource PhoneBgBrush}"
+                    ClipToBounds="True">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Title bar -->
+                    <Border Grid.Row="0"
+                            Background="{StaticResource PhoneBgBrush}"
+                            Padding="14,12,14,8"
+                            MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <Image x:Name="TitleBarLogo"
+                                   Grid.Column="0"
+                                   Source="pack://siteoforigin:,,,/Assets/logo.png"
+                                   Height="34"
+                                   Stretch="Uniform"
+                                   HorizontalAlignment="Left"
+                                   VerticalAlignment="Center"
+                                   Visibility="Collapsed" />
+
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <Button x:Name="SignOutButton"
+                                        Style="{StaticResource HeaderIconButton}"
+                                        Visibility="Collapsed"
+                                        Click="SignOutButton_Click"
+                                        ToolTip="Sign out">
+                                    <controls:PackIcon IconKey="IconLogout" Style="{StaticResource HeaderPackIcon}"/>
+                                </Button>
+                                <Button x:Name="MinimizeToTrayButton"
+                                        Style="{StaticResource HeaderIconButton}"
+                                        Content="&#x25BC;"
+                                        FontSize="12"
+                                        Margin="2,0,0,0"
+                                        Click="MinimizeToTrayButton_Click"
+                                        ToolTip="Minimize to tray" />
+                                <Button Style="{StaticResource HeaderIconButton}"
+                                        Content="&#x2013;"
+                                        FontSize="18"
+                                        Margin="2,0,0,0"
+                                        Click="MinimizeButton_Click"
+                                        ToolTip="Minimize" />
+                                <Button Style="{StaticResource HeaderIconButton}"
+                                        Margin="2,0,0,0"
+                                        Click="CloseButton_Click"
+                                        ToolTip="Close">
+                                    <controls:PackIcon IconKey="IconClose" Style="{StaticResource HeaderPackIcon}"/>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- Main content area -->
+                    <Grid Grid.Row="1" Background="{StaticResource PhoneBgBrush}">
+
+                        <!-- Login -->
+                        <Grid x:Name="LoginPanel">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <ScrollViewer Grid.Row="0"
+                                          Style="{StaticResource PhoneScrollViewer}"
+                                          VerticalScrollBarVisibility="Auto"
+                                          Padding="24,12,24,8">
+                                <StackPanel VerticalAlignment="Center" MaxWidth="416">
+
+                                    <Image Source="pack://siteoforigin:,,,/Assets/logo.png"
+                                           Height="56"
+                                           Stretch="Uniform"
+                                           HorizontalAlignment="Center"
+                                           Margin="0,16,0,12" />
+
+                                    <TextBlock Text="CallAnalog"
+                                               FontFamily="{StaticResource PhoneDisplayFont}"
+                                               FontSize="28"
+                                               FontWeight="SemiBold"
+                                               Foreground="{StaticResource PhoneBrandBrush}"
+                                               HorizontalAlignment="Center"
+                                               Margin="0,0,0,6" />
+
+                                    <TextBlock Text="Sign in to your extension"
+                                               FontFamily="{StaticResource PhoneUiFont}"
+                                               FontSize="14"
+                                               Foreground="{StaticResource PhoneTextSecondaryBrush}"
+                                               HorizontalAlignment="Center"
+                                               Margin="0,0,0,28" />
+
+                                    <TextBlock Text="Extension Number"
+                                               Foreground="{StaticResource PhoneTextSecondaryBrush}"
+                                               FontSize="13"
+                                               Margin="0,0,0,6" />
+                                    <TextBox x:Name="ExtensionBox"
+                                             Style="{StaticResource PhoneTextBox}"
+                                             MaxLength="20"
+                                             Margin="0,0,0,14"
+                                             PreviewTextInput="ExtensionBox_PreviewTextInput" />
+
+                                    <TextBlock Text="Password"
+                                               Foreground="{StaticResource PhoneTextSecondaryBrush}"
+                                               FontSize="13"
+                                               Margin="0,0,0,6" />
+                                    <PasswordBox x:Name="PasswordBox"
+                                                 Style="{StaticResource PhonePasswordBox}"
+                                                 Margin="0,0,0,12"
+                                                 KeyDown="PasswordBox_KeyDown" />
+
+                                    <CheckBox x:Name="RememberMeCheckBox"
+                                              Content="Remember Me"
+                                              Style="{StaticResource PhoneCheckBox}"
+                                              Margin="0,0,0,18" />
+
+                                    <Button x:Name="LoginButton"
+                                            Style="{StaticResource PhonePrimaryButton}"
+                                            Click="LoginButton_Click">
+                                        <Grid MinWidth="100" MinHeight="20">
+                                            <TextBlock x:Name="LoginButtonText"
+                                                       Text="Login"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"/>
+                                            <Ellipse x:Name="LoginSpinner"
+                                                     Style="{StaticResource LoadingSpinnerArc}"
+                                                     Width="20"
+                                                     Height="20"
+                                                     Visibility="Collapsed"
+                                                     HorizontalAlignment="Center"
+                                                     VerticalAlignment="Center">
+                                                <Ellipse.Triggers>
+                                                    <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                                                        <BeginStoryboard>
+                                                            <Storyboard RepeatBehavior="Forever">
+                                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
+                                                                                 From="0" To="360" Duration="0:0:0.9"/>
+                                                            </Storyboard>
+                                                        </BeginStoryboard>
+                                                    </EventTrigger>
+                                                </Ellipse.Triggers>
+                                            </Ellipse>
+                                        </Grid>
+                                    </Button>
+
+                                    <Button x:Name="CancelLoginButton"
+                                            Content="Cancel"
+                                            Style="{StaticResource PhoneSecondaryButton}"
+                                            Height="36"
+                                            Margin="0,10,0,0"
+                                            Visibility="Collapsed"
+                                            Click="CancelLoginButton_Click"/>
+
+                                    <TextBlock x:Name="LoginStepText"
+                                               Text=""
+                                               TextAlignment="Center"
+                                               FontSize="11"
+                                               Foreground="{StaticResource PhoneTextSecondaryBrush}"
+                                               Margin="0,10,0,0"
+                                               Visibility="Collapsed"/>
+
+                                    <TextBlock x:Name="InlineStatusText"
+                                               Text=""
+                                               TextWrapping="Wrap"
+                                               TextAlignment="Center"
+                                               FontSize="11"
+                                               Foreground="{StaticResource PhoneHangupRedBrush}"
+                                               Margin="0,14,0,0"
+                                               MinHeight="28" />
+                                </StackPanel>
+                            </ScrollViewer>
+
+                            <TextBlock Grid.Row="2"
+                                       x:Name="VersionText"
+                                       Text="Version 1.0.0"
+                                       FontSize="11"
+                                       Foreground="{StaticResource PhoneTextTertiaryBrush}"
+                                       HorizontalAlignment="Center"
+                                       Opacity="0.75"
+                                       Margin="0,0,0,10" />
+                        </Grid>
+
+                        <!-- App shell (after login) -->
+                        <Grid x:Name="AppShellPanel" Visibility="Collapsed">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <!-- Connection status -->
+                            <Border x:Name="ShellHeaderBar"
+                                    Grid.Row="0"
+                                    Background="{StaticResource PhoneBgBrush}"
+                                    Padding="0,0,0,4">
+                            <Grid Margin="16,8,16,4">
+                                <StackPanel Orientation="Vertical"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Center">
+                                    <TextBlock x:Name="ExtensionLabelText"
+                                               Text="Extension"
+                                               Style="{StaticResource TypeBody}"
+                                               Foreground="{StaticResource PhoneTextSecondaryBrush}"/>
+                                    <TextBlock x:Name="CallDurationText"
+                                               Text=""
+                                               Style="{StaticResource TypeCaption}"
+                                               Foreground="{StaticResource PhoneAccentBrush}"
+                                               Visibility="Collapsed"
+                                               Margin="0,2,0,0"/>
+                                </StackPanel>
+                                <Border x:Name="ConnectionStatusChip"
+                                        Style="{StaticResource ConnectionStatusChip}"
+                                        HorizontalAlignment="Right">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Ellipse x:Name="StatusDot"
+                                                 Width="8" Height="8"
+                                                 Fill="{StaticResource PhoneCallGreenBrush}"
+                                                 Margin="0,0,6,0"
+                                                 VerticalAlignment="Center"/>
+                                        <TextBlock x:Name="StatusLabelText"
+                                                   Text="Online"
+                                                   Style="{StaticResource TypeCaption}"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{StaticResource PhoneTextPrimaryBrush}"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                            </Border>
+
+                            <!-- Soft update banner (startup version check) -->
+                            <Border x:Name="UpdateAvailableBanner"
+                                    Grid.Row="1"
+                                    VerticalAlignment="Top"
+                                    Margin="12,8,12,0"
+                                    Padding="10,6"
+                                    Background="{StaticResource PhoneStatusRegisteringBgBrush}"
+                                    CornerRadius="8"
+                                    Visibility="Collapsed"
+                                    Panel.ZIndex="30"
+                                    Cursor="Hand"
+                                    MouseLeftButtonUp="UpdateAvailableBanner_Click">
+                                <TextBlock x:Name="UpdateAvailableBannerText"
+                                           Text=""
+                                           Style="{StaticResource TypeCaption}"
+                                           Foreground="{StaticResource PhoneTextPrimaryBrush}"
+                                           TextWrapping="Wrap"/>
+                            </Border>
+
+                            <!-- Main content pages -->
+                            <Grid x:Name="NavSwipeHost"
+                                  Grid.Row="1"
+                                  ClipToBounds="True"
+                                  IsManipulationEnabled="True"
+                                  ManipulationBoundaryFeedback="NavSwipeHost_ManipulationBoundaryFeedback"
+                                  ManipulationStarting="NavSwipeHost_ManipulationStarting"
+                                  ManipulationDelta="NavSwipeHost_ManipulationDelta"
+                                  ManipulationCompleted="NavSwipeHost_ManipulationCompleted">
+                                <views:DashboardView x:Name="DashboardView"
+                                                     ComingSoonRequested="DashboardView_ComingSoonRequested"
+                                                     VoicemailDialRequested="DashboardView_VoicemailDialRequested"
+                                                     OpenDialpadRequested="DashboardView_OpenDialpadRequested"
+                                                     ViewHistoryFilterRequested="DashboardView_ViewHistoryFilterRequested"
+                                                     DialRecentRequested="DashboardView_DialRecentRequested"/>
+                                <views:DialpadView x:Name="DialpadView"
+                                                   Visibility="Collapsed"
+                                                   BackRequested="DialpadView_BackRequested"/>
+                                <views:ContactsView x:Name="ContactsView"
+                                                    Visibility="Collapsed"
+                                                    DialRequested="ContactsView_DialRequested"
+                                                    MessageRequested="ContactsView_MessageRequested"/>
+                                <views:HistoryView x:Name="HistoryView"
+                                                   Visibility="Collapsed"
+                                                   DialRequested="HistoryView_DialRequested"
+                                                   MessageRequested="HistoryView_MessageRequested"/>
+                                <views:SettingsView x:Name="SettingsView"
+                                                    Visibility="Collapsed"
+                                                    SettingsSaved="SettingsView_SettingsSaved"
+                                                    SaveAllCompleted="SettingsView_SaveAllCompleted"/>
+                                <views:CallSessionView x:Name="CallSessionView"
+                                                       Visibility="Collapsed"
+                                                       Panel.ZIndex="20"
+                                                       ComingSoonRequested="CallSessionView_ComingSoonRequested"
+                                                       BlindTransferRequested="CallSessionView_BlindTransferRequested"/>
+                            </Grid>
+
+                            <!-- Bottom navigation -->
+                            <Border Grid.Row="2"
+                                    Background="{StaticResource PhoneSurfaceBrush}"
+                                    BorderBrush="{StaticResource PhoneDividerBrush}"
+                                    BorderThickness="0,1,0,0"
+                                    Padding="6,6,6,4">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Button x:Name="NavDashboardButton"
+                                            Grid.Column="0"
+                                            Style="{StaticResource BottomNavButtonActive}"
+                                            Click="NavDashboardButton_Click">
+                                        <StackPanel Style="{StaticResource BottomNavContent}">
+                                            <controls:PackIcon IconKey="IconDashboard" Style="{StaticResource NavPackIcon}"/>
+                                            <TextBlock Text="Dashboard" Margin="0,3,0,0"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button x:Name="NavHistoryButton"
+                                            Grid.Column="1"
+                                            Style="{StaticResource BottomNavButton}"
+                                            Click="NavHistoryButton_Click">
+                                        <StackPanel Style="{StaticResource BottomNavContent}">
+                                            <Grid Width="22" Height="22" HorizontalAlignment="Center">
+                                                <controls:PackIcon IconKey="IconHistory" Style="{StaticResource NavPackIcon}"/>
+                                                <Border x:Name="HistoryMissedBadge"
+                                                        Background="{StaticResource PhoneHangupRedBrush}"
+                                                        CornerRadius="8"
+                                                        MinWidth="16"
+                                                        Height="16"
+                                                        Padding="4,0"
+                                                        HorizontalAlignment="Right"
+                                                        VerticalAlignment="Top"
+                                                        Margin="0,-4,-6,0"
+                                                        Visibility="Collapsed">
+                                                    <TextBlock x:Name="HistoryMissedBadgeText"
+                                                               Text="1"
+                                                               FontSize="9"
+                                                               FontWeight="Bold"
+                                                               Foreground="White"
+                                                               HorizontalAlignment="Center"
+                                                               VerticalAlignment="Center"/>
+                                                </Border>
+                                            </Grid>
+                                            <TextBlock Text="History" Margin="0,3,0,0"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button x:Name="NavKeypadButton"
+                                            Grid.Column="2"
+                                            Margin="10,0,10,0"
+                                            Style="{StaticResource BottomNavKeypadButton}"
+                                            Click="NavKeypadButton_Click">
+                                        <controls:PackIcon IconKey="IconDialpad"
+                                                           IconSize="24"
+                                                           Foreground="White"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center"/>
+                                    </Button>
+                                    <Button x:Name="NavContactsButton"
+                                            Grid.Column="3"
+                                            Style="{StaticResource BottomNavButton}"
+                                            Click="NavContactsButton_Click">
+                                        <StackPanel Style="{StaticResource BottomNavContent}">
+                                            <controls:PackIcon IconKey="IconContacts" Style="{StaticResource NavPackIcon}"/>
+                                            <TextBlock Text="Contacts" Margin="0,3,0,0"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button x:Name="NavSettingsButton"
+                                            Grid.Column="4"
+                                            Style="{StaticResource BottomNavButton}"
+                                            Click="NavSettingsButton_Click">
+                                        <StackPanel Style="{StaticResource BottomNavContent}">
+                                            <controls:PackIcon IconKey="IconSettings" Style="{StaticResource NavPackIcon}"/>
+                                            <TextBlock Text="Settings" Margin="0,3,0,0"/>
+                                        </StackPanel>
+                                    </Button>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </Grid>
+
+                    <!-- Home indicator -->
+                    <Border Grid.Row="2" Padding="0,6,0,10">
+                        <Border Width="96" Height="4"
+                                CornerRadius="2"
+                                Background="{StaticResource PhoneSurfaceHoverBrush}"
+                                HorizontalAlignment="Center" />
+                    </Border>
+
+                    <!-- Launch splash -->
+                    <Grid Grid.RowSpan="3"
+                          x:Name="LaunchSplashOverlay"
+                          Panel.ZIndex="90"
+                          Visibility="Collapsed">
+                        <Border Background="#F0111620"/>
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="360">
+                            <Image Source="pack://siteoforigin:,,,/Assets/logo.png"
+                                   Height="64"
+                                   Stretch="Uniform"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,0,0,24"/>
+                            <TextBlock Text="CallAnalog Softphone"
+                                       FontSize="18"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource PhoneTextPrimaryBrush}"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,0,0,8"/>
+                            <TextBlock x:Name="SplashStepText"
+                                       Text="Starting..."
+                                       FontSize="13"
+                                       Foreground="{StaticResource PhoneTextSecondaryBrush}"
+                                       TextAlignment="Center"
+                                       TextWrapping="Wrap"
+                                       Margin="0,0,0,16"/>
+                            <Ellipse Style="{StaticResource LoadingSpinnerArc}"
+                                     Width="28" Height="28"
+                                     HorizontalAlignment="Center"
+                                     Margin="0,0,0,16">
+                                <Ellipse.Triggers>
+                                    <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                                        <BeginStoryboard>
+                                            <Storyboard RepeatBehavior="Forever">
+                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
+                                                                 From="0" To="360" Duration="0:0:0.9"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </EventTrigger>
+                                </Ellipse.Triggers>
+                            </Ellipse>
+                            <Button x:Name="SplashCancelButton"
+                                    Content="Cancel"
+                                    Style="{StaticResource PhoneSecondaryButton}"
+                                    Height="36"
+                                    MinWidth="120"
+                                    HorizontalAlignment="Center"
+                                    Click="CancelLoginButton_Click"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- In-shell modal overlay -->
+                    <Grid Grid.RowSpan="3"
+                          x:Name="ShellOverlay"
+                          Visibility="Collapsed"
+                          Panel.ZIndex="100">
+                        <Border Background="#CC0D1117"/>
+                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                      Padding="16,12"
+                                      HorizontalScrollBarVisibility="Disabled">
+                            <ContentControl x:Name="ShellOverlayContent"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            MaxWidth="442"/>
+                        </ScrollViewer>
+                    </Grid>
+                </Grid>
+            </Border>
+        </Border>
+    </Viewbox>
+</Window>

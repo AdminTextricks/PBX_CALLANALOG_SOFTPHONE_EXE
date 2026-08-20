@@ -1,0 +1,60 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows10.0.18362</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>CallAnalog.Softphone</RootNamespace>
+    <AssemblyName>CallAnalog.Softphone</AssemblyName>
+    <ApplicationTitle>CallAnalog Softphone</ApplicationTitle>
+    <Product>CallAnalog Softphone</Product>
+    <Company>CallAnalog</Company>
+    <Version>2.2.6</Version>
+    <ApplicationIcon>CallAnalog.Softphone.ico</ApplicationIcon>
+    <DefaultItemExcludes>$(DefaultItemExcludes);CallAnalog.Softphone.Tests/**</DefaultItemExcludes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="CallAnalog.Softphone.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.7" />
+    <PackageReference Include="CommunityToolkit.WinUI.Notifications" Version="7.1.2" />
+    <PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="2.0.1" />
+    <PackageReference Include="NAudio" Version="2.3.0" />
+    <PackageReference Include="SIPSorcery" Version="10.0.12" />
+    <PackageReference Include="SIPSorceryMedia.Windows" Version="10.0.12" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="tools/**" />
+    <Compile Remove="CallAnalog.Softphone.Tests/**" />
+    <None Remove="tools/**" />
+    <None Remove="CallAnalog.Softphone.Tests/**" />
+    <Content Remove="tools/**" />
+    <EmbeddedResource Remove="tools/**" />
+    <Page Remove="tools/**" />
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <Content Include="Assets\logo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
+    <Content Include="Assets\favicon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
+    <Content Include="build-info.txt" Condition="Exists('build-info.txt')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
+  </ItemGroup>
+
+</Project>
