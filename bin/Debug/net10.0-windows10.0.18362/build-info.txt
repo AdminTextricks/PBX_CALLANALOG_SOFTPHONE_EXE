@@ -1,5 +1,0 @@
-﻿Version=2.2.3
-Commit=
-Branch=
-BuiltUtc=2026-08-12T12:42:43Z
-OutputDir=C:\Users\Jatin Tomar\Downloads\softphone-new\dist\callanalog v2.2.3

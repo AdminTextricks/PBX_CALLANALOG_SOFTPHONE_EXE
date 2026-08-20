@@ -1,5 +1,0 @@
-﻿Version=1.1.4
-Commit=
-Branch=
-BuiltUtc=2026-07-28T18:24:42Z
-OutputDir=C:\Users\Jatin Tomar\Downloads\softphone-new\dist\callanalog v1.1.4
