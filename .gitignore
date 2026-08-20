@@ -1,0 +1,49 @@
+# .NET build output
+bin/
+obj/
+
+# Visual Studio / Rider
+.vs/
+.idea/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+
+# Publish / deployment output
+publish/
+dist/
+
+# Test results
+TestResults/
+*.trx
+
+# Logs
+*.log
+
+# Generated runtime data
+logs/
+crash-reports/
+
+# Local application data/config
+*.local.json
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Inno Setup generated installer output
+installer/Output/
+
+# Code signing / certificates
+*.pfx
+*.p12
+*.cer
+*.key
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
