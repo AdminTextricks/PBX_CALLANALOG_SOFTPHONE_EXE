@@ -1,0 +1,37 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Premium dark palette — deep slate + teal brand -->
+    <Color x:Key="PhoneBg">#0B1220</Color>
+    <Color x:Key="PhoneSurface">#121A2B</Color>
+    <Color x:Key="PhoneSurfaceElevated">#182338</Color>
+    <Color x:Key="PhoneSurfaceHover">#243049</Color>
+    <Color x:Key="PhoneBorder">#334155</Color>
+    <Color x:Key="PhoneBezelOuter">#070B14</Color>
+    <Color x:Key="PhoneCardBorder">#243049</Color>
+    <Color x:Key="PhoneDivider">#1E293B</Color>
+    <Color x:Key="PhoneChipBg">#182338</Color>
+    <Color x:Key="PhoneNavActiveBg">#0F3A45</Color>
+    <Color x:Key="PhoneAccent">#38BDF8</Color>
+    <Color x:Key="PhoneBrand">#2DD4BF</Color>
+    <Color x:Key="PhoneTextPrimary">#F8FAFC</Color>
+    <Color x:Key="PhoneTextSecondary">#94A3B8</Color>
+    <Color x:Key="PhoneTextTertiary">#64748B</Color>
+
+    <SolidColorBrush x:Key="PhoneBgBrush" Color="{StaticResource PhoneBg}" />
+    <SolidColorBrush x:Key="PhoneSurfaceBrush" Color="{StaticResource PhoneSurface}" />
+    <SolidColorBrush x:Key="PhoneSurfaceElevatedBrush" Color="{StaticResource PhoneSurfaceElevated}" />
+    <SolidColorBrush x:Key="PhoneSurfaceHoverBrush" Color="{StaticResource PhoneSurfaceHover}" />
+    <SolidColorBrush x:Key="PhoneBorderBrush" Color="{StaticResource PhoneBorder}" />
+    <SolidColorBrush x:Key="PhoneAccentBrush" Color="{StaticResource PhoneAccent}" />
+    <SolidColorBrush x:Key="PhoneBrandBrush" Color="{StaticResource PhoneBrand}" />
+    <SolidColorBrush x:Key="PhoneBezelOuterBrush" Color="{StaticResource PhoneBezelOuter}" />
+    <SolidColorBrush x:Key="PhoneCardBorderBrush" Color="{StaticResource PhoneCardBorder}" />
+    <SolidColorBrush x:Key="PhoneDividerBrush" Color="{StaticResource PhoneDivider}" />
+    <SolidColorBrush x:Key="PhoneChipBgBrush" Color="{StaticResource PhoneChipBg}" />
+    <SolidColorBrush x:Key="PhoneNavActiveBgBrush" Color="{StaticResource PhoneNavActiveBg}" />
+    <SolidColorBrush x:Key="PhoneTextPrimaryBrush" Color="{StaticResource PhoneTextPrimary}" />
+    <SolidColorBrush x:Key="PhoneTextSecondaryBrush" Color="{StaticResource PhoneTextSecondary}" />
+    <SolidColorBrush x:Key="PhoneTextTertiaryBrush" Color="{StaticResource PhoneTextTertiary}" />
+
+</ResourceDictionary>
