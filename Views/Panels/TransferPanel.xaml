@@ -1,0 +1,49 @@
+<UserControl x:Class="CallAnalog.Softphone.Views.Panels.TransferPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Width="320">
+    <Border Style="{StaticResource ShellPanelBorder}">
+        <StackPanel>
+            <TextBlock Text="Transfer call"
+                       Style="{StaticResource TypeTitle}"
+                       Foreground="{StaticResource PhoneTextPrimaryBrush}"
+                       Margin="0,0,0,6"/>
+            <TextBlock Text="Blind transfer connects the caller to the target immediately."
+                       Style="{StaticResource TypeCaption}"
+                       Foreground="{StaticResource PhoneTextSecondaryBrush}"
+                       TextWrapping="Wrap"
+                       Margin="0,0,0,14"/>
+
+            <TextBlock Text="Transfer to" Style="{StaticResource SettingsLabel}"/>
+            <TextBox x:Name="TargetBox"
+                     Style="{StaticResource PhoneTextBox}"
+                     Margin="0,0,0,8"
+                     PreviewTextInput="TargetBox_PreviewTextInput"/>
+
+            <TextBlock x:Name="ErrorText"
+                       Style="{StaticResource TypeCaption}"
+                       Foreground="{StaticResource PhoneHangupRedBrush}"
+                       TextWrapping="Wrap"
+                       Visibility="Collapsed"
+                       Margin="0,0,0,10"/>
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0"
+                        Content="Cancel"
+                        Style="{StaticResource PhoneSecondaryButton}"
+                        Height="42"
+                        Click="CancelButton_Click"/>
+                <Button Grid.Column="2"
+                        Content="Transfer"
+                        Style="{StaticResource PhonePrimaryButton}"
+                        Height="42"
+                        Click="TransferButton_Click"/>
+            </Grid>
+        </StackPanel>
+    </Border>
+</UserControl>

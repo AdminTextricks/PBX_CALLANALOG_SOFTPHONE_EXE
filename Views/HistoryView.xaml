@@ -1,0 +1,219 @@
+<UserControl x:Class="CallAnalog.Softphone.Views.HistoryView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:CallAnalog.Softphone.Views.Controls">
+    <Grid Background="{StaticResource PhoneBgBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Grid Grid.Row="0" Margin="16,8,16,6">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock x:Name="HeaderTitleText"
+                       Text="Call History"
+                       Style="{StaticResource TypeTitle}"
+                       Foreground="{StaticResource PhoneTextPrimaryBrush}"
+                       VerticalAlignment="Center"/>
+            <Button x:Name="RefreshButton"
+                    Grid.Column="1"
+                    Style="{StaticResource HeaderIconButton}"
+                    ToolTip="Refresh"
+                    Margin="0,0,6,0"
+                    Click="RefreshButton_Click">
+                <TextBlock Text="&#x21BB;" FontSize="16" FontWeight="SemiBold"/>
+            </Button>
+            <Button x:Name="ClearFilterButton"
+                    Grid.Column="2"
+                    Style="{StaticResource PhoneSecondaryButton}"
+                    Content="Show All"
+                    Padding="10,6"
+                    FontSize="12"
+                    Visibility="Collapsed"
+                    Click="ClearFilterButton_Click"/>
+        </Grid>
+
+        <!-- Search -->
+        <Grid Grid.Row="1" Margin="16,0,16,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <controls:SearchField x:Name="SearchField"
+                                  Grid.Column="0"
+                                  Placeholder="Search calls..."/>
+            <Button Grid.Column="1"
+                    Content="Search"
+                    Style="{StaticResource PhonePrimaryButton}"
+                    Margin="8,0,0,0"
+                    Padding="14,8"
+                    FontSize="12"
+                    Click="SearchButton_Click"/>
+        </Grid>
+
+        <!-- History list -->
+        <Grid Grid.Row="2" Margin="12,0,12,0">
+            <Border x:Name="StickyDateHeaderBar"
+                    Background="{StaticResource PhoneBgBrush}"
+                    BorderBrush="{StaticResource PhoneDividerBrush}"
+                    BorderThickness="0,0,0,1"
+                    Padding="4,8,4,6"
+                    VerticalAlignment="Top"
+                    IsHitTestVisible="False"
+                    Visibility="Collapsed">
+                <TextBlock x:Name="StickyDateHeaderText" Style="{StaticResource HistoryDateHeader}" Margin="0"/>
+            </Border>
+
+            <ScrollViewer x:Name="HistoryScrollViewer"
+                          VerticalScrollBarVisibility="Auto"
+                          Style="{StaticResource PhoneScrollViewer}"
+                          ScrollChanged="HistoryScrollViewer_ScrollChanged">
+                <ItemsControl x:Name="HistoryList">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel>
+                                <TextBlock Text="{Binding HeaderText}"
+                                           Tag="{Binding HeaderText}">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource HistoryDateHeader}">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsHeader}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                                <Border BorderBrush="{StaticResource PhoneCardBorderBrush}"
+                                        BorderThickness="3,1,1,1"
+                                        CornerRadius="12"
+                                        Margin="0,0,0,8"
+                                        Padding="8,8">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="{StaticResource PhoneSurfaceElevatedBrush}"/>
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsHeader}" Value="True">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Record.HistoryTone}" Value="Answered">
+                                                    <Setter Property="Background" Value="{StaticResource HistoryAnsweredBgBrush}"/>
+                                                    <Setter Property="BorderBrush" Value="{StaticResource HistoryAnsweredBrush}"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Record.HistoryTone}" Value="Missed">
+                                                    <Setter Property="Background" Value="{StaticResource HistoryMissedBgBrush}"/>
+                                                    <Setter Property="BorderBrush" Value="{StaticResource HistoryMissedBrush}"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Record.HistoryTone}" Value="Cancel">
+                                                    <Setter Property="Background" Value="{StaticResource HistoryCancelBgBrush}"/>
+                                                    <Setter Property="BorderBrush" Value="{StaticResource HistoryCancelBrush}"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Record.HistoryTone}" Value="Outbound">
+                                                    <Setter Property="Background" Value="{StaticResource HistoryOutboundBgBrush}"/>
+                                                    <Setter Property="BorderBrush" Value="{StaticResource HistoryOutboundBrush}"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Record.HistoryTone}" Value="Inbound">
+                                                    <Setter Property="Background" Value="{StaticResource HistoryInboundBgBrush}"/>
+                                                    <Setter Property="BorderBrush" Value="{StaticResource HistoryInboundBrush}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <controls:AvatarCircle Grid.Column="0"
+                                                               Width="40" Height="40"
+                                                               DisplayName="{Binding Record.DisplayName}"
+                                                               Number="{Binding Record.DialNumber}"
+                                                               InitialsFontSize="13"
+                                                               Margin="0,0,10,0"/>
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                            <controls:HighlightTextBlock Text="{Binding Record.DisplayName}"
+                                                                         HighlightQuery="{Binding DataContext.SearchHighlightQuery, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                         TextStyle="{StaticResource ListItemPrimaryText}"/>
+                                            <controls:HighlightTextBlock Text="{Binding Record.Subtitle}"
+                                                                         HighlightQuery="{Binding DataContext.SearchHighlightQuery, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                         TextStyle="{StaticResource ListItemSecondaryText}"
+                                                                         Margin="0,3,0,0"/>
+                                            <TextBlock Text="{Binding Record.CallDate}"
+                                                       Style="{StaticResource ListItemMetaText}"
+                                                       Margin="0,3,0,0"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Button Style="{StaticResource ContactActionCallButton}"
+                                                    Tag="{Binding Record}"
+                                                    Click="DialRecordButton_Click"
+                                                    ToolTip="Call">
+                                                <controls:PackIcon IconKey="IconPhone" Style="{StaticResource ActionPackIcon}"/>
+                                            </Button>
+                                            <Button Style="{StaticResource ContactActionMessageButton}"
+                                                    Tag="{Binding Record}"
+                                                    Click="CopyRecordButton_Click"
+                                                    ToolTip="Copy number">
+                                                <controls:PackIcon IconKey="IconCopy" Style="{StaticResource ActionPackIcon}"/>
+                                            </Button>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+
+            <controls:SkeletonShimmer x:Name="HistorySkeleton"
+                                      RowCount="5"
+                                      Visibility="Collapsed"/>
+
+            <StackPanel x:Name="ErrorPanel"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Visibility="Collapsed">
+                <TextBlock x:Name="ErrorText"
+                           Style="{StaticResource TypeBody}"
+                           TextWrapping="Wrap"
+                           TextAlignment="Center"
+                           MaxWidth="280"
+                           Margin="0,0,0,12"/>
+                <Button Content="Retry"
+                        Style="{StaticResource PhonePrimaryButton}"
+                        Padding="16,10"
+                        Click="RetryButton_Click"/>
+            </StackPanel>
+
+            <controls:EmptyStateView x:Name="EmptyState"
+                                     HorizontalAlignment="Stretch"
+                                     VerticalAlignment="Stretch"
+                                     Visibility="Collapsed"/>
+        </Grid>
+
+        <!-- Status / load more -->
+        <StackPanel Grid.Row="3" Margin="16,4,16,8">
+            <TextBlock x:Name="StatusText"
+                       Text=""
+                       FontSize="11"
+                       Foreground="{StaticResource PhoneTextTertiaryBrush}"
+                       TextAlignment="Center"
+                       TextWrapping="Wrap"
+                       Margin="0,0,0,4"/>
+            <Button x:Name="LoadMoreButton"
+                    Style="{StaticResource PhoneSecondaryButton}"
+                    Content="Load more"
+                    Visibility="Collapsed"
+                    Click="LoadMoreButton_Click"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

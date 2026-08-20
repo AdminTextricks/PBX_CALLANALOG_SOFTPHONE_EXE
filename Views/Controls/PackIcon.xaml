@@ -1,0 +1,14 @@
+<UserControl x:Class="CallAnalog.Softphone.Views.Controls.PackIcon"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Name="Root"
+             Focusable="False">
+    <Viewbox Stretch="Uniform"
+             Width="{Binding IconSize, ElementName=Root}"
+             Height="{Binding IconSize, ElementName=Root}">
+        <Canvas Width="960" Height="960">
+            <Path x:Name="IconPath"
+                  Fill="{Binding Foreground, ElementName=Root}"/>
+        </Canvas>
+    </Viewbox>
+</UserControl>

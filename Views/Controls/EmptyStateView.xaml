@@ -1,0 +1,38 @@
+<UserControl x:Class="CallAnalog.Softphone.Views.Controls.EmptyStateView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:CallAnalog.Softphone.Views.Controls"
+             HorizontalAlignment="Stretch"
+             VerticalAlignment="Stretch">
+    <Grid HorizontalAlignment="Stretch"
+          VerticalAlignment="Stretch">
+        <StackPanel HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Margin="24,32">
+            <Border Width="68"
+                    Height="68"
+                    CornerRadius="34"
+                    Background="{StaticResource PhoneChipBgBrush}"
+                    Margin="0,0,0,16"
+                    HorizontalAlignment="Center">
+                <controls:PackIcon x:Name="StateIcon"
+                                   IconKey="IconDialpad"
+                                   IconSize="28"
+                                   Foreground="{StaticResource PhoneTextSecondaryBrush}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+            </Border>
+            <TextBlock x:Name="TitleText"
+                       Style="{StaticResource TypeTitle}"
+                       Foreground="{StaticResource PhoneTextPrimaryBrush}"
+                       TextAlignment="Center"
+                       Margin="0,0,0,8"/>
+            <TextBlock x:Name="MessageText"
+                       Style="{StaticResource TypeBody}"
+                       Foreground="{StaticResource PhoneTextSecondaryBrush}"
+                       TextAlignment="Center"
+                       TextWrapping="Wrap"
+                       MaxWidth="312"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

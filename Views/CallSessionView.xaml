@@ -1,0 +1,480 @@
+<UserControl x:Class="CallAnalog.Softphone.Views.CallSessionView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:CallAnalog.Softphone.Views.Controls">
+    <Grid Background="#CC0D1117">
+        <Border Background="#CC1C2526"
+                BorderBrush="#33FFFFFF"
+                BorderThickness="1"
+                CornerRadius="24"
+                Padding="20,18"
+                Margin="10,6"
+                VerticalAlignment="Stretch"
+                HorizontalAlignment="Stretch">
+            <Border.Effect>
+                <DropShadowEffect Color="#000000" BlurRadius="24" ShadowDepth="0" Opacity="0.45"/>
+            </Border.Effect>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel x:Name="DualCallBannerPanel"
+                            Grid.Row="0"
+                            Visibility="Collapsed"
+                            Margin="0,0,0,12">
+                    <Border x:Name="ActiveCallStrip"
+                            Background="{StaticResource PhoneSurfaceElevatedBrush}"
+                            BorderBrush="{StaticResource PhoneCardBorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="10"
+                            Padding="10,8"
+                            Margin="0,0,0,6">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Ellipse Width="8" Height="8"
+                                         Fill="{StaticResource PhoneCallGreenBrush}"
+                                         Margin="0,0,8,0"/>
+                                <TextBlock Text="On call"
+                                           FontSize="11"
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource PhoneTextSecondaryBrush}"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <TextBlock x:Name="ActiveCallStripText"
+                                       Grid.Column="1"
+                                       Text=""
+                                       FontSize="13"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource PhoneTextPrimaryBrush}"
+                                       VerticalAlignment="Center"
+                                       Margin="12,0,8,0"
+                                       TextTrimming="CharacterEllipsis"/>
+                            <TextBlock x:Name="ActiveCallStripDuration"
+                                       Grid.Column="2"
+                                       Text=""
+                                       FontSize="12"
+                                       Foreground="{StaticResource PhoneTextSecondaryBrush}"
+                                       VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+
+                    <Border x:Name="WaitingCallStrip"
+                            Background="{StaticResource PhoneSurfaceElevatedBrush}"
+                            BorderBrush="{StaticResource PhoneAccentBrush}"
+                            BorderThickness="1"
+                            CornerRadius="10"
+                            Padding="10,8">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid Grid.Row="0" Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="Waiting call"
+                                               FontSize="11"
+                                               FontWeight="SemiBold"
+                                               Foreground="{StaticResource PhoneAccentBrush}"
+                                               Margin="0,0,8,0"/>
+                                    <TextBlock x:Name="WaitingCallStripText"
+                                               Text=""
+                                               FontSize="13"
+                                               Foreground="{StaticResource PhoneTextPrimaryBrush}"
+                                               TextTrimming="CharacterEllipsis"/>
+                                </StackPanel>
+                            </Grid>
+                            <UniformGrid Grid.Row="1"
+                                         Rows="2"
+                                         Columns="2"
+                                         HorizontalAlignment="Stretch">
+                                <Button x:Name="AnswerWaitingButton"
+                                        Content="End first call then answer"
+                                        Style="{StaticResource PhonePrimaryButton}"
+                                        Height="36"
+                                        Margin="0,0,4,4"
+                                        Padding="8,0"
+                                        Click="AnswerWaitingButton_Click"/>
+                                <Button x:Name="DeclineWaitingButton"
+                                        Content="Decline"
+                                        Style="{StaticResource PhoneSecondaryButton}"
+                                        Height="36"
+                                        Margin="4,0,0,4"
+                                        Padding="8,0"
+                                        Click="DeclineWaitingButton_Click"/>
+                                <Button x:Name="HoldAnswerWaitingButton"
+                                        Content="Hold + Answer"
+                                        Style="{StaticResource PhoneSecondaryButton}"
+                                        Height="36"
+                                        Margin="0,4,4,0"
+                                        Padding="8,0"
+                                        Click="HoldAnswerWaitingButton_Click"/>
+                                <Button x:Name="SwitchCallsButton"
+                                        Content="Switch"
+                                        Style="{StaticResource PhoneSecondaryButton}"
+                                        Height="36"
+                                        Margin="4,4,0,0"
+                                        Padding="8,0"
+                                        Visibility="Collapsed"
+                                        Click="SwitchCallsButton_Click"/>
+                            </UniformGrid>
+                        </Grid>
+                    </Border>
+
+                    <Border x:Name="HeldCallStrip"
+                            Background="{StaticResource PhoneSurfaceElevatedBrush}"
+                            BorderBrush="{StaticResource PhoneCardBorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="10"
+                            Padding="10,8"
+                            Margin="0,6,0,0"
+                            Visibility="Collapsed">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="On hold"
+                                           FontSize="11"
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource PhoneTextSecondaryBrush}"
+                                           Margin="0,0,8,0"/>
+                                <TextBlock x:Name="HeldCallStripText"
+                                           Text=""
+                                           FontSize="13"
+                                           Foreground="{StaticResource PhoneTextPrimaryBrush}"
+                                           TextTrimming="CharacterEllipsis"/>
+                            </StackPanel>
+                            <Button x:Name="HeldCallSwitchButton"
+                                    Grid.Column="1"
+                                    Content="Switch"
+                                    Style="{StaticResource PhoneSecondaryButton}"
+                                    Height="32"
+                                    MinWidth="72"
+                                    Padding="10,0"
+                                    Click="SwitchCallsButton_Click"/>
+                        </Grid>
+                    </Border>
+                </StackPanel>
+
+            <ScrollViewer Grid.Row="1"
+                          Style="{StaticResource PhoneScrollViewer}"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled">
+                <StackPanel>
+                    <TextBlock x:Name="HeaderText"
+                               Text="Incoming Call"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource PhoneTextSecondaryBrush}"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,12"/>
+
+                    <!-- Avatar + pulse ring -->
+                    <Grid HorizontalAlignment="Center" Margin="0,0,0,16" Width="120" Height="120">
+                        <Ellipse x:Name="PulseRing"
+                                 Width="112" Height="112"
+                                 Stroke="{StaticResource PhoneCallGreenBrush}"
+                                 StrokeThickness="3"
+                                 Opacity="0.7"/>
+                        <Ellipse x:Name="PulseRingOuter"
+                                 Width="120" Height="120"
+                                 Stroke="{StaticResource PhoneCallGreenBrush}"
+                                 StrokeThickness="1.5"
+                                 Opacity="0.35"/>
+                        <controls:AvatarCircle x:Name="CallerAvatar"
+                                               Width="88" Height="88"
+                                               InitialsFontSize="28"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+                    </Grid>
+
+                    <!-- Ringing waveform (audio-reactive) -->
+                    <ItemsControl x:Name="RingingWavePanel"
+                                  HorizontalAlignment="Center"
+                                  Margin="0,0,0,14">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" Height="24"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Rectangle Width="3"
+                                           Fill="{StaticResource PhoneCallGreenBrush}"
+                                           Margin="2,0"
+                                           RadiusX="1"
+                                           RadiusY="1"
+                                           VerticalAlignment="Center"
+                                           Height="{Binding}"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <Grid x:Name="OutgoingSpinnerPanel"
+                          Width="72" Height="72"
+                          HorizontalAlignment="Center"
+                          Margin="0,4,0,12"
+                          Visibility="Collapsed">
+                        <Ellipse Style="{StaticResource LoadingSpinnerArc}">
+                            <Ellipse.Triggers>
+                                <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                                    <BeginStoryboard>
+                                        <Storyboard RepeatBehavior="Forever">
+                                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
+                                                             From="0" To="360" Duration="0:0:0.9"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                            </Ellipse.Triggers>
+                        </Ellipse>
+                    </Grid>
+
+                    <TextBlock x:Name="CallerNameText"
+                               Text=""
+                               Style="{StaticResource TypeHeroCaller}"
+                               TextAlignment="Center"
+                               TextWrapping="Wrap"
+                               Margin="0,0,0,6"/>
+
+                    <TextBlock x:Name="CallerNumberText"
+                               Text=""
+                               Style="{StaticResource TypeHeroNumber}"
+                               TextAlignment="Center"
+                               Margin="0,0,0,10"/>
+
+                    <TextBlock x:Name="StatusText"
+                               Text="Ringing..."
+                               FontSize="15"
+                               Foreground="{StaticResource PhoneTextSecondaryBrush}"
+                               TextAlignment="Center"
+                               Margin="0,0,0,16"
+                               Opacity="1">
+                        <TextBlock.Triggers>
+                            <EventTrigger RoutedEvent="Loaded">
+                                <BeginStoryboard x:Name="StatusFadeStoryboard">
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                         From="1" To="0.6" Duration="0:0:0.8"
+                                                         AutoReverse="True" RepeatBehavior="Forever"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                        </TextBlock.Triggers>
+                    </TextBlock>
+
+                    <Border x:Name="CallWaitingInlinePanel"
+                            Visibility="Collapsed"
+                            Background="{StaticResource PhoneSurfaceElevatedBrush}"
+                            BorderBrush="{StaticResource PhoneAccentBrush}"
+                            BorderThickness="1"
+                            CornerRadius="14"
+                            Padding="14,12"
+                            Margin="0,0,0,14">
+                        <StackPanel>
+                            <TextBlock Text="Second incoming call"
+                                       FontSize="12"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource PhoneAccentBrush}"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,0,0,6"/>
+                            <TextBlock x:Name="CallWaitingInlineCallerText"
+                                       Text=""
+                                       FontSize="16"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource PhoneTextPrimaryBrush}"
+                                       TextAlignment="Center"
+                                       TextWrapping="Wrap"
+                                       Margin="0,0,0,4"/>
+                            <TextBlock x:Name="CallWaitingInlineActiveText"
+                                       Text=""
+                                       FontSize="12"
+                                       Foreground="{StaticResource PhoneTextSecondaryBrush}"
+                                       TextAlignment="Center"
+                                       TextWrapping="Wrap"
+                                       Margin="0,0,0,12"/>
+                            <Button x:Name="AnswerWaitingInlineButton"
+                                    Content="End first call then answer"
+                                    Style="{StaticResource CallAnswerButton}"
+                                    HorizontalAlignment="Stretch"
+                                    Margin="0,0,0,8"
+                                    Click="AnswerWaitingButton_Click"/>
+                            <Button x:Name="DeclineWaitingInlineButton"
+                                    Content="Decline waiting call"
+                                    Style="{StaticResource CallDeclineButton}"
+                                    HorizontalAlignment="Stretch"
+                                    Margin="0,0,0,8"
+                                    Click="DeclineWaitingButton_Click"/>
+                            <Button x:Name="HoldAnswerWaitingInlineButton"
+                                    Content="Hold current + answer"
+                                    Style="{StaticResource PhoneSecondaryButton}"
+                                    HorizontalAlignment="Stretch"
+                                    Margin="0,0,0,8"
+                                    Click="HoldAnswerWaitingButton_Click"/>
+                            <Button x:Name="SwitchCallsInlineButton"
+                                    Content="Switch calls"
+                                    Style="{StaticResource PhoneSecondaryButton}"
+                                    HorizontalAlignment="Stretch"
+                                    Visibility="Collapsed"
+                                    Click="SwitchCallsButton_Click"/>
+                        </StackPanel>
+                    </Border>
+
+                    <StackPanel x:Name="NetworkQualityPanel" Visibility="Collapsed" Margin="0,0,0,12">
+                        <Grid Margin="0,0,0,4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Server reachability"
+                                       FontSize="11"
+                                       Foreground="{StaticResource PhoneTextTertiaryBrush}"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock x:Name="NetworkQualityLabelText"
+                                       Grid.Column="1"
+                                       Text="Good"
+                                       FontSize="11"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource PhoneTextSecondaryBrush}"
+                                       VerticalAlignment="Center"/>
+                        </Grid>
+                        <Grid Height="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="4"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="4"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="4"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border x:Name="NetworkBar1" Grid.Column="0" CornerRadius="2" Background="{StaticResource PhoneSurfaceElevatedBrush}"/>
+                            <Border x:Name="NetworkBar2" Grid.Column="2" CornerRadius="2" Background="{StaticResource PhoneSurfaceElevatedBrush}"/>
+                            <Border x:Name="NetworkBar3" Grid.Column="4" CornerRadius="2" Background="{StaticResource PhoneSurfaceElevatedBrush}"/>
+                            <Border x:Name="NetworkBar4" Grid.Column="6" CornerRadius="2" Background="{StaticResource PhoneSurfaceElevatedBrush}"/>
+                        </Grid>
+                        <TextBlock x:Name="NetworkLatencyText"
+                                   Text=""
+                                   FontSize="10"
+                                   Foreground="{StaticResource PhoneTextTertiaryBrush}"
+                                   HorizontalAlignment="Right"
+                                   Margin="0,4,0,0"/>
+                        <TextBlock x:Name="MediaQualityText"
+                                   Text=""
+                                   FontSize="10"
+                                   Foreground="{StaticResource PhoneTextTertiaryBrush}"
+                                   HorizontalAlignment="Right"
+                                   Margin="0,2,0,0"/>
+                    </StackPanel>
+
+                    <StackPanel x:Name="AudioMetersPanel" Visibility="Collapsed" Margin="0,0,0,12">
+                        <TextBlock Text="Incoming voice" FontSize="11" Foreground="{StaticResource PhoneTextTertiaryBrush}" Margin="0,0,0,4"/>
+                        <ProgressBar x:Name="IncomingLevelBar" Style="{StaticResource MicLevelBar}" Value="0" Margin="0,0,0,8"/>
+                        <TextBlock Text="Outgoing voice" FontSize="11" Foreground="{StaticResource PhoneTextTertiaryBrush}" Margin="0,0,0,4"/>
+                        <ProgressBar x:Name="OutgoingLevelBar" Style="{StaticResource MicLevelBar}" Value="0" Margin="0,0,0,10"/>
+                        <TextBlock Text="System speaker volume" FontSize="11" Foreground="{StaticResource PhoneTextTertiaryBrush}" Margin="0,0,0,4"/>
+                        <Slider x:Name="VolumeSlider" Minimum="0" Maximum="1" SmallChange="0.01" LargeChange="0.1" Margin="0,0,0,4"/>
+                    </StackPanel>
+
+                    <!-- iOS-style Answer / Decline -->
+                    <StackPanel x:Name="IncomingActionsPanel" Margin="0,8,0,0">
+                        <Button x:Name="AnswerButton"
+                                Content="Answer"
+                                Style="{StaticResource CallAnswerButton}"
+                                HorizontalAlignment="Stretch"
+                                Margin="0,0,0,10"
+                                Click="AnswerButton_Click"/>
+                        <Button x:Name="DeclineButton"
+                                Content="Decline"
+                                Style="{StaticResource CallDeclineButton}"
+                                HorizontalAlignment="Stretch"
+                                Click="DeclineButton_Click"/>
+                    </StackPanel>
+
+                    <Button x:Name="CancelOutgoingButton"
+                            Content="Cancel"
+                            Style="{StaticResource CallDeclineButton}"
+                            HorizontalAlignment="Stretch"
+                            Visibility="Collapsed"
+                            Click="CancelOutgoingButton_Click"/>
+
+                    <UniformGrid x:Name="ConnectedActionsPanel" Rows="2" Columns="2"
+                                 Visibility="Collapsed" Margin="0,0,0,8">
+                        <Button x:Name="HoldButton" Style="{StaticResource InCallIconButton}" Width="48" Height="48" ToolTip="Hold" Click="HoldButton_Click">
+                            <controls:PackIcon x:Name="HoldIcon" IconKey="IconHoldGeometry" Style="{StaticResource InCallPackIcon}"/>
+                        </Button>
+                        <Button x:Name="MuteButton" Style="{StaticResource InCallIconButton}" Width="48" Height="48" ToolTip="Mute microphone" Click="MuteButton_Click">
+                            <controls:PackIcon x:Name="MuteIcon" IconKey="IconMuteGeometry" Style="{StaticResource InCallPackIcon}"/>
+                        </Button>
+                        <Button x:Name="SpeakerMuteButton" Style="{StaticResource InCallIconButton}" Width="48" Height="48" ToolTip="Mute speaker" Click="SpeakerMuteButton_Click">
+                            <controls:PackIcon x:Name="SpeakerMuteIcon" IconKey="IconSpeakerGeometry" Style="{StaticResource InCallPackIcon}"/>
+                        </Button>
+                        <Button x:Name="RecordButton" Style="{StaticResource InCallIconButton}" Width="48" Height="48" ToolTip="Record call" Click="RecordButton_Click">
+                            <controls:PackIcon IconKey="IconRecordGeometry" Style="{StaticResource InCallPackIcon}"/>
+                        </Button>
+                    </UniformGrid>
+
+                    <StackPanel x:Name="ConnectedSecondaryPanel" Orientation="Horizontal"
+                                HorizontalAlignment="Center" Visibility="Collapsed" Margin="0,0,0,8">
+                        <Button x:Name="SwitchCallsSecondaryButton"
+                                Style="{StaticResource InCallActionButton}"
+                                MinWidth="120"
+                                Content="Switch calls"
+                                Visibility="Collapsed"
+                                Click="SwitchCallsButton_Click"/>
+                        <Button x:Name="TransferButton" Style="{StaticResource InCallActionButton}" MinWidth="88" Content="Transfer" Margin="8,3,0,3" Click="TransferButton_Click"/>
+                        <Button x:Name="KeypadToggleButton" Style="{StaticResource InCallActionButton}" MinWidth="88" Content="Keypad" Margin="8,3,0,3" Click="KeypadToggleButton_Click"/>
+                    </StackPanel>
+
+                    <Border x:Name="InCallKeypadPanel" Visibility="Collapsed"
+                            Background="{StaticResource PhoneSurfaceElevatedBrush}"
+                            BorderBrush="{StaticResource PhoneCardBorderBrush}"
+                            BorderThickness="1" CornerRadius="14" Padding="6,4" Margin="0,0,0,8">
+                        <StackPanel>
+                            <TextBlock x:Name="DtmfSentText"
+                                       Style="{StaticResource TypeCaption}"
+                                       Foreground="{StaticResource PhoneTextSecondaryBrush}"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,0,0,6"
+                                       Visibility="Collapsed"/>
+                            <UniformGrid Rows="4" Columns="3" HorizontalAlignment="Center">
+                            <Button Style="{StaticResource DialPadButton}" Width="52" Height="52" Margin="3" Tag="1" Click="DtmfButton_Click"><TextBlock Text="1" FontSize="18" FontWeight="Light"/></Button>
+                            <Button Style="{StaticResource DialPadButton}" Width="52" Height="52" Margin="3" Tag="2" Click="DtmfButton_Click"><TextBlock Text="2" FontSize="18" FontWeight="Light"/></Button>
+                            <Button Style="{StaticResource DialPadButton}" Width="52" Height="52" Margin="3" Tag="3" Click="DtmfButton_Click"><TextBlock Text="3" FontSize="18" FontWeight="Light"/></Button>
+                            <Button Style="{StaticResource DialPadButton}" Width="52" Height="52" Margin="3" Tag="4" Click="DtmfButton_Click"><TextBlock Text="4" FontSize="18" FontWeight="Light"/></Button>
+                            <Button Style="{StaticResource DialPadButton}" Width="52" Height="52" Margin="3" Tag="5" Click="DtmfButton_Click"><TextBlock Text="5" FontSize="18" FontWeight="Light"/></Button>
+                            <Button Style="{StaticResource DialPadButton}" Width="52" Height="52" Margin="3" Tag="6" Click="DtmfButton_Click"><TextBlock Text="6" FontSize="18" FontWeight="Light"/></Button>
+                            <Button Style="{StaticResource DialPadButton}" Width="52" Height="52" Margin="3" Tag="7" Click="DtmfButton_Click"><TextBlock Text="7" FontSize="18" FontWeight="Light"/></Button>
+                            <Button Style="{StaticResource DialPadButton}" Width="52" Height="52" Margin="3" Tag="8" Click="DtmfButton_Click"><TextBlock Text="8" FontSize="18" FontWeight="Light"/></Button>
+                            <Button Style="{StaticResource DialPadButton}" Width="52" Height="52" Margin="3" Tag="9" Click="DtmfButton_Click"><TextBlock Text="9" FontSize="18" FontWeight="Light"/></Button>
+                            <Button Style="{StaticResource DialPadButton}" Width="52" Height="52" Margin="3" Tag="*" Click="DtmfButton_Click"><TextBlock Text="*" FontSize="18" FontWeight="Light"/></Button>
+                            <Button Style="{StaticResource DialPadButton}" Width="52" Height="52" Margin="3" Tag="0" Click="DtmfButton_Click"><TextBlock Text="0" FontSize="18" FontWeight="Light"/></Button>
+                            <Button Style="{StaticResource DialPadButton}" Width="52" Height="52" Margin="3" Tag="#" Click="DtmfButton_Click"><TextBlock Text="#" FontSize="18" FontWeight="Light"/></Button>
+                            </UniformGrid>
+                        </StackPanel>
+                    </Border>
+
+                    <Button x:Name="EndCallButton"
+                            Content="End Call"
+                            Style="{StaticResource CallDeclineButton}"
+                            HorizontalAlignment="Stretch"
+                            Margin="0,4,0,0"
+                            Visibility="Collapsed"
+                            Click="EndCallButton_Click"/>
+                </StackPanel>
+            </ScrollViewer>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

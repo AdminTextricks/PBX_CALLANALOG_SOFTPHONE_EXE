@@ -1,0 +1,179 @@
+<UserControl x:Class="CallAnalog.Softphone.Views.DialpadView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:CallAnalog.Softphone.Views.Controls"
+             Focusable="True"
+             PreviewKeyDown="DialpadView_PreviewKeyDown">
+    <Grid Background="{StaticResource PhoneBgBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Button Grid.Row="0"
+                Content="&#x2039;  Back to Dashboard"
+                Style="{StaticResource DialPadBackLink}"
+                Margin="14,2,14,0"
+                Click="BackButton_Click"/>
+
+        <Border Grid.Row="1"
+                Margin="16,6,16,0"
+                Background="{StaticResource PhoneSurfaceElevatedBrush}"
+                BorderBrush="{StaticResource PhoneCardBorderBrush}"
+                BorderThickness="1"
+                CornerRadius="14"
+                Padding="8,6"
+                MinHeight="68">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBox x:Name="NumberBox"
+                         Grid.Row="0"
+                         Style="{StaticResource DialerNumberTextBox}"
+                         VerticalAlignment="Center"
+                         TextChanged="NumberBox_TextChanged"/>
+
+                <StackPanel Grid.Row="1"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                            Margin="0,2,0,0">
+                    <Button Style="{StaticResource DialPadToolButton}"
+                            ToolTip="Backspace (hold to clear)"
+                            PreviewMouseLeftButtonDown="BackspaceButton_PreviewMouseLeftButtonDown"
+                            PreviewMouseLeftButtonUp="BackspaceButton_PreviewMouseLeftButtonUp"
+                            Click="BackspaceButton_Click">
+                        <controls:PackIcon IconKey="IconBackspace" IconSize="16"/>
+                    </Button>
+                    <Rectangle Width="1" Height="16" Fill="{StaticResource PhoneDividerBrush}" Margin="6,0"/>
+                    <Button Content="Clear"
+                            Style="{StaticResource DialPadToolButton}"
+                            FontSize="11"
+                            MinWidth="48"
+                            Click="ClearButton_Click"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="2"
+              Margin="8,4,8,2"
+              VerticalAlignment="Center"
+              HorizontalAlignment="Center">
+            <Grid Width="260" Height="348">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="87"/>
+                    <RowDefinition Height="87"/>
+                    <RowDefinition Height="87"/>
+                    <RowDefinition Height="87"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="87"/>
+                    <ColumnDefinition Width="87"/>
+                    <ColumnDefinition Width="87"/>
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Row="0" Grid.Column="0" Style="{StaticResource DialPadButton}" Tag="1" Click="DigitButton_Click">
+                    <TextBlock Text="1" FontSize="31" FontWeight="Light"/>
+                </Button>
+                <Button Grid.Row="0" Grid.Column="1" Style="{StaticResource DialPadButton}" Tag="2" Click="DigitButton_Click">
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="2" FontSize="31" FontWeight="Light" HorizontalAlignment="Center"/>
+                        <TextBlock Text="ABC" FontSize="12" Foreground="{StaticResource PhoneTextTertiaryBrush}" HorizontalAlignment="Center" Margin="0,-2,0,0"/>
+                    </StackPanel>
+                </Button>
+                <Button Grid.Row="0" Grid.Column="2" Style="{StaticResource DialPadButton}" Tag="3" Click="DigitButton_Click">
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="3" FontSize="31" FontWeight="Light" HorizontalAlignment="Center"/>
+                        <TextBlock Text="DEF" FontSize="12" Foreground="{StaticResource PhoneTextTertiaryBrush}" HorizontalAlignment="Center" Margin="0,-2,0,0"/>
+                    </StackPanel>
+                </Button>
+
+                <Button Grid.Row="1" Grid.Column="0" Style="{StaticResource DialPadButton}" Tag="4" Click="DigitButton_Click">
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="4" FontSize="31" FontWeight="Light" HorizontalAlignment="Center"/>
+                        <TextBlock Text="GHI" FontSize="12" Foreground="{StaticResource PhoneTextTertiaryBrush}" HorizontalAlignment="Center" Margin="0,-2,0,0"/>
+                    </StackPanel>
+                </Button>
+                <Button Grid.Row="1" Grid.Column="1" Style="{StaticResource DialPadButton}" Tag="5" Click="DigitButton_Click">
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="5" FontSize="31" FontWeight="Light" HorizontalAlignment="Center"/>
+                        <TextBlock Text="JKL" FontSize="12" Foreground="{StaticResource PhoneTextTertiaryBrush}" HorizontalAlignment="Center" Margin="0,-2,0,0"/>
+                    </StackPanel>
+                </Button>
+                <Button Grid.Row="1" Grid.Column="2" Style="{StaticResource DialPadButton}" Tag="6" Click="DigitButton_Click">
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="6" FontSize="31" FontWeight="Light" HorizontalAlignment="Center"/>
+                        <TextBlock Text="MNO" FontSize="12" Foreground="{StaticResource PhoneTextTertiaryBrush}" HorizontalAlignment="Center" Margin="0,-2,0,0"/>
+                    </StackPanel>
+                </Button>
+
+                <Button Grid.Row="2" Grid.Column="0" Style="{StaticResource DialPadButton}" Tag="7" Click="DigitButton_Click">
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="7" FontSize="31" FontWeight="Light" HorizontalAlignment="Center"/>
+                        <TextBlock Text="PQRS" FontSize="12" Foreground="{StaticResource PhoneTextTertiaryBrush}" HorizontalAlignment="Center" Margin="0,-2,0,0"/>
+                    </StackPanel>
+                </Button>
+                <Button Grid.Row="2" Grid.Column="1" Style="{StaticResource DialPadButton}" Tag="8" Click="DigitButton_Click">
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="8" FontSize="31" FontWeight="Light" HorizontalAlignment="Center"/>
+                        <TextBlock Text="TUV" FontSize="12" Foreground="{StaticResource PhoneTextTertiaryBrush}" HorizontalAlignment="Center" Margin="0,-2,0,0"/>
+                    </StackPanel>
+                </Button>
+                <Button Grid.Row="2" Grid.Column="2" Style="{StaticResource DialPadButton}" Tag="9" Click="DigitButton_Click">
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="9" FontSize="31" FontWeight="Light" HorizontalAlignment="Center"/>
+                        <TextBlock Text="WXYZ" FontSize="12" Foreground="{StaticResource PhoneTextTertiaryBrush}" HorizontalAlignment="Center" Margin="0,-2,0,0"/>
+                    </StackPanel>
+                </Button>
+
+                <Button Grid.Row="3" Grid.Column="0" Style="{StaticResource DialPadButton}" Tag="*" Click="DigitButton_Click">
+                    <TextBlock Text="*" FontSize="31" FontWeight="Light"/>
+                </Button>
+                <Button Grid.Row="3" Grid.Column="1" Style="{StaticResource DialPadButton}" Tag="0"
+                        PreviewMouseLeftButtonDown="ZeroButton_PreviewMouseLeftButtonDown"
+                        PreviewMouseLeftButtonUp="ZeroButton_PreviewMouseLeftButtonUp"
+                        Click="DigitButton_Click">
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="0" FontSize="31" FontWeight="Light" HorizontalAlignment="Center"/>
+                        <TextBlock Text="+" FontSize="12" Foreground="{StaticResource PhoneTextTertiaryBrush}" HorizontalAlignment="Center" Margin="0,-2,0,0"/>
+                    </StackPanel>
+                </Button>
+                <Button Grid.Row="3" Grid.Column="2" Style="{StaticResource DialPadButton}" Tag="#" Click="DigitButton_Click">
+                    <TextBlock Text="#" FontSize="31" FontWeight="Light"/>
+                </Button>
+            </Grid>
+        </Grid>
+
+        <StackPanel Grid.Row="3" Margin="16,4,16,10">
+            <Button x:Name="CallActionButton"
+                    Style="{StaticResource DialPadCallButton}"
+                    HorizontalAlignment="Stretch"
+                    Click="CallActionButton_Click">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <controls:PackIcon x:Name="CallActionIcon" IconKey="IconPhone" IconSize="22" Foreground="White" Margin="0,0,8,0"/>
+                    <TextBlock x:Name="CallActionText" Text="Call" FontSize="16" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+
+            <Button x:Name="RedialButton"
+                    Style="{StaticResource DialPadRedialButton}"
+                    Content="Redial"
+                    HorizontalAlignment="Center"
+                    Margin="0,10,0,0"
+                    Click="RedialButton_Click"/>
+
+            <TextBlock x:Name="InCallStatusText"
+                       Text=""
+                       FontSize="11"
+                       TextAlignment="Center"
+                       TextWrapping="Wrap"
+                       Margin="0,8,0,0"/>
+        </StackPanel>
+
+        <TextBlock x:Name="RegistrationStatusText" Visibility="Collapsed"/>
+    </Grid>
+</UserControl>

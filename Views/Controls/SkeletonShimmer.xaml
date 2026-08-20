@@ -1,0 +1,5 @@
+<UserControl x:Class="CallAnalog.Softphone.Views.Controls.SkeletonShimmer"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel x:Name="RowsPanel" Margin="0,4,0,0"/>
+</UserControl>

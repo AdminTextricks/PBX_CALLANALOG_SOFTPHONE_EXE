@@ -1,0 +1,367 @@
+<UserControl x:Class="CallAnalog.Softphone.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:CallAnalog.Softphone.Views.Controls">
+    <Grid Background="{StaticResource PhoneBgBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="16,8,16,6">
+            <TextBlock Text="Settings"
+                       Style="{StaticResource TypeTitle}"
+                       Foreground="{StaticResource PhoneTextPrimaryBrush}"/>
+            <TextBlock Text="Device and call preferences"
+                       Style="{StaticResource TypeBody}"
+                       Foreground="{StaticResource PhoneTextSecondaryBrush}"
+                       Margin="0,2,0,0"/>
+        </StackPanel>
+
+        <TextBlock x:Name="StatusText"
+                   Grid.Row="1"
+                   Margin="16,0,16,8"
+                   Style="{StaticResource TypeBody}"
+                   Foreground="{StaticResource PhoneAccentBrush}"
+                   TextWrapping="Wrap"/>
+
+        <ScrollViewer Grid.Row="2"
+                      Style="{StaticResource PhoneScrollViewer}"
+                      Padding="16,0,12,8">
+            <StackPanel>
+                <StackPanel Style="{StaticResource SettingsSectionHeaderRow}">
+                    <controls:PackIcon IconKey="IconMicOn" Style="{StaticResource SettingsSectionPackIcon}"/>
+                    <TextBlock Text="AUDIO" Style="{StaticResource SettingsSectionHeaderInline}"/>
+                </StackPanel>
+                <Border Style="{StaticResource SettingsCard}">
+                    <StackPanel>
+                        <TextBlock Text="Microphone" Style="{StaticResource SettingsLabel}"/>
+                        <ComboBox x:Name="MicrophoneCombo"
+                                  Style="{StaticResource PhoneComboBox}"
+                                  SelectionChanged="AudioDeviceCombo_SelectionChanged"
+                                  Margin="0,0,0,4"/>
+                        <TextBlock x:Name="MicrophonePreviewText"
+                                   Style="{StaticResource SettingsDevicePreview}"
+                                   Margin="0,0,0,12"/>
+                        <TextBlock Text="Speaker" Style="{StaticResource SettingsLabel}"/>
+                        <ComboBox x:Name="SpeakerCombo"
+                                  Style="{StaticResource PhoneComboBox}"
+                                  SelectionChanged="AudioDeviceCombo_SelectionChanged"
+                                  Margin="0,0,0,4"/>
+                        <TextBlock x:Name="SpeakerPreviewText"
+                                   Style="{StaticResource SettingsDevicePreview}"
+                                   Margin="0,0,0,12"/>
+                        <TextBlock Text="Ringtone Device" Style="{StaticResource SettingsLabel}"/>
+                        <ComboBox x:Name="RingtoneCombo"
+                                  Style="{StaticResource PhoneComboBox}"
+                                  SelectionChanged="AudioDeviceCombo_SelectionChanged"
+                                  Margin="0,0,0,4"/>
+                        <TextBlock x:Name="RingtonePreviewText"
+                                   Style="{StaticResource SettingsDevicePreview}"
+                                   Margin="0,0,0,12"/>
+                        <TextBlock Text="Input Volume" Style="{StaticResource SettingsLabel}"/>
+                        <Slider x:Name="InputVolumeSlider" Minimum="0" Maximum="1"
+                                SmallChange="0.01" LargeChange="0.1" Margin="0,0,0,4"/>
+                        <TextBlock Text="Applied to the microphone on the next call."
+                                   Style="{StaticResource TypeCaption}"
+                                   Foreground="{StaticResource PhoneTextTertiaryBrush}"
+                                   Margin="0,0,0,12"/>
+                        <TextBlock Text="System speaker volume" Style="{StaticResource SettingsLabel}"/>
+                        <Slider x:Name="OutputVolumeSlider" Minimum="0" Maximum="1"
+                                SmallChange="0.01" LargeChange="0.1" Margin="0,0,0,4"/>
+                        <TextBlock Text="Adjusts Windows system volume for the selected speaker device."
+                                   Style="{StaticResource TypeCaption}"
+                                   Foreground="{StaticResource PhoneTextTertiaryBrush}"
+                                   Margin="0,0,0,12"/>
+
+                        <TextBlock Text="Mic level" Style="{StaticResource SettingsLabel}"/>
+                        <ProgressBar x:Name="MicLevelBar"
+                                     Style="{StaticResource MicLevelBar}"
+                                     Height="16"
+                                     Value="0"
+                                     Margin="0,0,0,10"/>
+
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="Test Mic"
+                                    Style="{StaticResource PhoneSecondaryButton}"
+                                    Margin="0,0,6,0"
+                                    Padding="12,10"
+                                    Click="TestMicButton_Click"/>
+                            <Button Content="Test Speaker"
+                                    Style="{StaticResource PhoneSecondaryButton}"
+                                    Margin="0,0,6,0"
+                                    Padding="12,10"
+                                    Click="TestSpeakerButton_Click"/>
+                            <Button Content="Stop"
+                                    Style="{StaticResource PhoneSecondaryButton}"
+                                    Padding="12,10"
+                                    Click="StopAudioTestButton_Click"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <StackPanel Style="{StaticResource SettingsSectionHeaderRow}">
+                    <controls:PackIcon IconKey="IconPerson" Style="{StaticResource SettingsSectionPackIcon}"/>
+                    <TextBlock Text="ACCOUNT" Style="{StaticResource SettingsSectionHeaderInline}"/>
+                </StackPanel>
+                <Border Style="{StaticResource SettingsCard}">
+                    <StackPanel>
+                        <CheckBox x:Name="StartWithWindowsCheckBox"
+                                  Content="Start with Windows"
+                                  Style="{StaticResource PhoneToggleSwitch}"
+                                  Margin="0,0,0,8"/>
+                        <CheckBox x:Name="DarkModeCheckBox"
+                                  Content="Dark mode"
+                                  Style="{StaticResource PhoneToggleSwitch}"
+                                  Margin="0,0,0,8"
+                                  Checked="ThemeSetting_Changed"
+                                  Unchecked="ThemeSetting_Changed"/>
+                        <CheckBox x:Name="FollowSystemThemeCheckBox"
+                                  Content="Follow Windows theme"
+                                  Style="{StaticResource PhoneToggleSwitch}"
+                                  Margin="0,0,0,12"
+                                  Checked="ThemeSetting_Changed"
+                                  Unchecked="ThemeSetting_Changed"/>
+                    </StackPanel>
+                </Border>
+                <TextBlock Text="Configured by your carrier at login."
+                           Foreground="{StaticResource PhoneTextSecondaryBrush}"
+                           Style="{StaticResource TypeCaption}"
+                           TextWrapping="Wrap"
+                           Margin="16,0,16,8"/>
+                <Border Style="{StaticResource SettingsCard}">
+                    <StackPanel>
+                        <TextBlock Text="Carrier / PBX Host" Style="{StaticResource SettingsLabel}"/>
+                        <TextBlock x:Name="CarrierHostText" Style="{StaticResource SettingsValue}" Margin="0,0,0,12"/>
+                        <TextBlock Text="SIP Port" Style="{StaticResource SettingsLabel}"/>
+                        <TextBlock x:Name="SipPortText" Style="{StaticResource SettingsValue}" Margin="0,0,0,12"/>
+                        <TextBlock Text="Register request (seconds)" Style="{StaticResource SettingsLabel}"/>
+                        <TextBox x:Name="RegisterRequestBox"
+                                 Style="{StaticResource PhoneTextBox}"
+                                 MaxLength="6"
+                                 Margin="0,0,0,12"/>
+                        <TextBlock Text="Keep alive (seconds)" Style="{StaticResource SettingsLabel}"/>
+                        <TextBox x:Name="KeepAliveBox"
+                                 Style="{StaticResource PhoneTextBox}"
+                                 MaxLength="4"
+                                 Margin="0,0,0,12"/>
+                        <TextBlock Text="Transport" Style="{StaticResource SettingsLabel}"/>
+                        <ComboBox x:Name="TransportCombo" Style="{StaticResource PhoneComboBox}" Margin="0,0,0,12">
+                            <ComboBoxItem Content="TCP"/>
+                            <ComboBoxItem Content="UDP"/>
+                        </ComboBox>
+                        <Button Content="Save Transport"
+                                Style="{StaticResource PhonePrimaryButton}"
+                                Padding="12,10"
+                                Click="SaveTransportButton_Click"/>
+                    </StackPanel>
+                </Border>
+
+                <StackPanel Style="{StaticResource SettingsSectionHeaderRow}">
+                    <controls:PackIcon IconKey="IconPhone" Style="{StaticResource SettingsSectionPackIcon}"/>
+                    <TextBlock Text="CALLS" Style="{StaticResource SettingsSectionHeaderInline}"/>
+                </StackPanel>
+                <Border Style="{StaticResource SettingsCard}">
+                    <StackPanel>
+                        <TextBlock Text="Hold Music" Style="{StaticResource SettingsLabel}"/>
+                        <TextBlock x:Name="HoldMusicPathText" Style="{StaticResource SettingsValue}" Margin="0,0,0,8"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                            <Button Content="Upload Hold Music"
+                                    Style="{StaticResource PhoneSecondaryButton}"
+                                    Padding="12,10"
+                                    Margin="0,0,8,0"
+                                    Click="UploadHoldMusicButton_Click"/>
+                            <Button Content="Remove"
+                                    Style="{StaticResource PhoneSecondaryButton}"
+                                    Padding="12,10"
+                                    Click="RemoveHoldMusicButton_Click"/>
+                        </StackPanel>
+                        <TextBlock Text="Ringtone" Style="{StaticResource SettingsLabel}"/>
+                        <TextBlock x:Name="RingtonePathText" Style="{StaticResource SettingsValue}" Margin="0,0,0,8"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="Upload Ringtone"
+                                    Style="{StaticResource PhoneSecondaryButton}"
+                                    Padding="12,10"
+                                    Margin="0,0,8,0"
+                                    Click="UploadRingtoneButton_Click"/>
+                            <Button Content="Remove"
+                                    Style="{StaticResource PhoneSecondaryButton}"
+                                    Padding="12,10"
+                                    Click="RemoveRingtoneButton_Click"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <TextBlock Text="CALL HANDLING" Style="{StaticResource SettingsSubsectionHeader}"/>
+                <Border Style="{StaticResource SettingsCard}">
+                    <StackPanel>
+                        <TextBlock Text="Do Not Disturb and Auto Answer are local to this softphone only. They do not sync with your PBX or other devices."
+                                   Style="{StaticResource TypeCaption}"
+                                   Foreground="{StaticResource PhoneTextSecondaryBrush}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,8"/>
+                        <TextBlock Text="Use the dashboard toggles to enable DND or Auto Answer on this device."
+                                   Style="{StaticResource TypeCaption}"
+                                   Foreground="{StaticResource PhoneTextTertiaryBrush}"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+
+                <TextBlock Text="VOICE QUALITY" Style="{StaticResource SettingsSubsectionHeader}"/>
+                <Border Style="{StaticResource SettingsCard}">
+                    <StackPanel>
+                        <TextBlock Text="Tune capture and playback for your network. Defaults are safe for most agents."
+                                   Style="{StaticResource TypeCaption}"
+                                   Foreground="{StaticResource PhoneTextSecondaryBrush}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,10"/>
+                        <TextBlock Text="Voice profile" Style="{StaticResource SettingsLabel}"/>
+                        <ComboBox x:Name="VoiceProfileCombo" Style="{StaticResource PhoneComboBox}" Margin="0,0,0,12">
+                            <ComboBoxItem Content="Low latency" Tag="LowLatency"/>
+                            <ComboBoxItem Content="Balanced" Tag="Balanced"/>
+                            <ComboBoxItem Content="Stable (Wi-Fi)" Tag="StableWifi"/>
+                        </ComboBox>
+                        <TextBlock Text="Echo control" Style="{StaticResource SettingsLabel}"/>
+                        <ComboBox x:Name="VoiceEchoCombo" Style="{StaticResource PhoneComboBox}" Margin="0,0,0,12">
+                            <ComboBoxItem Content="Off" Tag="Off"/>
+                            <ComboBoxItem Content="On" Tag="On"/>
+                            <ComboBoxItem Content="Strong (speakerphone)" Tag="Strong"/>
+                        </ComboBox>
+                        <TextBlock Text="Noise reduction" Style="{StaticResource SettingsLabel}"/>
+                        <ComboBox x:Name="VoiceNoiseCombo" Style="{StaticResource PhoneComboBox}" Margin="0,0,0,12">
+                            <ComboBoxItem Content="Off" Tag="Off"/>
+                            <ComboBoxItem Content="Low" Tag="Low"/>
+                            <ComboBoxItem Content="High" Tag="High"/>
+                        </ComboBox>
+                        <CheckBox x:Name="VoiceAutoGainCheckBox"
+                                  Content="Automatic gain control"
+                                  Style="{StaticResource PhoneCheckBox}"
+                                  Margin="0,0,0,8"/>
+                        <CheckBox x:Name="VoicePreferOpusCheckBox"
+                                  Content="Prefer Opus when PBX supports it (falls back to G.711)"
+                                  Style="{StaticResource PhoneCheckBox}"/>
+                    </StackPanel>
+                </Border>
+
+                <TextBlock Text="CODEC" Style="{StaticResource SettingsSubsectionHeader}"/>
+                <Border Style="{StaticResource SettingsCard}">
+                    <StackPanel>
+                        <TextBlock Text="Supported codecs for this softphone build. Opus is offered only when Prefer Opus is enabled above."
+                                   Style="{StaticResource TypeCaption}"
+                                   Foreground="{StaticResource PhoneTextSecondaryBrush}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,10"/>
+                        <CheckBox x:Name="CodecPcmuCheckBox" Content="G.711 μ-law (PCMU)" Style="{StaticResource PhoneCheckBox}" Margin="0,0,0,8"/>
+                        <CheckBox x:Name="CodecPcmaCheckBox" Content="G.711 A-law (PCMA)" Style="{StaticResource PhoneCheckBox}"/>
+                    </StackPanel>
+                </Border>
+
+                <TextBlock Text="RECORDING" Style="{StaticResource SettingsSubsectionHeader}"/>
+                <Border Style="{StaticResource SettingsCard}">
+                    <StackPanel>
+                        <CheckBox x:Name="CallRecordingCheckBox"
+                                  Content="Enable local call recording"
+                                  Style="{StaticResource PhoneCheckBox}"
+                                  Margin="0,0,0,8"/>
+                        <TextBlock Text="Records a mixed WAV/MP3 of both legs — your microphone and the remote caller on this device. PBX recording is separate."
+                                   Foreground="{StaticResource PhoneTextSecondaryBrush}"
+                                   Style="{StaticResource TypeCaption}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,8"/>
+                        <TextBlock Text="PBX call recording is controlled by your phone system. This toggle only enables recording on this device."
+                                   Foreground="{StaticResource PhoneTextSecondaryBrush}"
+                                   Style="{StaticResource TypeCaption}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,8"/>
+                        <TextBlock Text="Recording format" Style="{StaticResource SettingsLabel}"/>
+                        <ComboBox x:Name="RecordingFormatCombo" Style="{StaticResource PhoneComboBox}" Margin="0,0,0,12">
+                            <ComboBoxItem Content="WAV"/>
+                            <ComboBoxItem Content="MP3"/>
+                        </ComboBox>
+                        <TextBlock Text="Saved in the selected folder."
+                                   Foreground="{StaticResource PhoneTextSecondaryBrush}"
+                                   Style="{StaticResource TypeCaption}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,8"/>
+                        <TextBlock x:Name="RecordingFolderText" Style="{StaticResource SettingsValue}" Margin="0,0,0,8"/>
+                        <Button Content="Choose Folder"
+                                Style="{StaticResource PhoneSecondaryButton}"
+                                Padding="12,10"
+                                HorizontalAlignment="Left"
+                                Click="ChooseRecordingFolderButton_Click"/>
+                    </StackPanel>
+                </Border>
+
+                <StackPanel Style="{StaticResource SettingsSectionHeaderRow}">
+                    <controls:PackIcon IconKey="IconSettings" Style="{StaticResource SettingsSectionPackIcon}"/>
+                    <TextBlock Text="SUPPORT" Style="{StaticResource SettingsSectionHeaderInline}"/>
+                </StackPanel>
+                <Border Style="{StaticResource SettingsCard}">
+                    <StackPanel>
+                        <CheckBox x:Name="CrashReportCheckBox"
+                                  Content="Save crash reports locally"
+                                  Style="{StaticResource PhoneCheckBox}"
+                                  Margin="0,0,0,8"/>
+                        <TextBlock x:Name="CrashReportNoteText"
+                                   Text="Local logs only — email delivery is not configured."
+                                   Style="{StaticResource TypeCaption}"
+                                   Foreground="{StaticResource PhoneTextSecondaryBrush}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,12"/>
+                        <TextBlock Text="Crash report email" Style="{StaticResource SettingsLabel}"/>
+                        <TextBlock Text="help@callanalog.com"
+                                   Style="{StaticResource SettingsValue}"
+                                   Margin="0,0,0,12"/>
+                        <Button Content="Check for Updates"
+                                Style="{StaticResource PhoneSecondaryButton}"
+                                Padding="12,10"
+                                HorizontalAlignment="Left"
+                                Margin="0,0,0,8"
+                                Click="CheckUpdatesButton_Click"/>
+                        <TextBlock x:Name="VersionInfoText"
+                                   Style="{StaticResource SettingsValue}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,12"/>
+                        <Button Content="Export Diagnostics"
+                                Style="{StaticResource PhoneSecondaryButton}"
+                                Padding="12,10"
+                                HorizontalAlignment="Left"
+                                Margin="0,0,0,8"
+                                Click="ExportDiagnosticsButton_Click"/>
+                        <Button Content="Open SIP Log"
+                                Style="{StaticResource PhoneSecondaryButton}"
+                                Padding="12,10"
+                                HorizontalAlignment="Left"
+                                Margin="0,0,0,8"
+                                Click="OpenSipLogButton_Click"/>
+                        <Button Content="Open Logs Folder"
+                                Style="{StaticResource PhoneSecondaryButton}"
+                                Padding="12,10"
+                                HorizontalAlignment="Left"
+                                Margin="0,0,0,8"
+                                Click="OpenLogsFolderButton_Click"/>
+                        <Button Content="Help — callanalog.com"
+                                Style="{StaticResource PhoneSecondaryButton}"
+                                Padding="12,10"
+                                HorizontalAlignment="Left"
+                                Click="OpenHelpButton_Click"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <Border Grid.Row="3"
+                BorderBrush="{StaticResource PhoneDividerBrush}"
+                BorderThickness="0,1,0,0"
+                Padding="16,10">
+            <Button x:Name="SaveAllButton"
+                    Content="Save All"
+                    Style="{StaticResource PhonePrimaryButton}"
+                    Padding="14,12"
+                    HorizontalAlignment="Stretch"
+                    Click="SaveAllButton_Click"/>
+        </Border>
+    </Grid>
+</UserControl>

@@ -1,0 +1,14 @@
+<UserControl x:Class="CallAnalog.Softphone.Views.Controls.AvatarCircle"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <Ellipse x:Name="BackgroundEllipse"
+                 Fill="{StaticResource PhoneAccentBrush}"/>
+        <TextBlock x:Name="InitialsText"
+                   FontSize="16"
+                   FontWeight="SemiBold"
+                   Foreground="White"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"/>
+    </Grid>
+</UserControl>
