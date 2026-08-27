@@ -475,12 +475,12 @@
                           Panel.ZIndex="100">
                         <Border Background="#CC0D1117"/>
                         <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                      Padding="16,12"
+                                      Padding="10,10"
                                       HorizontalScrollBarVisibility="Disabled">
                             <ContentControl x:Name="ShellOverlayContent"
                                             HorizontalAlignment="Center"
                                             VerticalAlignment="Center"
-                                            MaxWidth="442"/>
+                                            MaxWidth="260"/>
                         </ScrollViewer>
                     </Grid>
                 </Grid>

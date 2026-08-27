@@ -1,49 +1,96 @@
 <UserControl x:Class="CallAnalog.Softphone.Views.Panels.ContactFormPanel"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             Width="268">
-    <Border Style="{StaticResource ShellPanelBorder}">
-        <StackPanel>
-            <TextBlock x:Name="TitleText"
-                       Style="{StaticResource TypeTitle}"
-                       Foreground="{StaticResource PhoneTextPrimaryBrush}"
-                       Margin="0,0,0,14"/>
+             xmlns:controls="clr-namespace:CallAnalog.Softphone.Views.Controls"
+             MinWidth="0"
+             MaxWidth="252"
+             MaxHeight="420"
+             HorizontalAlignment="Stretch"
+             VerticalAlignment="Center">
+    <Border Background="{StaticResource PhoneSurfaceBrush}"
+            BorderBrush="{StaticResource PhoneBorderBrush}"
+            BorderThickness="1"
+            CornerRadius="16"
+            Padding="12">
+        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      MaxHeight="396">
+            <StackPanel>
+                <Grid Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock x:Name="TitleText"
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource PhoneTextPrimaryBrush}"
+                               VerticalAlignment="Center"
+                               TextWrapping="Wrap"/>
+                    <Button Grid.Column="1"
+                            Width="22" Height="22"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Cursor="Hand"
+                            ToolTip="Close"
+                            Click="CancelButton_Click">
+                        <controls:PackIcon IconKey="IconSfXmarkCircleFill" IconSize="14"
+                                           Foreground="{StaticResource PhoneTextSecondaryBrush}"/>
+                    </Button>
+                </Grid>
 
-            <TextBlock Text="Name" Style="{StaticResource SettingsLabel}"/>
-            <TextBox x:Name="NameBox" Style="{StaticResource PhoneTextBox}" Margin="0,0,0,10"/>
+                <TextBlock Text="Name"
+                           FontSize="11"
+                           Foreground="{StaticResource PhoneTextSecondaryBrush}"
+                           Margin="0,0,0,4"/>
+                <TextBox x:Name="NameBox"
+                         Style="{StaticResource PhoneTextBox}"
+                         FontSize="12"
+                         Padding="9,6"
+                         Margin="0,0,0,8"/>
 
-            <TextBlock Text="Number" Style="{StaticResource SettingsLabel}"/>
-            <TextBox x:Name="NumberBox"
-                     Style="{StaticResource PhoneTextBox}"
-                     Margin="0,0,0,8"
-                     PreviewTextInput="NumberBox_PreviewTextInput"
-                     DataObject.Pasting="NumberBox_Pasting"/>
+                <TextBlock Text="Phone"
+                           FontSize="11"
+                           Foreground="{StaticResource PhoneTextSecondaryBrush}"
+                           Margin="0,0,0,4"/>
+                <TextBox x:Name="NumberBox"
+                         Style="{StaticResource PhoneTextBox}"
+                         FontSize="12"
+                         Padding="9,6"
+                         Margin="0,0,0,8"
+                         PreviewTextInput="NumberBox_PreviewTextInput"
+                         DataObject.Pasting="NumberBox_Pasting"/>
 
-            <TextBlock x:Name="ErrorText"
-                       Style="{StaticResource TypeCaption}"
-                       Foreground="{StaticResource PhoneHangupRedBrush}"
-                       TextWrapping="Wrap"
-                       Visibility="Collapsed"
-                       Margin="0,0,0,10"/>
+                <TextBlock x:Name="ErrorText"
+                           FontSize="11"
+                           Foreground="{StaticResource PhoneHangupRedBrush}"
+                           TextWrapping="Wrap"
+                           Visibility="Collapsed"
+                           Margin="0,0,0,8"/>
 
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="12"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <Button Grid.Column="0"
-                        Content="Cancel"
-                        Style="{StaticResource PhoneSecondaryButton}"
-                        Height="38"
-                        Click="CancelButton_Click"/>
-                <Button Grid.Column="2"
-                        x:Name="SaveButton"
-                        Content="Save"
-                        Style="{StaticResource PhonePrimaryButton}"
-                        Height="38"
-                        Click="SaveButton_Click"/>
-            </Grid>
-        </StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0"
+                            Content="Cancel"
+                            Style="{StaticResource PhoneSecondaryButton}"
+                            FontSize="12"
+                            Padding="10,6"
+                            MinHeight="32"
+                            Click="CancelButton_Click"/>
+                    <Button Grid.Column="2"
+                            x:Name="SaveButton"
+                            Content="Save"
+                            Style="{StaticResource PhonePrimaryButton}"
+                            FontSize="12"
+                            Padding="10,6"
+                            MinHeight="32"
+                            Click="SaveButton_Click"/>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
     </Border>
 </UserControl>

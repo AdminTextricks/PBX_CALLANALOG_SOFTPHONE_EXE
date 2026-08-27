@@ -177,7 +177,7 @@
         <Grid Grid.Row="2">
             <ScrollViewer x:Name="HistoryScrollViewer"
                           VerticalScrollBarVisibility="Auto"
-                          Style="{StaticResource PhoneScrollViewer}">
+                          Style="{StaticResource ThinListScrollViewer}">
                 <ItemsControl x:Name="HistoryList">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>

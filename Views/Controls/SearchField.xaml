@@ -4,22 +4,32 @@
              xmlns:controls="clr-namespace:CallAnalog.Softphone.Views.Controls"
              x:Name="Root">
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <controls:PackIcon IconKey="IconSfMagnifyingGlass"
+                           IconSize="11"
+                           Foreground="{StaticResource PhoneTextSecondaryBrush}"
+                           VerticalAlignment="Center"
+                           Margin="0,0,6,0"
+                           IsHitTestVisible="False"/>
         <TextBox x:Name="InputBox"
-                 Style="{StaticResource PhoneTextBox}"
+                 Grid.Column="1"
+                 BorderThickness="0"
+                 Background="Transparent"
+                 FontSize="12"
+                 Foreground="{StaticResource PhoneTextPrimaryBrush}"
+                 CaretBrush="{StaticResource PhoneTextPrimaryBrush}"
+                 Padding="0"
+                 VerticalAlignment="Center"
                  Cursor="IBeam"
-                 Padding="32,8,12,8"
                  Text="{Binding Query, ElementName=Root, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                  KeyDown="InputBox_KeyDown"/>
-        <controls:PackIcon IconKey="IconSearch"
-                           Style="{StaticResource SearchPackIcon}"
-                           Margin="12,0,0,0"
-                           HorizontalAlignment="Left"
-                           VerticalAlignment="Center"
-                           IsHitTestVisible="False"/>
-        <TextBlock Text="{Binding Placeholder, ElementName=Root}"
+        <TextBlock Grid.Column="1"
+                   Text="{Binding Placeholder, ElementName=Root}"
                    Foreground="{StaticResource PhoneTextTertiaryBrush}"
-                   FontSize="13"
-                   Margin="32,0,0,0"
+                   FontSize="12"
                    VerticalAlignment="Center"
                    IsHitTestVisible="False">
             <TextBlock.Style>
