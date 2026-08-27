@@ -353,6 +353,53 @@
         <Setter Property="VerticalContentAlignment" Value="Center" />
     </Style>
 
+    <Style x:Key="LoginRememberMeCheckBox" TargetType="CheckBox">
+        <Setter Property="Foreground" Value="{StaticResource PhoneTextSecondaryBrush}" />
+        <Setter Property="FontFamily" Value="{StaticResource PhoneUiFont}" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <StackPanel Orientation="Horizontal">
+                        <Border x:Name="Box"
+                                Width="13"
+                                Height="13"
+                                CornerRadius="3"
+                                BorderThickness="1"
+                                BorderBrush="{StaticResource PhoneBorderBrush}"
+                                Background="Transparent"
+                                VerticalAlignment="Center">
+                            <Path x:Name="CheckMark"
+                                  Data="M1,6.5 L4.5,10 L12,2"
+                                  Stroke="White"
+                                  StrokeThickness="1.6"
+                                  StrokeStartLineCap="Round"
+                                  StrokeEndLineCap="Round"
+                                  StrokeLineJoin="Round"
+                                  Stretch="Uniform"
+                                  Margin="1.5"
+                                  Visibility="Collapsed" />
+                        </Border>
+                        <ContentPresenter Margin="8,0,0,0"
+                                          VerticalAlignment="Center"
+                                          RecognizesAccessKey="True" />
+                    </StackPanel>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Box" Property="Background" Value="{StaticResource PhoneAccentBrush}" />
+                            <Setter TargetName="Box" Property="BorderBrush" Value="{StaticResource PhoneAccentBrush}" />
+                            <Setter TargetName="CheckMark" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <Style x:Key="DashboardDialpadHeroButton" TargetType="Button">
         <Setter Property="Background" Value="{StaticResource PhoneCallGreenBrush}" />
         <Setter Property="Foreground" Value="White" />

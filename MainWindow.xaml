@@ -96,21 +96,13 @@
                                           Style="{StaticResource PhoneScrollViewer}"
                                           VerticalScrollBarVisibility="Auto"
                                           Padding="24,12,24,8">
-                                <StackPanel VerticalAlignment="Center" MaxWidth="416">
+                                <StackPanel VerticalAlignment="Center" MaxWidth="372">
 
                                     <Image Source="pack://siteoforigin:,,,/Assets/logo.png"
                                            Height="56"
                                            Stretch="Uniform"
                                            HorizontalAlignment="Center"
                                            Margin="0,16,0,12" />
-
-                                    <TextBlock Text="CallAnalog"
-                                               FontFamily="{StaticResource PhoneDisplayFont}"
-                                               FontSize="28"
-                                               FontWeight="SemiBold"
-                                               Foreground="{StaticResource PhoneBrandBrush}"
-                                               HorizontalAlignment="Center"
-                                               Margin="0,0,0,6" />
 
                                     <TextBlock Text="Sign in to your extension"
                                                FontFamily="{StaticResource PhoneUiFont}"
@@ -120,6 +112,7 @@
                                                Margin="0,0,0,28" />
 
                                     <TextBlock Text="Extension Number"
+                                               FontFamily="{StaticResource PhoneUiFont}"
                                                Foreground="{StaticResource PhoneTextSecondaryBrush}"
                                                FontSize="13"
                                                Margin="0,0,0,6" />
@@ -130,6 +123,7 @@
                                              PreviewTextInput="ExtensionBox_PreviewTextInput" />
 
                                     <TextBlock Text="Password"
+                                               FontFamily="{StaticResource PhoneUiFont}"
                                                Foreground="{StaticResource PhoneTextSecondaryBrush}"
                                                FontSize="13"
                                                Margin="0,0,0,6" />
@@ -140,7 +134,7 @@
 
                                     <CheckBox x:Name="RememberMeCheckBox"
                                               Content="Remember Me"
-                                              Style="{StaticResource PhoneCheckBox}"
+                                              Style="{StaticResource LoginRememberMeCheckBox}"
                                               Margin="0,0,0,18" />
 
                                     <Button x:Name="LoginButton"
