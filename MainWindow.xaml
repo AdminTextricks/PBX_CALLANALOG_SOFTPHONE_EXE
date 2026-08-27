@@ -323,7 +323,7 @@
                                     Background="{StaticResource PhoneSurfaceBrush}"
                                     BorderBrush="{StaticResource PhoneDividerBrush}"
                                     BorderThickness="0,1,0,0"
-                                    Padding="4,4,4,3">
+                                    Padding="3,2,3,2">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
@@ -338,7 +338,7 @@
                                             Click="NavDashboardButton_Click">
                                         <StackPanel Style="{StaticResource BottomNavContent}">
                                             <controls:PackIcon IconKey="IconDashboard" Style="{StaticResource NavPackIcon}"/>
-                                            <TextBlock Text="Dashboard" Margin="0,3,0,0"/>
+                                            <TextBlock Text="Dashboard" Margin="0,1,0,0"/>
                                         </StackPanel>
                                     </Button>
                                     <Button x:Name="NavHistoryButton"
@@ -346,37 +346,37 @@
                                             Style="{StaticResource BottomNavButton}"
                                             Click="NavHistoryButton_Click">
                                         <StackPanel Style="{StaticResource BottomNavContent}">
-                                            <Grid Width="22" Height="22" HorizontalAlignment="Center">
+                                            <Grid Width="18" Height="18" HorizontalAlignment="Center">
                                                 <controls:PackIcon IconKey="IconHistory" Style="{StaticResource NavPackIcon}"/>
                                                 <Border x:Name="HistoryMissedBadge"
                                                         Background="{StaticResource PhoneHangupRedBrush}"
-                                                        CornerRadius="8"
-                                                        MinWidth="16"
-                                                        Height="16"
-                                                        Padding="4,0"
+                                                        CornerRadius="7"
+                                                        MinWidth="14"
+                                                        Height="14"
+                                                        Padding="3,0"
                                                         HorizontalAlignment="Right"
                                                         VerticalAlignment="Top"
-                                                        Margin="0,-4,-6,0"
+                                                        Margin="0,-3,-5,0"
                                                         Visibility="Collapsed">
                                                     <TextBlock x:Name="HistoryMissedBadgeText"
                                                                Text="1"
-                                                               FontSize="9"
+                                                               FontSize="8"
                                                                FontWeight="Bold"
                                                                Foreground="White"
                                                                HorizontalAlignment="Center"
                                                                VerticalAlignment="Center"/>
                                                 </Border>
                                             </Grid>
-                                            <TextBlock Text="History" Margin="0,3,0,0"/>
+                                            <TextBlock Text="History" Margin="0,1,0,0"/>
                                         </StackPanel>
                                     </Button>
                                     <Button x:Name="NavKeypadButton"
                                             Grid.Column="2"
-                                            Margin="10,0,10,0"
+                                            Margin="6,0,6,0"
                                             Style="{StaticResource BottomNavKeypadButton}"
                                             Click="NavKeypadButton_Click">
                                         <controls:PackIcon IconKey="IconDialpad"
-                                                           IconSize="20"
+                                                           IconSize="16"
                                                            Foreground="White"
                                                            HorizontalAlignment="Center"
                                                            VerticalAlignment="Center"/>
@@ -387,7 +387,7 @@
                                             Click="NavContactsButton_Click">
                                         <StackPanel Style="{StaticResource BottomNavContent}">
                                             <controls:PackIcon IconKey="IconContacts" Style="{StaticResource NavPackIcon}"/>
-                                            <TextBlock Text="Contacts" Margin="0,3,0,0"/>
+                                            <TextBlock Text="Contacts" Margin="0,1,0,0"/>
                                         </StackPanel>
                                     </Button>
                                     <Button x:Name="NavSettingsButton"
@@ -396,7 +396,7 @@
                                             Click="NavSettingsButton_Click">
                                         <StackPanel Style="{StaticResource BottomNavContent}">
                                             <controls:PackIcon IconKey="IconSettings" Style="{StaticResource NavPackIcon}"/>
-                                            <TextBlock Text="Settings" Margin="0,3,0,0"/>
+                                            <TextBlock Text="Settings" Margin="0,1,0,0"/>
                                         </StackPanel>
                                     </Button>
                                 </Grid>
