@@ -226,40 +226,40 @@
                             <Border x:Name="ShellHeaderBar"
                                     Grid.Row="0"
                                     Background="{StaticResource PhoneBgBrush}"
-                                    Padding="0,0,0,4">
-                            <Grid Margin="14,6,14,4">
-                                <StackPanel Orientation="Vertical"
-                                            HorizontalAlignment="Left"
-                                            VerticalAlignment="Center">
-                                    <TextBlock x:Name="ExtensionLabelText"
-                                               Text="Extension"
-                                               Style="{StaticResource TypeBody}"
-                                               Foreground="{StaticResource PhoneTextSecondaryBrush}"/>
-                                    <TextBlock x:Name="CallDurationText"
-                                               Text=""
-                                               Style="{StaticResource TypeCaption}"
-                                               Foreground="{StaticResource PhoneAccentBrush}"
-                                               Visibility="Collapsed"
-                                               Margin="0,2,0,0"/>
-                                </StackPanel>
-                                <Border x:Name="ConnectionStatusChip"
-                                        Style="{StaticResource ConnectionStatusChip}"
-                                        HorizontalAlignment="Right">
-                                    <StackPanel Orientation="Horizontal">
-                                        <Ellipse x:Name="StatusDot"
-                                                 Width="8" Height="8"
-                                                 Fill="{StaticResource PhoneCallGreenBrush}"
-                                                 Margin="0,0,6,0"
-                                                 VerticalAlignment="Center"/>
-                                        <TextBlock x:Name="StatusLabelText"
-                                                   Text="Online"
-                                                   Style="{StaticResource TypeCaption}"
-                                                   FontWeight="SemiBold"
-                                                   Foreground="{StaticResource PhoneTextPrimaryBrush}"
-                                                   VerticalAlignment="Center"/>
+                                    Padding="0,0,0,0">
+                                <Grid Margin="16,5,16,2">
+                                    <StackPanel Orientation="Vertical"
+                                                HorizontalAlignment="Left"
+                                                VerticalAlignment="Center">
+                                        <TextBlock x:Name="ExtensionLabelText"
+                                                Text="Extension"
+                                                Style="{StaticResource TypeBody}"
+                                                Foreground="{StaticResource PhoneTextSecondaryBrush}"/>
+                                        <TextBlock x:Name="CallDurationText"
+                                                Text=""
+                                                Style="{StaticResource TypeCaption}"
+                                                Foreground="{StaticResource PhoneAccentBrush}"
+                                                Visibility="Collapsed"
+                                                Margin="0,2,0,0"/>
                                     </StackPanel>
-                                </Border>
-                            </Grid>
+                                    <Border x:Name="ConnectionStatusChip"
+                                            Style="{StaticResource ConnectionStatusChip}"
+                                            HorizontalAlignment="Right">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Ellipse x:Name="StatusDot"
+                                                    Width="8" Height="8"
+                                                    Fill="{StaticResource PhoneCallGreenBrush}"
+                                                    Margin="0,0,6,0"
+                                                    VerticalAlignment="Center"/>
+                                           <TextBlock x:Name="StatusLabelText"
+                                                Text="Online"
+                                                Style="{StaticResource TypeCaption}"
+                                                FontWeight="SemiBold"
+                                                Foreground="White"
+                                                VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
                             </Border>
 
                             <!-- Soft update banner (startup version check) -->
@@ -323,7 +323,7 @@
                                     Background="{StaticResource PhoneSurfaceBrush}"
                                     BorderBrush="{StaticResource PhoneDividerBrush}"
                                     BorderThickness="0,1,0,0"
-                                    Padding="3,2,3,2">
+                                    Padding="4,4,4,4">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
@@ -337,8 +337,10 @@
                                             Style="{StaticResource BottomNavButtonActive}"
                                             Click="NavDashboardButton_Click">
                                         <StackPanel Style="{StaticResource BottomNavContent}">
-                                            <controls:PackIcon IconKey="IconDashboard" Style="{StaticResource NavPackIcon}"/>
-                                            <TextBlock Text="Dashboard" Margin="0,1,0,0"/>
+                                            <controls:PackIcon IconKey="IconNavDashboard"
+                                                               Style="{StaticResource NavPackIcon}"
+                                                               Width="18" Height="18"/>
+                                            <TextBlock Text="Dashboard"/>
                                         </StackPanel>
                                     </Button>
                                     <Button x:Name="NavHistoryButton"
@@ -347,36 +349,36 @@
                                             Click="NavHistoryButton_Click">
                                         <StackPanel Style="{StaticResource BottomNavContent}">
                                             <Grid Width="18" Height="18" HorizontalAlignment="Center">
-                                                <controls:PackIcon IconKey="IconHistory" Style="{StaticResource NavPackIcon}"/>
+                                                <controls:PackIcon IconKey="IconNavHistory" Style="{StaticResource NavPackIcon}"/>
                                                 <Border x:Name="HistoryMissedBadge"
                                                         Background="{StaticResource PhoneHangupRedBrush}"
-                                                        CornerRadius="7"
-                                                        MinWidth="14"
-                                                        Height="14"
-                                                        Padding="3,0"
+                                                        CornerRadius="6"
+                                                        MinWidth="12"
+                                                        Height="12"
+                                                        Padding="2,0"
                                                         HorizontalAlignment="Right"
                                                         VerticalAlignment="Top"
-                                                        Margin="0,-3,-5,0"
+                                                        Margin="0,-4,-5,0"
                                                         Visibility="Collapsed">
                                                     <TextBlock x:Name="HistoryMissedBadgeText"
                                                                Text="1"
-                                                               FontSize="8"
+                                                               FontSize="7"
                                                                FontWeight="Bold"
                                                                Foreground="White"
                                                                HorizontalAlignment="Center"
                                                                VerticalAlignment="Center"/>
                                                 </Border>
                                             </Grid>
-                                            <TextBlock Text="History" Margin="0,1,0,0"/>
+                                            <TextBlock Text="History"/>
                                         </StackPanel>
                                     </Button>
                                     <Button x:Name="NavKeypadButton"
                                             Grid.Column="2"
-                                            Margin="6,0,6,0"
+                                            Margin="4,0,4,0"
                                             Style="{StaticResource BottomNavKeypadButton}"
                                             Click="NavKeypadButton_Click">
-                                        <controls:PackIcon IconKey="IconDialpad"
-                                                           IconSize="16"
+                                        <controls:PackIcon IconKey="IconSfGrid3x3Fill"
+                                                           IconSize="13"
                                                            Foreground="White"
                                                            HorizontalAlignment="Center"
                                                            VerticalAlignment="Center"/>
@@ -386,8 +388,10 @@
                                             Style="{StaticResource BottomNavButton}"
                                             Click="NavContactsButton_Click">
                                         <StackPanel Style="{StaticResource BottomNavContent}">
-                                            <controls:PackIcon IconKey="IconContacts" Style="{StaticResource NavPackIcon}"/>
-                                            <TextBlock Text="Contacts" Margin="0,1,0,0"/>
+                                            <controls:PackIcon IconKey="IconNavContacts"
+                                                               Style="{StaticResource NavPackIcon}"
+                                                               Width="18" Height="18"/>
+                                            <TextBlock Text="Contacts"/>
                                         </StackPanel>
                                     </Button>
                                     <Button x:Name="NavSettingsButton"
@@ -395,8 +399,10 @@
                                             Style="{StaticResource BottomNavButton}"
                                             Click="NavSettingsButton_Click">
                                         <StackPanel Style="{StaticResource BottomNavContent}">
-                                            <controls:PackIcon IconKey="IconSettings" Style="{StaticResource NavPackIcon}"/>
-                                            <TextBlock Text="Settings" Margin="0,1,0,0"/>
+                                            <controls:PackIcon IconKey="IconNavSettings"
+                                                               Style="{StaticResource NavPackIcon}"
+                                                               Width="18" Height="18"/>
+                                            <TextBlock Text="Setting"/>
                                         </StackPanel>
                                     </Button>
                                 </Grid>

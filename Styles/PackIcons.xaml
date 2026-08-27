@@ -59,8 +59,87 @@
     <Geometry x:Key="IconCallReceived">M240-192v-336h72v213l405-405 51 51-405 405h213v72H240Z</Geometry>
     <Geometry x:Key="IconCallMissed">M480-288 216-552v165h-72v-288h288v72H267l213 213 285-285 51 51-336 336Z</Geometry>
     <Geometry x:Key="IconDialpad">M480-40q-33 0-56.5-23.5T400-120q0-33 23.5-56.5T480-200q33 0 56.5 23.5T560-120q0 33-23.5 56.5T480-40ZM240-760q-33 0-56.5-23.5T160-840q0-33 23.5-56.5T240-920q33 0 56.5 23.5T320-840q0 33-23.5 56.5T240-760Zm0 240q-33 0-56.5-23.5T160-600q0-33 23.5-56.5T240-680q33 0 56.5 23.5T320-600q0 33-23.5 56.5T240-520Zm0 240q-33 0-56.5-23.5T160-360q0-33 23.5-56.5T240-440q33 0 56.5 23.5T320-360q0 33-23.5 56.5T240-280Zm480-480q-33 0-56.5-23.5T640-840q0-33 23.5-56.5T720-920q33 0 56.5 23.5T800-840q0 33-23.5 56.5T720-760ZM480-280q-33 0-56.5-23.5T400-360q0-33 23.5-56.5T480-440q33 0 56.5 23.5T560-360q0 33-23.5 56.5T480-280Zm240 0q-33 0-56.5-23.5T640-360q0-33 23.5-56.5T720-440q33 0 56.5 23.5T800-360q0 33-23.5 56.5T720-280Zm0-240q-33 0-56.5-23.5T640-600q0-33 23.5-56.5T720-680q33 0 56.5 23.5T800-600q0 33-23.5 56.5T720-520Zm-240 0q-33 0-56.5-23.5T400-600q0-33 23.5-56.5T480-680q33 0 56.5 23.5T560-600q0 33-23.5 56.5T480-520Zm0-240q-33 0-56.5-23.5T400-840q0-33 23.5-56.5T480-920q33 0 56.5 23.5T560-840q0 33-23.5 56.5T480-760Z</Geometry>
-    <Geometry x:Key="IconSms">M280-430v310-720 410Zm0 390q-33 0-56.5-23.5T200-120v-720q0-33 23.5-56.5T280-920h400q33 0 56.5 23.5T760-840v80h-80v-80H280v720h400v-80h80v80q0 33-23.5 56.5T680-40H280Zm228.5-691.5Q520-743 520-760t-11.5-28.5Q497-800 480-800t-28.5 11.5Q440-777 440-760t11.5 28.5Q463-720 480-720t28.5-11.5ZM653-366l-58-58q12-11 18.5-25.5T620-480q0-16-6.5-30.5T595-536l58-58q23 23 35 52.5t12 61.5q0 32-12 61.5T653-366Zm98 98-56-56q31-31 48-71t17-85q0-45-17-85t-48-71l56-56q43 42 66 97t23 115q0 60-23 115t-66 97Z</Geometry>
-    <Geometry x:Key="IconVoicemail">M560-131v-82q90-26 145-100t55-168q0-94-55-168T560-749v-82q124 28 202 125.5T840-481q0 127-78 224.5T560-131ZM120-360v-240h160l200-200v640L280-360H120Zm440 40v-322q47 22 73.5 66t26.5 96q0 51-26.5 94.5T560-320ZM400-606l-86 86H200v80h114l86 86v-252ZM300-480Z</Geometry>
+
+    <!-- Dashboard SF Symbol shapes from DashboardView.swift Image(systemName:). 24×24, filled. -->
+    <!-- message.fill -->
+    <StreamGeometry x:Key="IconSfMessageFill">M5.2,2.2 H18.8 A3.15,3.15,0,0,1,21.95,5.35 V13.15 A3.15,3.15,0,0,1,18.8,16.3 H10.2 L5.15,20.7 C4.45,21.25,3.28,20.72,3.28,19.85 V16.3 H5.2 A3.15,3.15,0,0,1,2.05,13.15 V5.35 A3.15,3.15,0,0,1,5.2,2.2 Z</StreamGeometry>
+    <StreamGeometry x:Key="IconSms">M5.2,2.2 H18.8 A3.15,3.15,0,0,1,21.95,5.35 V13.15 A3.15,3.15,0,0,1,18.8,16.3 H10.2 L5.15,20.7 C4.45,21.25,3.28,20.72,3.28,19.85 V16.3 H5.2 A3.15,3.15,0,0,1,2.05,13.15 V5.35 A3.15,3.15,0,0,1,5.2,2.2 Z</StreamGeometry>
+
+    <!-- recordingtape (cassette with two reel windows) -->
+    <GeometryGroup x:Key="IconSfRecordingTape" FillRule="EvenOdd">
+        <RectangleGeometry Rect="1.4,6.2,21.2,11.6" RadiusX="2.2" RadiusY="2.2"/>
+        <EllipseGeometry Center="8.2,12" RadiusX="2.85" RadiusY="2.85"/>
+        <EllipseGeometry Center="15.8,12" RadiusX="2.85" RadiusY="2.85"/>
+    </GeometryGroup>
+    <GeometryGroup x:Key="IconVoicemail" FillRule="EvenOdd">
+        <RectangleGeometry Rect="1.4,6.2,21.2,11.6" RadiusX="2.2" RadiusY="2.2"/>
+        <EllipseGeometry Center="8.2,12" RadiusX="2.85" RadiusY="2.85"/>
+        <EllipseGeometry Center="15.8,12" RadiusX="2.85" RadiusY="2.85"/>
+    </GeometryGroup>
+
+    <!-- square.grid.3x3.fill -->
+    <GeometryGroup x:Key="IconSfGrid3x3Fill" FillRule="Nonzero">
+        <RectangleGeometry Rect="2.0,2.0,5.6,5.6" RadiusX="1.15" RadiusY="1.15"/>
+        <RectangleGeometry Rect="9.2,2.0,5.6,5.6" RadiusX="1.15" RadiusY="1.15"/>
+        <RectangleGeometry Rect="16.4,2.0,5.6,5.6" RadiusX="1.15" RadiusY="1.15"/>
+        <RectangleGeometry Rect="2.0,9.2,5.6,5.6" RadiusX="1.15" RadiusY="1.15"/>
+        <RectangleGeometry Rect="9.2,9.2,5.6,5.6" RadiusX="1.15" RadiusY="1.15"/>
+        <RectangleGeometry Rect="16.4,9.2,5.6,5.6" RadiusX="1.15" RadiusY="1.15"/>
+        <RectangleGeometry Rect="2.0,16.4,5.6,5.6" RadiusX="1.15" RadiusY="1.15"/>
+        <RectangleGeometry Rect="9.2,16.4,5.6,5.6" RadiusX="1.15" RadiusY="1.15"/>
+        <RectangleGeometry Rect="16.4,16.4,5.6,5.6" RadiusX="1.15" RadiusY="1.15"/>
+    </GeometryGroup>
+
+    <!-- xmark.circle.fill -->
+    <GeometryGroup x:Key="IconSfXmarkCircleFill" FillRule="EvenOdd">
+        <EllipseGeometry Center="12,12" RadiusX="10" RadiusY="10"/>
+        <RectangleGeometry Rect="10.85,6.15,2.3,11.7">
+            <RectangleGeometry.Transform>
+                <RotateTransform Angle="45" CenterX="12" CenterY="12"/>
+            </RectangleGeometry.Transform>
+        </RectangleGeometry>
+        <RectangleGeometry Rect="10.85,6.15,2.3,11.7">
+            <RectangleGeometry.Transform>
+                <RotateTransform Angle="-45" CenterX="12" CenterY="12"/>
+            </RectangleGeometry.Transform>
+        </RectangleGeometry>
+    </GeometryGroup>
+
+    <!-- Bottom nav SF Symbols from MainShellView.swift Image(systemName:) -->
+    <!-- square.grid.2x2 -->
+    <GeometryGroup x:Key="IconNavDashboard" FillRule="EvenOdd">
+        <RectangleGeometry Rect="2.1,2.1,8.4,8.4" RadiusX="1.7" RadiusY="1.7"/>
+        <RectangleGeometry Rect="3.85,3.85,4.9,4.9" RadiusX="0.55" RadiusY="0.55"/>
+        <RectangleGeometry Rect="13.5,2.1,8.4,8.4" RadiusX="1.7" RadiusY="1.7"/>
+        <RectangleGeometry Rect="15.25,3.85,4.9,4.9" RadiusX="0.55" RadiusY="0.55"/>
+        <RectangleGeometry Rect="2.1,13.5,8.4,8.4" RadiusX="1.7" RadiusY="1.7"/>
+        <RectangleGeometry Rect="3.85,15.25,4.9,4.9" RadiusX="0.55" RadiusY="0.55"/>
+        <RectangleGeometry Rect="13.5,13.5,8.4,8.4" RadiusX="1.7" RadiusY="1.7"/>
+        <RectangleGeometry Rect="15.25,15.25,4.9,4.9" RadiusX="0.55" RadiusY="0.55"/>
+    </GeometryGroup>
+
+    <!-- clock.arrow.circlepath -->
+    <GeometryGroup x:Key="IconNavHistory" FillRule="EvenOdd">
+        <EllipseGeometry Center="11.1,13.15" RadiusX="7.35" RadiusY="7.35"/>
+        <EllipseGeometry Center="11.1,13.15" RadiusX="5.55" RadiusY="5.55"/>
+        <RectangleGeometry Rect="10.25,8.35,1.7,5.35" RadiusX="0.75" RadiusY="0.75"/>
+        <RectangleGeometry Rect="10.25,12.35,4.55,1.7" RadiusX="0.75" RadiusY="0.75"/>
+        <PathGeometry Figures="M15.2,4.15 A9.2,9.2 0 0 1 21.55,11.6 L19.55,11.35 22.35,14.55 21.55,10.55 Z"/>
+    </GeometryGroup>
+
+    <!-- person.2 -->
+    <GeometryGroup x:Key="IconNavContacts" FillRule="Nonzero">
+        <EllipseGeometry Center="7.15,7.35" RadiusX="2.35" RadiusY="2.35"/>
+        <PathGeometry Figures="M2.55,18.55 C2.55,14.85 4.55,13.05 7.2,13.05 C9.85,13.05 11.85,14.85 11.85,18.55 Z"/>
+        <EllipseGeometry Center="15.35,6.55" RadiusX="2.85" RadiusY="2.85"/>
+        <PathGeometry Figures="M10.15,18.55 C10.15,13.85 12.35,11.55 15.4,11.55 C18.45,11.55 21.45,13.85 21.45,18.55 Z"/>
+    </GeometryGroup>
+
+    <!-- gearshape -->
+    <GeometryGroup x:Key="IconNavSettings" FillRule="EvenOdd">
+        <PathGeometry Figures="M12,1.85 L13.55,4.85 16.55,3.75 17.25,6.9 20.4,7.05 19.05,9.95 22.15,11.55 19.85,13.85 22.15,16.15 19.05,17.75 20.4,20.65 17.25,20.8 16.55,23.95 13.55,22.85 12,25.85 10.45,22.85 7.45,23.95 6.75,20.8 3.6,20.65 4.95,17.75 1.85,16.15 4.15,13.85 1.85,11.55 4.95,9.95 3.6,7.05 6.75,6.9 7.45,3.75 10.45,4.85 Z"/>
+        <EllipseGeometry Center="12,13.85" RadiusX="3.15" RadiusY="3.15"/>
+    </GeometryGroup>
     <Geometry x:Key="IconCopy">M360-240q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480ZM200-80q-33 0-56.5-23.5T120-160v-560h80v560h440v80H200Zm160-240v-480 480Z</Geometry>
     <Geometry x:Key="IconSettings">M19.14,12.94 C19.18,12.64 19.2,12.33 19.2,12 C19.2,11.67 19.18,11.36 19.14,11.06 L21.16,9.48 C21.36,9.33 21.42,9.05 21.28,8.82 L19.28,5.55 C19.14,5.32 18.86,5.24 18.63,5.35 L16.24,6.58 C15.69,6.19 15.09,5.88 14.44,5.66 L14.04,3.08 C14,2.85 13.81,2.67 13.58,2.67 H10.42 C10.19,2.67 10,2.85 9.96,3.08 L9.56,5.66 C8.91,5.88 8.31,6.19 7.76,6.58 L5.37,5.35 C5.14,5.24 4.86,5.32 4.72,5.55 L2.72,8.82 C2.58,9.05 2.64,9.33 2.84,9.48 L4.86,11.06 C4.82,11.36 4.8,11.67 4.8,12 C4.8,12.33 4.82,12.64 4.86,12.94 L2.84,14.52 C2.64,14.67 2.58,14.95 2.72,15.18 L4.72,18.45 C4.86,18.68 5.14,18.76 5.37,18.65 L7.76,17.42 C8.31,17.81 8.91,18.12 9.56,18.34 L9.96,20.92 C10,21.15 10.19,21.33 10.42,21.33 H13.58 C13.81,21.33 14,21.15 14.04,20.92 L14.44,18.34 C15.09,18.12 15.69,17.81 16.24,17.42 L18.63,18.65 C18.86,18.76 19.14,18.68 19.28,18.45 L21.28,15.18 C21.42,14.95 21.36,14.67 21.16,14.52 Z M12,15.6 A3.6,3.6 0 1,1 12,8.4 A3.6,3.6 0 1,1 12,15.6 Z</Geometry>
     <Geometry x:Key="IconMicOn">M395-435q-35-35-35-85v-240q0-50 35-85t85-35q50 0 85 35t35 85v240q0 50-35 85t-85 35q-50 0-85-35Zm85-205Zm-40 520v-123q-104-14-172-93t-68-184h80q0 83 58.5 141.5T480-320q83 0 141.5-58.5T680-520h80q0 105-68 184t-172 93v123h-80Zm68.5-371.5Q520-503 520-520v-240q0-17-11.5-28.5T480-800q-17 0-28.5 11.5T440-760v240q0 17 11.5 28.5T480-480q17 0 28.5-11.5Z</Geometry>

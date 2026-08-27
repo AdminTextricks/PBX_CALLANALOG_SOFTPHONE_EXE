@@ -2,7 +2,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:CallAnalog.Softphone.Views.Controls">
-    <Grid Margin="12,4,12,6">
+    <Grid Margin="7,5,7,6">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -11,49 +11,48 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="*" MaxHeight="205"/>
         </Grid.RowDefinitions>
 
         <TextBlock x:Name="WelcomeText"
                    Grid.Row="0"
                    Text="Good morning"
-                   Style="{StaticResource TypeTitle}"
+                   FontSize="12"
+                   FontWeight="Medium"
                    Foreground="{StaticResource PhoneTextPrimaryBrush}"
-                   Margin="0,0,0,4"/>
+                   Margin="0,0,0,2"/>
 
-        <!-- Dialpad hero -->
-        <Border Grid.Row="1" Style="{StaticResource GlassCardBorder}" Margin="0,0,0,7" Padding="0">
-            <Button Style="{StaticResource DashboardDialpadHeroButton}"
-                    Background="Transparent"
-                    BorderThickness="0"
-                    Click="DialpadButton_Click">
-                <Grid Margin="4,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Border Grid.Column="0"
-                            Width="34" Height="34"
-                            CornerRadius="17"
-                            Background="{StaticResource PhoneHeroOverlayBrush}"
-                            Margin="0,0,10,0">
-                        <controls:PackIcon IconKey="IconDialpad"
-                                           IconSize="18"
-                                           HorizontalAlignment="Center"
-                                           VerticalAlignment="Center"/>
-                    </Border>
-                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock Text="Open Dialpad"
-                                   FontSize="13"
-                                   FontWeight="SemiBold"/>
-                        <TextBlock Text="Place a call"
-                                   FontSize="10"
-                                   Opacity="0.85"
-                                   Margin="0,2,0,0"/>
-                    </StackPanel>
-                </Grid>
-            </Button>
-        </Border>
+        <!-- Dialpad hero — macOS green card, radius 16 -->
+        <Button Grid.Row="1"
+                Style="{StaticResource DashboardDialpadHeroButton}"
+                Margin="0,0,0,7"
+                Click="DialpadButton_Click">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0"
+                        Width="28" Height="28"
+                        CornerRadius="14"
+                        Background="{StaticResource PhoneHeroOverlayBrush}"
+                        Margin="0,0,8,0">
+                    <controls:PackIcon IconKey="IconSfGrid3x3Fill"
+                                       IconSize="13"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                </Border>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Text="Open Dialpad"
+                               FontSize="11"
+                               FontWeight="SemiBold"/>
+                    <TextBlock Text="Place a call"
+                               FontSize="10"
+                               Opacity="0.85"
+                               Margin="0,1,0,0"/>
+                </StackPanel>
+            </Grid>
+        </Button>
 
         <!-- DND / Auto Answer -->
         <Grid Grid.Row="2" Margin="0,0,0,7">
@@ -71,16 +70,16 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Text="DND" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                    <TextBlock Text="DND" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center"/>
                     <Border Grid.Column="1"
                             x:Name="DndStatusChip"
                             Background="{StaticResource PhoneChipBgBrush}"
                             CornerRadius="10"
-                            Padding="6,2"
+                            Padding="5,2"
                             VerticalAlignment="Center">
                         <TextBlock x:Name="DndStatusText"
                                    Text="OFF"
-                                   FontSize="10"
+                                   FontSize="7"
                                    FontWeight="Bold"
                                    Foreground="{StaticResource PhoneTextSecondaryBrush}"/>
                     </Border>
@@ -95,16 +94,16 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Text="Auto Answer" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                    <TextBlock Text="Auto Answer" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center"/>
                     <Border Grid.Column="1"
                             x:Name="AutoAnswerStatusChip"
                             Background="{StaticResource PhoneChipBgBrush}"
                             CornerRadius="10"
-                            Padding="6,2"
+                            Padding="5,2"
                             VerticalAlignment="Center">
                         <TextBlock x:Name="AutoAnswerStatusText"
                                    Text="OFF"
-                                   FontSize="10"
+                                   FontSize="7"
                                    FontWeight="Bold"
                                    Foreground="{StaticResource PhoneTextSecondaryBrush}"/>
                     </Border>
@@ -119,136 +118,170 @@
                 <ColumnDefinition Width="8"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Border Grid.Column="0" Style="{StaticResource GlassCardBorder}" Padding="0">
-                <Button Style="{StaticResource DashboardTileButton}" Background="Transparent" Click="SmsButton_Click">
-                    <StackPanel HorizontalAlignment="Center">
-                        <controls:PackIcon IconKey="IconSms" IconSize="16" HorizontalAlignment="Center"/>
-                        <TextBlock Text="SMS" FontSize="11" FontWeight="SemiBold" Margin="0,4,0,0"/>
-                    </StackPanel>
-                </Button>
-            </Border>
-            <Border Grid.Column="2" Style="{StaticResource GlassCardBorder}" Padding="0">
-                <Button Style="{StaticResource DashboardTileButton}" Background="Transparent" Click="VoicemailButton_Click">
-                    <StackPanel HorizontalAlignment="Center">
-                        <controls:PackIcon IconKey="IconVoicemail" IconSize="16" HorizontalAlignment="Center"/>
-                        <TextBlock Text="Voicemail" FontSize="11" FontWeight="SemiBold" Margin="0,4,0,0"/>
-                    </StackPanel>
-                </Button>
-            </Border>
+            <Button Grid.Column="0"
+                    Style="{StaticResource DashboardTileButton}"
+                    Click="SmsButton_Click">
+                <StackPanel HorizontalAlignment="Center">
+                    <controls:PackIcon IconKey="IconSms" IconSize="13" HorizontalAlignment="Center"/>
+                    <TextBlock Text="SMS" FontSize="10" FontWeight="SemiBold" Margin="0,4,0,0"/>
+                </StackPanel>
+            </Button>
+            <Button Grid.Column="2"
+                    Style="{StaticResource DashboardTileButton}"
+                    Click="VoicemailButton_Click">
+                <StackPanel HorizontalAlignment="Center">
+                    <controls:PackIcon IconKey="IconVoicemail" IconSize="13" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Voicemail" FontSize="10" FontWeight="SemiBold" Margin="0,4,0,0"/>
+                </StackPanel>
+            </Button>
         </Grid>
 
         <TextBlock Grid.Row="4"
                    Text="Today"
-                   FontSize="12"
+                   FontSize="10"
                    FontWeight="SemiBold"
                    Foreground="{StaticResource PhoneAccentBrush}"
-                   Margin="0,0,0,4"/>
+                   Margin="0,0,0,3"/>
 
-        <Grid Grid.Row="5" Margin="0,0,0,7">
+        <Grid Grid.Row="5" Margin="0,0,0,5">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="5"/>
                 <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="5"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Button Grid.Column="0" Style="{StaticResource StatCardButton}" Click="MadeButton_Click">
                 <StackPanel>
-                    <TextBlock x:Name="MadeCountText" Text="0" FontSize="15" FontWeight="SemiBold" HorizontalAlignment="Center"/>
-                    <TextBlock Text="Made" FontSize="10" Foreground="{StaticResource PhoneTextSecondaryBrush}" HorizontalAlignment="Center"/>
+                    <TextBlock x:Name="MadeCountText" Text="0" FontSize="15" FontWeight="Bold" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Made" FontSize="9" Foreground="{StaticResource PhoneTextSecondaryBrush}" HorizontalAlignment="Center"/>
                 </StackPanel>
             </Button>
-            <Button Grid.Column="1" Style="{StaticResource StatCardButton}" Margin="4,0" Click="AnsweredButton_Click">
+            <Button Grid.Column="2" Style="{StaticResource StatCardButton}" Click="AnsweredButton_Click">
                 <StackPanel>
-                    <TextBlock x:Name="AnsweredCountText" Text="0" FontSize="15" FontWeight="SemiBold" HorizontalAlignment="Center"/>
-                    <TextBlock Text="Received" FontSize="10" Foreground="{StaticResource PhoneTextSecondaryBrush}" HorizontalAlignment="Center"/>
+                    <TextBlock x:Name="AnsweredCountText" Text="0" FontSize="15" FontWeight="Bold" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Received" FontSize="9" Foreground="{StaticResource PhoneTextSecondaryBrush}" HorizontalAlignment="Center"/>
                 </StackPanel>
             </Button>
-            <Button Grid.Column="2" Style="{StaticResource StatCardButton}" Click="MissedButton_Click">
+            <Button Grid.Column="4" Style="{StaticResource StatCardButton}" Click="MissedButton_Click">
                 <StackPanel>
-                    <TextBlock x:Name="MissedCountText" Text="0" FontSize="15" FontWeight="SemiBold" HorizontalAlignment="Center"/>
-                    <TextBlock Text="Missed" FontSize="10" Foreground="{StaticResource PhoneTextSecondaryBrush}" HorizontalAlignment="Center"/>
+                    <TextBlock x:Name="MissedCountText" Text="0" FontSize="15" FontWeight="Bold" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Missed" FontSize="9" Foreground="{StaticResource PhoneTextSecondaryBrush}" HorizontalAlignment="Center"/>
                 </StackPanel>
             </Button>
         </Grid>
 
         <TextBlock Grid.Row="6"
                    Text="Recent Calls"
-                   FontSize="12"
+                   FontSize="10"
                    FontWeight="SemiBold"
                    Foreground="{StaticResource PhoneTextPrimaryBrush}"
-                   Margin="0,0,0,4"/>
+                   Margin="0,0,0,3"/>
 
         <Border x:Name="RecentCallsHost"
                 Grid.Row="7"
-                ClipToBounds="True"
-                SizeChanged="RecentCallsHost_SizeChanged">
+                ClipToBounds="True">
             <Grid>
-                <ItemsControl x:Name="RecentCallsList">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Button Style="{StaticResource RecentCallRowButton}"
-                                    Tag="{Binding}"
-                                    Click="RecentCallButton_Click"
-                                    Padding="0,2">
-                                <Border Style="{StaticResource RecentCallCardBorder}" Padding="8,6" Margin="0">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="4"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Border Grid.Column="0" CornerRadius="2" Margin="0,4,8,4">
-                                            <Border.Style>
-                                                <Style TargetType="Border">
-                                                    <Setter Property="Background" Value="{StaticResource PhoneAccentBrush}"/>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding HistoryTone}" Value="Answered">
-                                                            <Setter Property="Background" Value="{StaticResource HistoryAnsweredBrush}"/>
-                                                        </DataTrigger>
-                                                        <DataTrigger Binding="{Binding HistoryTone}" Value="Missed">
-                                                            <Setter Property="Background" Value="{StaticResource HistoryMissedBrush}"/>
-                                                        </DataTrigger>
-                                                        <DataTrigger Binding="{Binding HistoryTone}" Value="Cancel">
-                                                            <Setter Property="Background" Value="{StaticResource HistoryCancelBrush}"/>
-                                                        </DataTrigger>
-                                                        <DataTrigger Binding="{Binding HistoryTone}" Value="Outbound">
-                                                            <Setter Property="Background" Value="{StaticResource HistoryOutboundBrush}"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Border.Style>
-                                        </Border>
-                                        <controls:AvatarCircle Grid.Column="1"
-                                                               Width="36" Height="36"
-                                                               DisplayName="{Binding DisplayName}"
-                                                               Number="{Binding DialNumber}"
-                                                               InitialsFontSize="12"
-                                                               Margin="0,0,8,0"/>
-                                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding DisplayName}" Style="{StaticResource ListItemPrimaryText}"
-                                                       TextTrimming="CharacterEllipsis"/>
-                                            <TextBlock Text="{Binding DialNumber}" Style="{StaticResource ListItemSecondaryText}"
-                                                       FontFamily="Consolas, Courier New, monospace"/>
-                                        </StackPanel>
-                                        <TextBlock Grid.Column="3" Text="{Binding CallDate}" Style="{StaticResource ListItemMetaText}"
-                                                   VerticalAlignment="Center"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   MaxWidth="72"/>
-                                    </Grid>
-                                </Border>
-                            </Button>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                <ScrollViewer x:Name="RecentCallsScroll"
+                              Style="{StaticResource PhoneScrollViewer}"
+                              VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled"
+                              CanContentScroll="False">
+                    <ItemsControl x:Name="RecentCallsList">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button Style="{StaticResource RecentCallRowButton}"
+                                        Tag="{Binding}"
+                                        Click="RecentCallButton_Click"
+                                        Padding="0"
+                                        Margin="0,0,0,3">
+                                    <Border Style="{StaticResource RecentCallCardBorder}" Padding="7,5" Margin="0">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="4"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Border Grid.Column="0" CornerRadius="2" Margin="0,3,8,3">
+                                                <Border.Style>
+                                                    <Style TargetType="Border">
+                                                        <Setter Property="Background" Value="{StaticResource PhoneAccentBrush}"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding HistoryTone}" Value="Answered">
+                                                                <Setter Property="Background" Value="{StaticResource HistoryAnsweredBrush}"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding HistoryTone}" Value="Missed">
+                                                                <Setter Property="Background" Value="{StaticResource HistoryMissedBrush}"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding HistoryTone}" Value="Cancel">
+                                                                <Setter Property="Background" Value="{StaticResource HistoryCancelBrush}"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding HistoryTone}" Value="Outbound">
+                                                                <Setter Property="Background" Value="{StaticResource HistoryOutboundBrush}"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                            </Border>
+                                            <controls:AvatarCircle Grid.Column="1"
+                                                                   Width="28" Height="28"
+                                                                   DisplayName="{Binding DisplayName}"
+                                                                   Number="{Binding DialNumber}"
+                                                                   InitialsFontSize="10"
+                                                                   Margin="0,0,8,0"/>
+                                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding DisplayName}"
+                                                           FontSize="12"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="{StaticResource PhoneTextPrimaryBrush}"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                                <TextBlock Text="{Binding DialNumber}"
+                                                           FontSize="10"
+                                                           FontFamily="Consolas, Courier New, monospace"
+                                                           Foreground="{StaticResource PhoneTextSecondaryBrush}"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="3"
+                                                       Text="{Binding CallDate}"
+                                                       FontSize="10"
+                                                       Foreground="{StaticResource PhoneTextTertiaryBrush}"
+                                                       VerticalAlignment="Center"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       MaxWidth="55"
+                                                       TextAlignment="Right"/>
+                                        </Grid>
+                                    </Border>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
 
                 <controls:SkeletonShimmer x:Name="RecentCallsSkeleton"
                                           RowCount="3"
                                           Visibility="Collapsed"/>
 
-                <controls:EmptyStateView x:Name="RecentCallsEmptyState"
-                                         HorizontalAlignment="Stretch"
-                                         VerticalAlignment="Stretch"
-                                         Visibility="Collapsed"/>
+                <StackPanel x:Name="RecentCallsEmptyState"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Visibility="Collapsed">
+                    <TextBlock Text="No recent calls"
+                               FontSize="11"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource PhoneTextPrimaryBrush}"
+                               HorizontalAlignment="Center"/>
+                    <TextBlock Text="Your latest calls will appear here."
+                               FontSize="9"
+                               Foreground="{StaticResource PhoneTextSecondaryBrush}"
+                               HorizontalAlignment="Center"
+                               Margin="0,6,0,0"/>
+                </StackPanel>
             </Grid>
         </Border>
 
@@ -259,19 +292,23 @@
                 Visibility="Collapsed"
                 Panel.ZIndex="5">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <controls:PackIcon IconKey="IconCancel" IconSize="32" Foreground="{StaticResource PhoneHangupRedBrush}" HorizontalAlignment="Center"/>
+                <controls:PackIcon IconKey="IconSfXmarkCircleFill" IconSize="30" Foreground="{StaticResource PhoneHangupRedBrush}" HorizontalAlignment="Center"/>
                 <TextBlock Text="Do Not Disturb"
-                           Style="{StaticResource TypeTitle}"
+                           FontSize="18"
+                           FontWeight="SemiBold"
+                           Foreground="{StaticResource PhoneTextPrimaryBrush}"
                            HorizontalAlignment="Center"
                            Margin="0,12,0,4"/>
                 <TextBlock Text="Incoming calls are silenced on this device."
-                           Style="{StaticResource TypeCaption}"
+                           FontSize="13"
+                           Foreground="{StaticResource PhoneTextSecondaryBrush}"
                            TextAlignment="Center"
-                           MaxWidth="260"
-                           Margin="0,0,0,16"/>
+                           MaxWidth="240"
+                           Margin="0,0,0,12"/>
                 <Button Content="Turn Off DND"
                         Style="{StaticResource PhonePrimaryButton}"
-                        Padding="16,8"
+                        FontSize="15"
+                        Padding="16,10"
                         Click="TurnOffDndButton_Click"/>
             </StackPanel>
         </Border>

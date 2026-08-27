@@ -10,14 +10,13 @@ namespace CallAnalog.Softphone.Views;
 
 public partial class DashboardView : UserControl
 {
-    private const double RecentCallRowHeight = 62;
+    private const int MaxDashboardRecentCalls = 10;
     private const int MaxHistoryPagesForToday = 10;
 
     private CallHistoryService? _callHistoryService;
     private UserSettingsService? _userSettingsService;
     private string _extension = string.Empty;
     private bool _isRefreshing;
-    private int _visibleCallLimit = 3;
     private List<CallRecord> _cachedRecentCalls = [];
 
     public event EventHandler<string>? ComingSoonRequested;
@@ -30,7 +29,6 @@ public partial class DashboardView : UserControl
     {
         InitializeComponent();
         RecentCallsList.ItemsSource = new ObservableCollection<CallRecord>();
-        RecentCallsEmptyState.SetContent("No recent calls", "Your latest calls will appear here.", "IconHistory");
     }
 
     public void Initialize(CallHistoryService callHistoryService, UserSettingsService userSettingsService, string extension)
@@ -50,16 +48,23 @@ public partial class DashboardView : UserControl
     public void SetDndOverlayVisible(bool visible) =>
         DndOverlay.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
 
-    private void RecentCallsHost_SizeChanged(object sender, SizeChangedEventArgs e)
+    private void ApplyRecentCallsToList()
     {
-        var limit = Math.Max(1, (int)(e.NewSize.Height / RecentCallRowHeight));
-        if (limit == _visibleCallLimit)
+        if (RecentCallsList.ItemsSource is not ObservableCollection<CallRecord> recent)
         {
             return;
         }
 
-        _visibleCallLimit = limit;
-        ApplyRecentCallsToList();
+        recent.Clear();
+        foreach (var call in _cachedRecentCalls.Take(MaxDashboardRecentCalls))
+        {
+            recent.Add(call);
+        }
+
+        var isEmpty = recent.Count == 0;
+        RecentCallsEmptyState.Visibility = isEmpty ? Visibility.Visible : Visibility.Collapsed;
+        RecentCallsScroll.Visibility = isEmpty ? Visibility.Collapsed : Visibility.Visible;
+        RecentCallsList.Visibility = isEmpty ? Visibility.Collapsed : Visibility.Visible;
     }
 
     private void ApplyToggleStates()
@@ -153,27 +158,8 @@ public partial class DashboardView : UserControl
         if (isLoading)
         {
             RecentCallsEmptyState.Visibility = Visibility.Collapsed;
+            RecentCallsScroll.Visibility = Visibility.Collapsed;
         }
-    }
-
-    private void ApplyRecentCallsToList()
-    {
-        if (RecentCallsList.ItemsSource is not ObservableCollection<CallRecord> recent)
-        {
-            return;
-        }
-
-        recent.Clear();
-        var calls = _cachedRecentCalls.Take(_visibleCallLimit).ToList();
-
-        foreach (var call in calls)
-        {
-            recent.Add(call);
-        }
-
-        var isEmpty = recent.Count == 0;
-        RecentCallsEmptyState.Visibility = isEmpty ? Visibility.Visible : Visibility.Collapsed;
-        RecentCallsList.Visibility = isEmpty ? Visibility.Collapsed : Visibility.Visible;
     }
 
     private async Task<List<CallRecord>> LoadTodayCallsAsync(PagedResult<CallRecord> firstPage)
