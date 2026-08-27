@@ -69,7 +69,7 @@
 
     <!-- Shared PackIcon styles -->
     <Style x:Key="NavPackIcon" TargetType="controls:PackIcon">
-        <Setter Property="IconSize" Value="18" />
+        <Setter Property="IconSize" Value="15" />
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="Foreground" Value="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />

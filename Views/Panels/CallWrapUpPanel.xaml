@@ -1,7 +1,7 @@
 <UserControl x:Class="CallAnalog.Softphone.Views.Panels.CallWrapUpPanel"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             Width="300">
+             Width="268">
     <Border Style="{StaticResource ShellPanelBorder}">
         <StackPanel>
             <TextBlock Text="Call ended"
@@ -46,13 +46,13 @@
                         Grid.Column="0"
                         Content="Skip"
                         Style="{StaticResource PhoneSecondaryButton}"
-                        Height="42"
+                        Height="38"
                         Click="SkipButton_Click"/>
                 <Button x:Name="SaveButton"
                         Grid.Column="2"
                         Content="Save"
                         Style="{StaticResource PhonePrimaryButton}"
-                        Height="42"
+                        Height="38"
                         Click="SaveButton_Click"/>
             </Grid>
         </StackPanel>

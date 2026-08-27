@@ -17,8 +17,8 @@ namespace CallAnalog.Softphone;
 
 public partial class MainWindow : Window
 {
-    private const double WidthScreenRatio = 0.1725 * 1.30;
-    private const double HeightScreenRatio = 0.575 * 1.40;
+    private const double WidthScreenRatio = 0.1725 * 1.30 * (300.0 / 320.0);
+    private const double HeightScreenRatio = 0.575 * 1.40 * (300.0 / 320.0);
 
     private readonly LoginService _loginService;
     private readonly UserSettingsService _userSettings;

@@ -195,7 +195,7 @@
                                  Opacity="0.35"/>
                         <controls:AvatarCircle x:Name="CallerAvatar"
                                                Width="88" Height="88"
-                                               InitialsFontSize="28"
+                                               InitialsFontSize="22"
                                                HorizontalAlignment="Center"
                                                VerticalAlignment="Center"/>
                     </Grid>
@@ -256,7 +256,7 @@
 
                     <TextBlock x:Name="StatusText"
                                Text="Ringing..."
-                               FontSize="15"
+                               FontSize="13"
                                Foreground="{StaticResource PhoneTextSecondaryBrush}"
                                TextAlignment="Center"
                                Margin="0,0,0,16"
@@ -449,18 +449,18 @@
                                        Margin="0,0,0,6"
                                        Visibility="Collapsed"/>
                             <UniformGrid Rows="4" Columns="3" HorizontalAlignment="Center">
-                            <Button Style="{StaticResource DialPadButton}" Width="52" Height="52" Margin="3" Tag="1" Click="DtmfButton_Click"><TextBlock Text="1" FontSize="18" FontWeight="Light"/></Button>
-                            <Button Style="{StaticResource DialPadButton}" Width="52" Height="52" Margin="3" Tag="2" Click="DtmfButton_Click"><TextBlock Text="2" FontSize="18" FontWeight="Light"/></Button>
-                            <Button Style="{StaticResource DialPadButton}" Width="52" Height="52" Margin="3" Tag="3" Click="DtmfButton_Click"><TextBlock Text="3" FontSize="18" FontWeight="Light"/></Button>
-                            <Button Style="{StaticResource DialPadButton}" Width="52" Height="52" Margin="3" Tag="4" Click="DtmfButton_Click"><TextBlock Text="4" FontSize="18" FontWeight="Light"/></Button>
-                            <Button Style="{StaticResource DialPadButton}" Width="52" Height="52" Margin="3" Tag="5" Click="DtmfButton_Click"><TextBlock Text="5" FontSize="18" FontWeight="Light"/></Button>
-                            <Button Style="{StaticResource DialPadButton}" Width="52" Height="52" Margin="3" Tag="6" Click="DtmfButton_Click"><TextBlock Text="6" FontSize="18" FontWeight="Light"/></Button>
-                            <Button Style="{StaticResource DialPadButton}" Width="52" Height="52" Margin="3" Tag="7" Click="DtmfButton_Click"><TextBlock Text="7" FontSize="18" FontWeight="Light"/></Button>
-                            <Button Style="{StaticResource DialPadButton}" Width="52" Height="52" Margin="3" Tag="8" Click="DtmfButton_Click"><TextBlock Text="8" FontSize="18" FontWeight="Light"/></Button>
-                            <Button Style="{StaticResource DialPadButton}" Width="52" Height="52" Margin="3" Tag="9" Click="DtmfButton_Click"><TextBlock Text="9" FontSize="18" FontWeight="Light"/></Button>
-                            <Button Style="{StaticResource DialPadButton}" Width="52" Height="52" Margin="3" Tag="*" Click="DtmfButton_Click"><TextBlock Text="*" FontSize="18" FontWeight="Light"/></Button>
-                            <Button Style="{StaticResource DialPadButton}" Width="52" Height="52" Margin="3" Tag="0" Click="DtmfButton_Click"><TextBlock Text="0" FontSize="18" FontWeight="Light"/></Button>
-                            <Button Style="{StaticResource DialPadButton}" Width="52" Height="52" Margin="3" Tag="#" Click="DtmfButton_Click"><TextBlock Text="#" FontSize="18" FontWeight="Light"/></Button>
+                            <Button Style="{StaticResource DialPadButton}" Width="48" Height="48" Margin="3" Tag="1" Click="DtmfButton_Click"><TextBlock Text="1" FontSize="16" FontWeight="Light"/></Button>
+                            <Button Style="{StaticResource DialPadButton}" Width="48" Height="48" Margin="3" Tag="2" Click="DtmfButton_Click"><TextBlock Text="2" FontSize="16" FontWeight="Light"/></Button>
+                            <Button Style="{StaticResource DialPadButton}" Width="48" Height="48" Margin="3" Tag="3" Click="DtmfButton_Click"><TextBlock Text="3" FontSize="16" FontWeight="Light"/></Button>
+                            <Button Style="{StaticResource DialPadButton}" Width="48" Height="48" Margin="3" Tag="4" Click="DtmfButton_Click"><TextBlock Text="4" FontSize="16" FontWeight="Light"/></Button>
+                            <Button Style="{StaticResource DialPadButton}" Width="48" Height="48" Margin="3" Tag="5" Click="DtmfButton_Click"><TextBlock Text="5" FontSize="16" FontWeight="Light"/></Button>
+                            <Button Style="{StaticResource DialPadButton}" Width="48" Height="48" Margin="3" Tag="6" Click="DtmfButton_Click"><TextBlock Text="6" FontSize="16" FontWeight="Light"/></Button>
+                            <Button Style="{StaticResource DialPadButton}" Width="48" Height="48" Margin="3" Tag="7" Click="DtmfButton_Click"><TextBlock Text="7" FontSize="16" FontWeight="Light"/></Button>
+                            <Button Style="{StaticResource DialPadButton}" Width="48" Height="48" Margin="3" Tag="8" Click="DtmfButton_Click"><TextBlock Text="8" FontSize="16" FontWeight="Light"/></Button>
+                            <Button Style="{StaticResource DialPadButton}" Width="48" Height="48" Margin="3" Tag="9" Click="DtmfButton_Click"><TextBlock Text="9" FontSize="16" FontWeight="Light"/></Button>
+                            <Button Style="{StaticResource DialPadButton}" Width="48" Height="48" Margin="3" Tag="*" Click="DtmfButton_Click"><TextBlock Text="*" FontSize="16" FontWeight="Light"/></Button>
+                            <Button Style="{StaticResource DialPadButton}" Width="48" Height="48" Margin="3" Tag="0" Click="DtmfButton_Click"><TextBlock Text="0" FontSize="16" FontWeight="Light"/></Button>
+                            <Button Style="{StaticResource DialPadButton}" Width="48" Height="48" Margin="3" Tag="#" Click="DtmfButton_Click"><TextBlock Text="#" FontSize="16" FontWeight="Light"/></Button>
                             </UniformGrid>
                         </StackPanel>
                     </Border>

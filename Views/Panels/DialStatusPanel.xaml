@@ -1,7 +1,7 @@
 <UserControl x:Class="CallAnalog.Softphone.Views.Panels.DialStatusPanel"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             Width="300">
+             Width="268">
     <Border Style="{StaticResource ShellPanelBorder}">
         <StackPanel>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,12">
