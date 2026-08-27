@@ -71,6 +71,15 @@ public sealed class CallRecord
 
     public string Subtitle => $"{DialNumber} · {Disposition}";
 
+    public string Initial
+    {
+        get
+        {
+            var letter = DisplayName.FirstOrDefault(c => char.IsLetterOrDigit(c));
+            return letter == default ? "?" : char.ToUpperInvariant(letter).ToString();
+        }
+    }
+
     public string DirectionGlyph => IsOutbound ? "↗" : "↙";
 
     public string DirectionIconKey =>

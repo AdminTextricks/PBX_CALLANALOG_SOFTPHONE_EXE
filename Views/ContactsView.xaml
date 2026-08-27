@@ -2,6 +2,11 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:CallAnalog.Softphone.Views.Controls">
+    <UserControl.Resources>
+        <Style x:Key="ContactsLoadMoreButton" TargetType="Button" BasedOn="{StaticResource PhoneSecondaryButton}">
+            <Setter Property="Background" Value="{StaticResource PhoneSurfaceBrush}" />
+        </Style>
+    </UserControl.Resources>
     <Grid Background="{StaticResource PhoneBgBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -171,7 +176,7 @@
                        TextWrapping="Wrap"
                        Margin="0,0,0,4"/>
             <Button x:Name="LoadMoreButton"
-                    Style="{StaticResource PhoneSecondaryButton}"
+                    Style="{StaticResource ContactsLoadMoreButton}"
                     Content="Load more"
                     Visibility="Collapsed"
                     Click="LoadMoreButton_Click"/>

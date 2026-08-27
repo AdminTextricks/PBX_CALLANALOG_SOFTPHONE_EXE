@@ -2,7 +2,88 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:CallAnalog.Softphone.Views.Controls">
-    <Grid Background="{StaticResource PhoneBgBrush}">
+    <UserControl.Resources>
+        <Style x:Key="HistoryFilterChip" TargetType="Button">
+            <Setter Property="Foreground" Value="{StaticResource PhoneTextPrimaryBrush}"/>
+            <Setter Property="Background" Value="{StaticResource PhoneSurfaceElevatedBrush}"/>
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="6,4"/>
+            <Setter Property="Margin" Value="0,0,4,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{StaticResource PhoneBorderBrush}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="14"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Opacity" Value="0.88"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="HistoryFilterChipActive" TargetType="Button" BasedOn="{StaticResource HistoryFilterChip}">
+            <Setter Property="Background" Value="{StaticResource PhoneAccentBrush}"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+        <Style x:Key="HistoryAccentButton" TargetType="Button">
+            <Setter Property="Foreground" Value="{StaticResource PhoneTextPrimaryBrush}"/>
+            <Setter Property="Background" Value="{StaticResource PhoneAccentBrush}"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="14"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="HistoryRowActionButton" TargetType="Button">
+            <Setter Property="Width" Value="22"/>
+            <Setter Property="Height" Value="22"/>
+            <Setter Property="Margin" Value="0,0,4,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Foreground" Value="{StaticResource PhoneTextPrimaryBrush}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="11">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="HistoryDateSectionHeader" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{StaticResource PhoneTextSecondaryBrush}"/>
+            <Setter Property="Margin" Value="0,8,0,2"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Background="{StaticResource PhoneBgBrush}" Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -10,79 +91,100 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Header -->
-        <Grid Grid.Row="0" Margin="14,6,14,4">
+        <Grid Grid.Row="0" Margin="0,0,0,8">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <TextBlock x:Name="HeaderTitleText"
-                       Text="Call History"
-                       Style="{StaticResource TypeTitle}"
+                       Text="History"
+                       FontSize="14"
+                       FontWeight="SemiBold"
                        Foreground="{StaticResource PhoneTextPrimaryBrush}"
-                       VerticalAlignment="Center"/>
-            <Button x:Name="RefreshButton"
-                    Grid.Column="1"
-                    Style="{StaticResource HeaderIconButton}"
-                    ToolTip="Refresh"
-                    Margin="0,0,6,0"
-                    Click="RefreshButton_Click">
-                <TextBlock Text="&#x21BB;" FontSize="14" FontWeight="SemiBold"/>
-            </Button>
-            <Button x:Name="ClearFilterButton"
+                       VerticalAlignment="Center"
+                       Margin="0,0,6,0"/>
+            <Button x:Name="FilterAllButton"
                     Grid.Column="2"
-                    Style="{StaticResource PhoneSecondaryButton}"
-                    Content="Show All"
-                    Padding="10,6"
-                    FontSize="12"
-                    Visibility="Collapsed"
-                    Click="ClearFilterButton_Click"/>
+                    Content="All"
+                    Style="{StaticResource HistoryFilterChipActive}"
+                    Click="FilterAllButton_Click"/>
+            <Button x:Name="FilterAnsweredButton"
+                    Grid.Column="3"
+                    Content="Answered"
+                    Style="{StaticResource HistoryFilterChip}"
+                    Click="FilterAnsweredButton_Click"/>
+            <Button x:Name="FilterMissedButton"
+                    Grid.Column="4"
+                    Content="Missed"
+                    Style="{StaticResource HistoryFilterChip}"
+                    Click="FilterMissedButton_Click"/>
+            <Button x:Name="RefreshButton"
+                    Grid.Column="5"
+                    Width="22" Height="22"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Cursor="Hand"
+                    ToolTip="Refresh"
+                    Click="RefreshButton_Click">
+                <controls:PackIcon IconKey="IconSfArrowClockwise" IconSize="12"
+                                   Foreground="{StaticResource PhoneTextPrimaryBrush}"/>
+            </Button>
         </Grid>
 
-        <!-- Search -->
-        <Grid Grid.Row="1" Margin="16,0,16,8">
+        <Grid Grid.Row="1" Margin="0,0,0,8">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <controls:SearchField x:Name="SearchField"
-                                  Grid.Column="0"
-                                  Placeholder="Search calls..."/>
+            <Border Grid.Column="0"
+                    Background="{StaticResource PhoneSurfaceElevatedBrush}"
+                    BorderBrush="{StaticResource PhoneBorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="12"
+                    Padding="8,5"
+                    Margin="0,0,8,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <controls:PackIcon IconKey="IconSfMagnifyingGlass"
+                                       IconSize="11"
+                                       Foreground="{StaticResource PhoneTextSecondaryBrush}"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,6,0"/>
+                    <TextBox x:Name="HistorySearchBox"
+                             Grid.Column="1"
+                             BorderThickness="0"
+                             Background="Transparent"
+                             FontSize="12"
+                             Foreground="{StaticResource PhoneTextPrimaryBrush}"
+                             CaretBrush="{StaticResource PhoneTextPrimaryBrush}"
+                             VerticalAlignment="Center"
+                             KeyDown="HistorySearchBox_KeyDown"/>
+                </Grid>
+            </Border>
             <Button Grid.Column="1"
                     Content="Search"
-                    Style="{StaticResource PhonePrimaryButton}"
-                    Margin="8,0,0,0"
-                    Padding="14,8"
-                    FontSize="12"
+                    Style="{StaticResource HistoryAccentButton}"
                     Click="SearchButton_Click"/>
         </Grid>
 
-        <!-- History list -->
-        <Grid Grid.Row="2" Margin="12,0,12,0">
-            <Border x:Name="StickyDateHeaderBar"
-                    Background="{StaticResource PhoneBgBrush}"
-                    BorderBrush="{StaticResource PhoneDividerBrush}"
-                    BorderThickness="0,0,0,1"
-                    Padding="4,8,4,6"
-                    VerticalAlignment="Top"
-                    IsHitTestVisible="False"
-                    Visibility="Collapsed">
-                <TextBlock x:Name="StickyDateHeaderText" Style="{StaticResource HistoryDateHeader}" Margin="0"/>
-            </Border>
-
+        <Grid Grid.Row="2">
             <ScrollViewer x:Name="HistoryScrollViewer"
                           VerticalScrollBarVisibility="Auto"
-                          Style="{StaticResource PhoneScrollViewer}"
-                          ScrollChanged="HistoryScrollViewer_ScrollChanged">
+                          Style="{StaticResource PhoneScrollViewer}">
                 <ItemsControl x:Name="HistoryList">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <StackPanel>
-                                <TextBlock Text="{Binding HeaderText}"
-                                           Tag="{Binding HeaderText}">
+                                <TextBlock Text="{Binding HeaderText}">
                                     <TextBlock.Style>
-                                        <Style TargetType="TextBlock" BasedOn="{StaticResource HistoryDateHeader}">
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource HistoryDateSectionHeader}">
                                             <Setter Property="Visibility" Value="Collapsed"/>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsHeader}" Value="True">
@@ -92,78 +194,102 @@
                                         </Style>
                                     </TextBlock.Style>
                                 </TextBlock>
-                                <Border BorderBrush="{StaticResource PhoneCardBorderBrush}"
-                                        BorderThickness="3,1,1,1"
-                                        CornerRadius="12"
-                                        Margin="0,0,0,8"
-                                        Padding="8,8">
+                                <Border CornerRadius="12"
+                                        Padding="8,7"
+                                        Margin="0,0,0,4"
+                                        Background="{StaticResource PhoneSurfaceElevatedBrush}"
+                                        BorderBrush="{StaticResource PhoneCardBorderBrush}"
+                                        BorderThickness="1">
                                     <Border.Style>
                                         <Style TargetType="Border">
-                                            <Setter Property="Background" Value="{StaticResource PhoneSurfaceElevatedBrush}"/>
                                             <Setter Property="Visibility" Value="Visible"/>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsHeader}" Value="True">
                                                     <Setter Property="Visibility" Value="Collapsed"/>
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding Record.HistoryTone}" Value="Answered">
-                                                    <Setter Property="Background" Value="{StaticResource HistoryAnsweredBgBrush}"/>
-                                                    <Setter Property="BorderBrush" Value="{StaticResource HistoryAnsweredBrush}"/>
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding Record.HistoryTone}" Value="Missed">
-                                                    <Setter Property="Background" Value="{StaticResource HistoryMissedBgBrush}"/>
-                                                    <Setter Property="BorderBrush" Value="{StaticResource HistoryMissedBrush}"/>
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding Record.HistoryTone}" Value="Cancel">
-                                                    <Setter Property="Background" Value="{StaticResource HistoryCancelBgBrush}"/>
-                                                    <Setter Property="BorderBrush" Value="{StaticResource HistoryCancelBrush}"/>
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding Record.HistoryTone}" Value="Outbound">
-                                                    <Setter Property="Background" Value="{StaticResource HistoryOutboundBgBrush}"/>
-                                                    <Setter Property="BorderBrush" Value="{StaticResource HistoryOutboundBrush}"/>
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding Record.HistoryTone}" Value="Inbound">
-                                                    <Setter Property="Background" Value="{StaticResource HistoryInboundBgBrush}"/>
-                                                    <Setter Property="BorderBrush" Value="{StaticResource HistoryInboundBrush}"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
                                     </Border.Style>
                                     <Grid>
                                         <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="3"/>
                                             <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
-                                        <controls:AvatarCircle Grid.Column="0"
-                                                               Width="40" Height="40"
-                                                               DisplayName="{Binding Record.DisplayName}"
-                                                               Number="{Binding Record.DialNumber}"
-                                                               InitialsFontSize="13"
-                                                               Margin="0,0,10,0"/>
-                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                            <controls:HighlightTextBlock Text="{Binding Record.DisplayName}"
-                                                                         HighlightQuery="{Binding DataContext.SearchHighlightQuery, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                                         TextStyle="{StaticResource ListItemPrimaryText}"/>
-                                            <controls:HighlightTextBlock Text="{Binding Record.Subtitle}"
-                                                                         HighlightQuery="{Binding DataContext.SearchHighlightQuery, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                                         TextStyle="{StaticResource ListItemSecondaryText}"
-                                                                         Margin="0,3,0,0"/>
+                                        <Border Grid.Column="0"
+                                                CornerRadius="2"
+                                                Margin="0,0,8,0"
+                                                VerticalAlignment="Stretch">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Background" Value="#0EA5E9"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Record.HistoryTone}" Value="Answered">
+                                                            <Setter Property="Background" Value="#10B981"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Record.HistoryTone}" Value="Inbound">
+                                                            <Setter Property="Background" Value="#10B981"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Record.HistoryTone}" Value="Missed">
+                                                            <Setter Property="Background" Value="#DC2626"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Record.HistoryTone}" Value="Cancel">
+                                                            <Setter Property="Background" Value="#0EA5E9"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Record.HistoryTone}" Value="Outbound">
+                                                            <Setter Property="Background" Value="#0EA5E9"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                        </Border>
+                                        <Border Grid.Column="1"
+                                                Width="32" Height="32"
+                                                CornerRadius="16"
+                                                Background="{StaticResource PhoneSurfaceBrush}"
+                                                Margin="0,0,8,0">
+                                            <TextBlock Text="{Binding Record.Initial}"
+                                                       FontSize="11"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{StaticResource PhoneTextPrimaryBrush}"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"/>
+                                        </Border>
+                                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Record.DisplayName}"
+                                                       FontSize="12"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{StaticResource PhoneTextPrimaryBrush}"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Text="{Binding Record.Subtitle}"
+                                                       FontSize="11"
+                                                       Foreground="{StaticResource PhoneTextSecondaryBrush}"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       Margin="0,2,0,0"/>
                                             <TextBlock Text="{Binding Record.CallDate}"
-                                                       Style="{StaticResource ListItemMetaText}"
-                                                       Margin="0,3,0,0"/>
+                                                       FontSize="11"
+                                                       Foreground="{StaticResource PhoneTextSecondaryBrush}"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       Margin="0,2,0,0"/>
                                         </StackPanel>
-                                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                                            <Button Style="{StaticResource ContactActionCallButton}"
+                                        <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Button Style="{StaticResource HistoryRowActionButton}"
+                                                    Background="{StaticResource PhoneCallGreenBrush}"
                                                     Tag="{Binding Record}"
                                                     Click="DialRecordButton_Click"
                                                     ToolTip="Call">
-                                                <controls:PackIcon IconKey="IconPhone" Style="{StaticResource ActionPackIcon}"/>
+                                                <controls:PackIcon IconKey="IconSfPhoneFill" IconSize="11"
+                                                                   Foreground="{StaticResource PhoneTextPrimaryBrush}"/>
                                             </Button>
-                                            <Button Style="{StaticResource ContactActionMessageButton}"
+                                            <Button Style="{StaticResource HistoryRowActionButton}"
+                                                    Background="{StaticResource PhoneAccentBrush}"
+                                                    Margin="0"
                                                     Tag="{Binding Record}"
                                                     Click="CopyRecordButton_Click"
                                                     ToolTip="Copy number">
-                                                <controls:PackIcon IconKey="IconCopy" Style="{StaticResource ActionPackIcon}"/>
+                                                <controls:PackIcon IconKey="IconSfDocOnDoc" IconSize="11"
+                                                                   Foreground="{StaticResource PhoneTextPrimaryBrush}"/>
                                             </Button>
                                         </StackPanel>
                                     </Grid>
@@ -183,35 +309,57 @@
                         VerticalAlignment="Center"
                         Visibility="Collapsed">
                 <TextBlock x:Name="ErrorText"
-                           Style="{StaticResource TypeBody}"
+                           FontSize="12"
+                           Foreground="{StaticResource PhoneHangupRedBrush}"
                            TextWrapping="Wrap"
                            TextAlignment="Center"
-                           MaxWidth="280"
-                           Margin="0,0,0,12"/>
+                           MaxWidth="240"
+                           Margin="0,0,0,8"/>
                 <Button Content="Retry"
-                        Style="{StaticResource PhonePrimaryButton}"
-                        Padding="16,10"
+                        Style="{StaticResource HistoryAccentButton}"
+                        HorizontalAlignment="Center"
                         Click="RetryButton_Click"/>
             </StackPanel>
 
-            <controls:EmptyStateView x:Name="EmptyState"
-                                     HorizontalAlignment="Stretch"
-                                     VerticalAlignment="Stretch"
-                                     Visibility="Collapsed"/>
+            <StackPanel x:Name="EmptyStatePanel"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Visibility="Collapsed">
+                <TextBlock x:Name="EmptyTitleText"
+                           Text="No calls yet"
+                           FontSize="13"
+                           FontWeight="SemiBold"
+                           Foreground="{StaticResource PhoneTextPrimaryBrush}"
+                           TextAlignment="Center"/>
+                <TextBlock x:Name="EmptySubtitleText"
+                           Text="Your call history will show up here once you make or receive calls."
+                           FontSize="11"
+                           Foreground="{StaticResource PhoneTextSecondaryBrush}"
+                           TextWrapping="Wrap"
+                           TextAlignment="Center"
+                           MaxWidth="240"
+                           Margin="0,6,0,0"/>
+            </StackPanel>
         </Grid>
 
-        <!-- Status / load more -->
-        <StackPanel Grid.Row="3" Margin="16,4,16,8">
+        <StackPanel Grid.Row="3" Margin="0,6,0,0">
+            <TextBlock x:Name="CopiedNoticeText"
+                       FontSize="11"
+                       Foreground="{StaticResource PhoneCallGreenBrush}"
+                       TextAlignment="Center"
+                       Visibility="Collapsed"
+                       Margin="0,0,0,6"/>
             <TextBlock x:Name="StatusText"
                        Text=""
                        FontSize="11"
-                       Foreground="{StaticResource PhoneTextTertiaryBrush}"
+                       Foreground="{StaticResource PhoneTextSecondaryBrush}"
                        TextAlignment="Center"
                        TextWrapping="Wrap"
-                       Margin="0,0,0,4"/>
+                       Margin="0,0,0,6"/>
             <Button x:Name="LoadMoreButton"
-                    Style="{StaticResource PhoneSecondaryButton}"
+                    Style="{StaticResource HistoryAccentButton}"
                     Content="Load more"
+                    HorizontalAlignment="Stretch"
                     Visibility="Collapsed"
                     Click="LoadMoreButton_Click"/>
         </StackPanel>

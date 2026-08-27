@@ -20,6 +20,7 @@ public partial class DialpadView : UserControl
     private readonly DispatcherTimer _zeroLongPressTimer;
     private bool _backspaceHeld;
     private bool _zeroLongPressFired;
+    private string? _pendingNumber;
 
     public event EventHandler? BackRequested;
     public event EventHandler<string>? OutboundDialFailed;
@@ -48,6 +49,15 @@ public partial class DialpadView : UserControl
             AppendDigit("+");
         };
 
+        Loaded += (_, _) => ApplyPendingNumber();
+        IsVisibleChanged += (_, _) =>
+        {
+            if (IsVisible)
+            {
+                ApplyPendingNumber();
+            }
+        };
+
         UpdateCallState(CallState.Idle);
     }
 
@@ -65,7 +75,19 @@ public partial class DialpadView : UserControl
 
     public void SetNumber(string number)
     {
-        SetRawNumber(PhoneNumberFormatter.Unformat(number));
+        _pendingNumber = number ?? string.Empty;
+        ApplyPendingNumber();
+    }
+
+    private void ApplyPendingNumber()
+    {
+        if (_pendingNumber is null || !IsLoaded || !IsVisible)
+        {
+            return;
+        }
+
+        SetRawNumber(PhoneNumberFormatter.Unformat(_pendingNumber));
+        _pendingNumber = null;
     }
 
     public void UpdateCallState(CallState state)
@@ -146,7 +168,13 @@ public partial class DialpadView : UserControl
         {
             NumberBox.Text = PhoneNumberFormatter.FormatForDisplay(raw);
             var caret = caretRawIndex ?? raw.Length;
-            NumberBox.CaretIndex = PhoneNumberFormatter.RawIndexToFormattedIndex(raw[..Math.Min(caret, raw.Length)]);
+            try
+            {
+                NumberBox.CaretIndex = PhoneNumberFormatter.RawIndexToFormattedIndex(raw[..Math.Min(caret, raw.Length)]);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+            }
         }
         finally
         {

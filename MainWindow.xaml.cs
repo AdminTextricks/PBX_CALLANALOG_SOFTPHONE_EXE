@@ -1436,6 +1436,11 @@ public partial class MainWindow : Window
 
     private async void ShowDialpad(string? number = null)
     {
+        if (!string.IsNullOrWhiteSpace(number))
+        {
+            DialpadView.SetNumber(number);
+        }
+
         await NavigateToPageAsync(DialpadView, PageDialpad);
         DialpadView.SetRegistrationStatus(ConnectionStatusInfo.GetLabel(_currentStatus), _currentStatus);
 

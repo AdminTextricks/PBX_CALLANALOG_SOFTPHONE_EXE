@@ -1,7 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
+using System.Windows.Input;
 using CallAnalog.Softphone.Helpers;
 using CallAnalog.Softphone.Models;
 using CallAnalog.Softphone.Services;
@@ -22,7 +22,9 @@ public partial class HistoryView : UserControl
     private CallHistoryService? _callHistoryService;
     private string _extension = string.Empty;
     private CallHistoryFilter _activeFilter = CallHistoryFilter.All;
+    private string _submittedSearch = string.Empty;
     private int _currentPage;
+    private int _total;
     private bool _hasMore;
     private bool _isBusy;
     private bool _hasLoaded;
@@ -41,17 +43,7 @@ public partial class HistoryView : UserControl
     {
         InitializeComponent();
         HistoryList.ItemsSource = _displayItems;
-        EmptyState.SetContent("No calls yet", "Your call history will show up here once you make or receive calls.", "IconHistory");
-        SearchField.SearchRequested += async (_, _) =>
-        {
-            _hasLoaded = false;
-            SearchHighlightQuery = SearchField.Query.Trim();
-            await RefreshAsync();
-        };
     }
-
-    private void SyncSearchHighlightQuery() =>
-        SearchHighlightQuery = SearchField.Query.Trim();
 
     public void Initialize(CallHistoryService callHistoryService, string extension)
     {
@@ -66,7 +58,8 @@ public partial class HistoryView : UserControl
             _hasMore = false;
             _displayItems.Clear();
             _allCalls.Clear();
-            SearchField.Query = string.Empty;
+            _submittedSearch = string.Empty;
+            HistorySearchBox.Text = string.Empty;
         }
     }
 
@@ -83,9 +76,15 @@ public partial class HistoryView : UserControl
     public async Task NavigateWithFilterAsync(CallHistoryFilter filter)
     {
         _activeFilter = filter;
-        _hasLoaded = false;
-        UpdateFilterUi();
-        await EnsureLoadedAsync();
+        UpdateFilterChips();
+        if (!_hasLoaded)
+        {
+            await EnsureLoadedAsync();
+            return;
+        }
+
+        ApplyFilterToDisplay();
+        UpdateStatusFromFilter();
     }
 
     public async Task RefreshAsync()
@@ -103,8 +102,8 @@ public partial class HistoryView : UserControl
 
         _isBusy = true;
         _lastError = null;
-        SyncSearchHighlightQuery();
-        SetLoading(true);
+        SearchHighlightQuery = _submittedSearch;
+        SetLoading(_allCalls.Count == 0);
         SetStatus("Loading call history...");
         try
         {
@@ -112,23 +111,23 @@ public partial class HistoryView : UserControl
             var wrapped = await _callHistoryService.GetCallHistoryAsync(
                 _extension,
                 _currentPage,
-                SearchField.NormalizedQuery);
+                string.IsNullOrWhiteSpace(_submittedSearch) ? null : _submittedSearch);
             var result = wrapped.Result;
 
             _allCalls.Clear();
             _allCalls.AddRange(result.Items);
 
+            _total = result.Total;
             _hasMore = result.HasMore;
             UpdateLoadMore(result);
             ApplyFilterToDisplay();
-        UpdateStickyDateHeader();
             if (wrapped.IsOffline)
             {
                 SetStatus($"Showing cached history from {wrapped.CachedUtc:yyyy-MM-dd HH:mm} UTC — API offline.");
             }
             else
             {
-                SetStatusMessage(result);
+                UpdateStatusFromFilter();
             }
 
             _hasLoaded = true;
@@ -140,7 +139,7 @@ public partial class HistoryView : UserControl
             ErrorText.Text = ex.Message;
             ErrorPanel.Visibility = Visibility.Visible;
             HistoryList.Visibility = Visibility.Collapsed;
-            EmptyState.Visibility = Visibility.Collapsed;
+            EmptyStatePanel.Visibility = Visibility.Collapsed;
         }
         finally
         {
@@ -164,15 +163,16 @@ public partial class HistoryView : UserControl
             var wrapped = await _callHistoryService.GetCallHistoryAsync(
                 _extension,
                 nextPage,
-                SearchField.NormalizedQuery);
+                string.IsNullOrWhiteSpace(_submittedSearch) ? null : _submittedSearch);
             var result = wrapped.Result;
 
-            _allCalls.AddRange(result.Items);
+            var existing = _allCalls.Select(c => c.Id).ToHashSet();
+            _allCalls.AddRange(result.Items.Where(c => !existing.Contains(c.Id)));
             _currentPage = nextPage;
+            _total = result.Total;
             _hasMore = result.HasMore;
             UpdateLoadMore(result);
             ApplyFilterToDisplay();
-            UpdateStickyDateHeader();
             SetStatus($"{FilteredCount()} calls shown ({_allCalls.Count} loaded).");
         }
         catch (Exception ex)
@@ -195,61 +195,6 @@ public partial class HistoryView : UserControl
         }
 
         UpdateEmptyState();
-        UpdateStickyDateHeader();
-    }
-
-    private void HistoryScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e) =>
-        UpdateStickyDateHeader();
-
-    private void UpdateStickyDateHeader()
-    {
-        if (_displayItems.Count == 0 || HistoryList.Visibility != Visibility.Visible)
-        {
-            StickyDateHeaderBar.Visibility = Visibility.Collapsed;
-            return;
-        }
-
-        var scrollOffset = HistoryScrollViewer.VerticalOffset;
-        if (scrollOffset < 8)
-        {
-            StickyDateHeaderBar.Visibility = Visibility.Collapsed;
-            return;
-        }
-
-        var viewportTop = scrollOffset + 4;
-        string? currentHeader = null;
-
-        for (var i = 0; i < HistoryList.Items.Count; i++)
-        {
-            if (HistoryList.ItemContainerGenerator.ContainerFromIndex(i) is not FrameworkElement container)
-            {
-                continue;
-            }
-
-            if (container.DataContext is not HistoryListItem { IsHeader: true } headerItem)
-            {
-                continue;
-            }
-
-            var top = container.TranslatePoint(new Point(0, 0), HistoryList).Y;
-            if (top <= viewportTop)
-            {
-                currentHeader = headerItem.HeaderText;
-            }
-            else
-            {
-                break;
-            }
-        }
-
-        if (string.IsNullOrWhiteSpace(currentHeader))
-        {
-            StickyDateHeaderBar.Visibility = Visibility.Collapsed;
-            return;
-        }
-
-        StickyDateHeaderText.Text = currentHeader;
-        StickyDateHeaderBar.Visibility = Visibility.Visible;
     }
 
     private int FilteredCount() => _displayItems.Count(i => !i.IsHeader);
@@ -260,7 +205,7 @@ public partial class HistoryView : UserControl
         HistoryList.Visibility = isLoading ? Visibility.Collapsed : Visibility.Visible;
         if (isLoading)
         {
-            EmptyState.Visibility = Visibility.Collapsed;
+            EmptyStatePanel.Visibility = Visibility.Collapsed;
             ErrorPanel.Visibility = Visibility.Collapsed;
         }
     }
@@ -275,7 +220,7 @@ public partial class HistoryView : UserControl
         ErrorPanel.Visibility = string.IsNullOrWhiteSpace(_lastError) ? Visibility.Collapsed : Visibility.Visible;
 
         var showEmpty = _hasLoaded && FilteredCount() == 0 && string.IsNullOrWhiteSpace(_lastError);
-        EmptyState.Visibility = showEmpty ? Visibility.Visible : Visibility.Collapsed;
+        EmptyStatePanel.Visibility = showEmpty ? Visibility.Visible : Visibility.Collapsed;
         HistoryList.Visibility = showEmpty || !string.IsNullOrWhiteSpace(_lastError)
             ? Visibility.Collapsed
             : Visibility.Visible;
@@ -285,40 +230,34 @@ public partial class HistoryView : UserControl
             return;
         }
 
-        var query = SearchField.NormalizedQuery;
-        if (!string.IsNullOrWhiteSpace(query))
+        if (!string.IsNullOrWhiteSpace(_submittedSearch))
         {
-            EmptyState.SetContent(
-                "No results found",
-                $"No calls match \"{SearchField.Query.Trim()}\". Try a different number or name.",
-                "IconHistory");
+            EmptyTitleText.Text = "No results found";
+            EmptySubtitleText.Text = $"No calls match \"{_submittedSearch}\". Try a different number or name.";
             return;
         }
 
-        EmptyState.SetContent(
-            _activeFilter switch
-            {
-                CallHistoryFilter.Answered => "No answered calls",
-                CallHistoryFilter.Missed => "No missed calls",
-                _ => "No calls yet"
-            },
-            _activeFilter switch
-            {
-                CallHistoryFilter.Answered => "Answered calls will appear here.",
-                CallHistoryFilter.Missed => "Missed and busy calls will appear here.",
-                _ => "Your call history will show up here once you make or receive calls."
-            },
-            "IconHistory");
+        EmptyTitleText.Text = _activeFilter switch
+        {
+            CallHistoryFilter.Answered => "No answered calls",
+            CallHistoryFilter.Missed => "No missed calls",
+            _ => "No calls yet"
+        };
+        EmptySubtitleText.Text = _activeFilter switch
+        {
+            CallHistoryFilter.Answered => "Answered calls will appear here.",
+            CallHistoryFilter.Missed => "Missed and busy calls will appear here.",
+            _ => "Your call history will show up here once you make or receive calls."
+        };
     }
 
-    private void SetStatusMessage(PagedResult<CallRecord> result)
+    private void UpdateStatusFromFilter()
     {
         if (FilteredCount() == 0)
         {
-            var query = SearchField.NormalizedQuery;
-            if (!string.IsNullOrWhiteSpace(query))
+            if (!string.IsNullOrWhiteSpace(_submittedSearch))
             {
-                SetStatus($"No calls match \"{SearchField.Query.Trim()}\".");
+                SetStatus($"No calls match \"{_submittedSearch}\".");
                 return;
             }
 
@@ -331,16 +270,18 @@ public partial class HistoryView : UserControl
             return;
         }
 
-        SetStatus($"{FilteredCount()} of {result.Total} calls shown.");
+        SetStatus($"{FilteredCount()} of {_total} calls shown.");
     }
 
-    private void UpdateFilterUi()
+    private void UpdateFilterChips()
     {
-        HeaderTitleText.Text = CallRecordAnalytics.GetFilterTitle(_activeFilter);
-        ClearFilterButton.Visibility = _activeFilter == CallHistoryFilter.All
-            ? Visibility.Collapsed
-            : Visibility.Visible;
+        FilterAllButton.Style = ChipStyle(_activeFilter == CallHistoryFilter.All);
+        FilterAnsweredButton.Style = ChipStyle(_activeFilter == CallHistoryFilter.Answered);
+        FilterMissedButton.Style = ChipStyle(_activeFilter == CallHistoryFilter.Missed);
     }
+
+    private Style ChipStyle(bool selected) =>
+        (Style)FindResource(selected ? "HistoryFilterChipActive" : "HistoryFilterChip");
 
     private void UpdateLoadMore(PagedResult<CallRecord> result)
     {
@@ -357,27 +298,55 @@ public partial class HistoryView : UserControl
 
     private void SetStatus(string message) => StatusText.Text = message;
 
+    private void ApplyFilter(CallHistoryFilter filter)
+    {
+        _activeFilter = filter;
+        UpdateFilterChips();
+        ApplyFilterToDisplay();
+        UpdateStatusFromFilter();
+    }
+
+    private async Task SubmitSearchAsync()
+    {
+        _submittedSearch = HistorySearchBox.Text.Trim();
+        SearchHighlightQuery = _submittedSearch;
+        _hasLoaded = false;
+        await RefreshAsync();
+    }
+
+    private async void HistorySearchBox_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter)
+        {
+            await SubmitSearchAsync();
+        }
+    }
+
     private async void RefreshButton_Click(object sender, RoutedEventArgs e)
     {
         _hasLoaded = false;
         await RefreshAsync();
     }
 
-    private async void SearchButton_Click(object sender, RoutedEventArgs e)
-    {
-        _hasLoaded = false;
-        await RefreshAsync();
-    }
+    private async void SearchButton_Click(object sender, RoutedEventArgs e) =>
+        await SubmitSearchAsync();
 
     private async void LoadMoreButton_Click(object sender, RoutedEventArgs e) =>
         await LoadMoreAsync();
 
+    private void FilterAllButton_Click(object sender, RoutedEventArgs e) =>
+        ApplyFilter(CallHistoryFilter.All);
+
+    private void FilterAnsweredButton_Click(object sender, RoutedEventArgs e) =>
+        ApplyFilter(CallHistoryFilter.Answered);
+
+    private void FilterMissedButton_Click(object sender, RoutedEventArgs e) =>
+        ApplyFilter(CallHistoryFilter.Missed);
+
     private async void ClearFilterButton_Click(object sender, RoutedEventArgs e)
     {
-        _activeFilter = CallHistoryFilter.All;
-        _hasLoaded = false;
-        UpdateFilterUi();
-        await RefreshAsync();
+        ApplyFilter(CallHistoryFilter.All);
+        await Task.CompletedTask;
     }
 
     private async void RetryButton_Click(object sender, RoutedEventArgs e)
@@ -400,7 +369,8 @@ public partial class HistoryView : UserControl
         if (sender is Button { Tag: CallRecord record } && !string.IsNullOrWhiteSpace(record.DialNumber))
         {
             Clipboard.SetText(record.DialNumber);
-            SetStatus($"Copied {record.DialNumber}");
+            CopiedNoticeText.Text = $"Copied {record.DialNumber}";
+            CopiedNoticeText.Visibility = Visibility.Visible;
         }
     }
 
