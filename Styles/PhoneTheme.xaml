@@ -353,14 +353,71 @@
         <Setter Property="VerticalContentAlignment" Value="Center" />
     </Style>
 
+    <!-- Login-only. Match macOS LoginView .system(size:) 1:1 in WPF DIPs (not 96/72). -->
+    <FontFamily x:Key="LoginUiFont">Segoe UI</FontFamily>
+
+    <Style x:Key="LoginSubtitleText" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource LoginUiFont}" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontWeight" Value="Normal" />
+        <Setter Property="Foreground" Value="{StaticResource PhoneTextSecondaryBrush}" />
+        <Setter Property="TextAlignment" Value="Center" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
+    </Style>
+
+    <Style x:Key="LoginLabelText" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource LoginUiFont}" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontWeight" Value="Normal" />
+        <Setter Property="Foreground" Value="{StaticResource PhoneTextSecondaryBrush}" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
+    </Style>
+
+    <Style x:Key="LoginMetaText" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource LoginUiFont}" />
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FontWeight" Value="Normal" />
+        <Setter Property="TextAlignment" Value="Center" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
+    </Style>
+
+    <Style x:Key="LoginTextBox" TargetType="TextBox" BasedOn="{StaticResource PhoneTextBox}">
+        <Setter Property="FontFamily" Value="{StaticResource LoginUiFont}" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontWeight" Value="Normal" />
+        <Setter Property="Padding" Value="10,8" />
+        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
+    </Style>
+
+    <Style x:Key="LoginPasswordBox" TargetType="PasswordBox" BasedOn="{StaticResource PhonePasswordBox}">
+        <Setter Property="FontFamily" Value="{StaticResource LoginUiFont}" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontWeight" Value="Normal" />
+        <Setter Property="Padding" Value="10,8" />
+        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
+    </Style>
+
+    <Style x:Key="LoginPrimaryButton" TargetType="Button" BasedOn="{StaticResource PhonePrimaryButton}">
+        <Setter Property="FontFamily" Value="{StaticResource LoginUiFont}" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Padding" Value="14,9" />
+        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
+    </Style>
+
     <Style x:Key="LoginRememberMeCheckBox" TargetType="CheckBox">
         <Setter Property="Foreground" Value="{StaticResource PhoneTextSecondaryBrush}" />
-        <Setter Property="FontFamily" Value="{StaticResource PhoneUiFont}" />
-        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontFamily" Value="{StaticResource LoginUiFont}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontWeight" Value="Normal" />
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="HorizontalAlignment" Value="Left" />
         <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="CheckBox">
@@ -372,17 +429,17 @@
                                 BorderThickness="1"
                                 BorderBrush="{StaticResource PhoneBorderBrush}"
                                 Background="Transparent"
-                                VerticalAlignment="Center">
-                            <Path x:Name="CheckMark"
-                                  Data="M1,6.5 L4.5,10 L12,2"
-                                  Stroke="White"
-                                  StrokeThickness="1.6"
-                                  StrokeStartLineCap="Round"
-                                  StrokeEndLineCap="Round"
-                                  StrokeLineJoin="Round"
-                                  Stretch="Uniform"
-                                  Margin="1.5"
-                                  Visibility="Collapsed" />
+                                VerticalAlignment="Center"
+                                SnapsToDevicePixels="True">
+                            <TextBlock x:Name="CheckMark"
+                                       Text="✓"
+                                       FontFamily="{StaticResource LoginUiFont}"
+                                       FontSize="10.667"
+                                       FontWeight="Bold"
+                                       Foreground="White"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Visibility="Collapsed" />
                         </Border>
                         <ContentPresenter Margin="8,0,0,0"
                                           VerticalAlignment="Center"

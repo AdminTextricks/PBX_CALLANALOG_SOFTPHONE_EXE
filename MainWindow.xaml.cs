@@ -394,6 +394,19 @@ public partial class MainWindow : Window
         RememberMeCheckBox.IsChecked = true;
     }
 
+    private void PhoneScreenBorder_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        if (PhoneScreenBorder.ActualWidth <= 0 || PhoneScreenBorder.ActualHeight <= 0)
+        {
+            return;
+        }
+
+        PhoneScreenBorder.Clip = new RectangleGeometry(
+            new Rect(0, 0, PhoneScreenBorder.ActualWidth, PhoneScreenBorder.ActualHeight),
+            PhoneScreenBorder.CornerRadius.TopLeft,
+            PhoneScreenBorder.CornerRadius.TopLeft);
+    }
+
     private void MainWindow_Loaded(object sender, RoutedEventArgs e)
     {
         ApplyScreenRelativeSize();
