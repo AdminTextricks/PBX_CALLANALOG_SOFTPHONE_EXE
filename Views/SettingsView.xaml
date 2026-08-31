@@ -10,7 +10,7 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Margin="14,6,14,4">
+        <StackPanel Grid.Row="0" Margin="14,4,14,2">
             <TextBlock Text="Settings"
                        Style="{StaticResource TypeTitle}"
                        Foreground="{StaticResource PhoneTextPrimaryBrush}"/>
@@ -22,15 +22,15 @@
 
         <TextBlock x:Name="StatusText"
                    Grid.Row="1"
-                   Margin="16,0,16,8"
+                   Margin="16,0,16,4"
                    Style="{StaticResource TypeBody}"
                    Foreground="{StaticResource PhoneAccentBrush}"
                    TextWrapping="Wrap"/>
 
         <ScrollViewer Grid.Row="2"
                       Style="{StaticResource PhoneScrollViewer}"
-                      Padding="16,0,12,8">
-            <StackPanel>
+                      Padding="16,0,16,4">
+            <StackPanel Margin="4,0,4,0">
                 <StackPanel Style="{StaticResource SettingsSectionHeaderRow}">
                     <controls:PackIcon IconKey="IconMicOn" Style="{StaticResource SettingsSectionPackIcon}"/>
                     <TextBlock Text="AUDIO" Style="{StaticResource SettingsSectionHeaderInline}"/>
@@ -44,7 +44,7 @@
                                   Margin="0,0,0,4"/>
                         <TextBlock x:Name="MicrophonePreviewText"
                                    Style="{StaticResource SettingsDevicePreview}"
-                                   Margin="0,0,0,12"/>
+                                   Margin="0,0,0,6"/>
                         <TextBlock Text="Speaker" Style="{StaticResource SettingsLabel}"/>
                         <ComboBox x:Name="SpeakerCombo"
                                   Style="{StaticResource PhoneComboBox}"
@@ -52,7 +52,7 @@
                                   Margin="0,0,0,4"/>
                         <TextBlock x:Name="SpeakerPreviewText"
                                    Style="{StaticResource SettingsDevicePreview}"
-                                   Margin="0,0,0,12"/>
+                                   Margin="0,0,0,6"/>
                         <TextBlock Text="Ringtone Device" Style="{StaticResource SettingsLabel}"/>
                         <ComboBox x:Name="RingtoneCombo"
                                   Style="{StaticResource PhoneComboBox}"
@@ -60,43 +60,43 @@
                                   Margin="0,0,0,4"/>
                         <TextBlock x:Name="RingtonePreviewText"
                                    Style="{StaticResource SettingsDevicePreview}"
-                                   Margin="0,0,0,12"/>
+                                   Margin="0,0,0,6"/>
                         <TextBlock Text="Input Volume" Style="{StaticResource SettingsLabel}"/>
                         <Slider x:Name="InputVolumeSlider" Minimum="0" Maximum="1"
                                 SmallChange="0.01" LargeChange="0.1" Margin="0,0,0,4"/>
                         <TextBlock Text="Applied to the microphone on the next call."
                                    Style="{StaticResource TypeCaption}"
                                    Foreground="{StaticResource PhoneTextTertiaryBrush}"
-                                   Margin="0,0,0,12"/>
+                                   Margin="0,0,0,6"/>
                         <TextBlock Text="System speaker volume" Style="{StaticResource SettingsLabel}"/>
                         <Slider x:Name="OutputVolumeSlider" Minimum="0" Maximum="1"
                                 SmallChange="0.01" LargeChange="0.1" Margin="0,0,0,4"/>
                         <TextBlock Text="Adjusts Windows system volume for the selected speaker device."
                                    Style="{StaticResource TypeCaption}"
                                    Foreground="{StaticResource PhoneTextTertiaryBrush}"
-                                   Margin="0,0,0,12"/>
+                                   Margin="0,0,0,6"/>
 
                         <TextBlock Text="Mic level" Style="{StaticResource SettingsLabel}"/>
                         <ProgressBar x:Name="MicLevelBar"
                                      Style="{StaticResource MicLevelBar}"
-                                     Height="16"
+                                     Height="10"
                                      Value="0"
-                                     Margin="0,0,0,10"/>
+                                     Margin="0,0,0,6"/>
 
                         <StackPanel Orientation="Horizontal">
                             <Button Content="Test Mic"
                                     Style="{StaticResource PhoneSecondaryButton}"
                                     Margin="0,0,6,0"
-                                    Padding="12,10"
+                                    Padding="10,6"
                                     Click="TestMicButton_Click"/>
                             <Button Content="Test Speaker"
                                     Style="{StaticResource PhoneSecondaryButton}"
                                     Margin="0,0,6,0"
-                                    Padding="12,10"
+                                    Padding="10,6"
                                     Click="TestSpeakerButton_Click"/>
                             <Button Content="Stop"
                                     Style="{StaticResource PhoneSecondaryButton}"
-                                    Padding="12,10"
+                                    Padding="10,6"
                                     Click="StopAudioTestButton_Click"/>
                         </StackPanel>
                     </StackPanel>
@@ -111,17 +111,17 @@
                         <CheckBox x:Name="StartWithWindowsCheckBox"
                                   Content="Start with Windows"
                                   Style="{StaticResource PhoneToggleSwitch}"
-                                  Margin="0,0,0,8"/>
+                                  Margin="0,0,0,4"/>
                         <CheckBox x:Name="DarkModeCheckBox"
                                   Content="Dark mode"
                                   Style="{StaticResource PhoneToggleSwitch}"
-                                  Margin="0,0,0,8"
+                                  Margin="0,0,0,4"
                                   Checked="ThemeSetting_Changed"
                                   Unchecked="ThemeSetting_Changed"/>
                         <CheckBox x:Name="FollowSystemThemeCheckBox"
                                   Content="Follow Windows theme"
                                   Style="{StaticResource PhoneToggleSwitch}"
-                                  Margin="0,0,0,12"
+                                  Margin="0,0,0,6"
                                   Checked="ThemeSetting_Changed"
                                   Unchecked="ThemeSetting_Changed"/>
                     </StackPanel>
@@ -130,31 +130,31 @@
                            Foreground="{StaticResource PhoneTextSecondaryBrush}"
                            Style="{StaticResource TypeCaption}"
                            TextWrapping="Wrap"
-                           Margin="16,0,16,8"/>
+                           Margin="16,0,16,4"/>
                 <Border Style="{StaticResource SettingsCard}">
                     <StackPanel>
                         <TextBlock Text="Carrier / PBX Host" Style="{StaticResource SettingsLabel}"/>
-                        <TextBlock x:Name="CarrierHostText" Style="{StaticResource SettingsValue}" Margin="0,0,0,12"/>
+                        <TextBlock x:Name="CarrierHostText" Style="{StaticResource SettingsValue}" Margin="0,0,0,6"/>
                         <TextBlock Text="SIP Port" Style="{StaticResource SettingsLabel}"/>
-                        <TextBlock x:Name="SipPortText" Style="{StaticResource SettingsValue}" Margin="0,0,0,12"/>
+                        <TextBlock x:Name="SipPortText" Style="{StaticResource SettingsValue}" Margin="0,0,0,6"/>
                         <TextBlock Text="Register request (seconds)" Style="{StaticResource SettingsLabel}"/>
                         <TextBox x:Name="RegisterRequestBox"
                                  Style="{StaticResource PhoneTextBox}"
                                  MaxLength="6"
-                                 Margin="0,0,0,12"/>
+                                 Margin="0,0,0,6"/>
                         <TextBlock Text="Keep alive (seconds)" Style="{StaticResource SettingsLabel}"/>
                         <TextBox x:Name="KeepAliveBox"
                                  Style="{StaticResource PhoneTextBox}"
                                  MaxLength="4"
-                                 Margin="0,0,0,12"/>
+                                 Margin="0,0,0,6"/>
                         <TextBlock Text="Transport" Style="{StaticResource SettingsLabel}"/>
-                        <ComboBox x:Name="TransportCombo" Style="{StaticResource PhoneComboBox}" Margin="0,0,0,12">
+                        <ComboBox x:Name="TransportCombo" Style="{StaticResource PhoneComboBox}" Margin="0,0,0,6">
                             <ComboBoxItem Content="TCP"/>
                             <ComboBoxItem Content="UDP"/>
                         </ComboBox>
                         <Button Content="Save Transport"
                                 Style="{StaticResource PhonePrimaryButton}"
-                                Padding="12,10"
+                                Padding="10,6"
                                 Click="SaveTransportButton_Click"/>
                     </StackPanel>
                 </Border>
@@ -166,29 +166,29 @@
                 <Border Style="{StaticResource SettingsCard}">
                     <StackPanel>
                         <TextBlock Text="Hold Music" Style="{StaticResource SettingsLabel}"/>
-                        <TextBlock x:Name="HoldMusicPathText" Style="{StaticResource SettingsValue}" Margin="0,0,0,8"/>
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                        <TextBlock x:Name="HoldMusicPathText" Style="{StaticResource SettingsValue}" Margin="0,0,0,4"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
                             <Button Content="Upload Hold Music"
                                     Style="{StaticResource PhoneSecondaryButton}"
-                                    Padding="12,10"
+                                    Padding="10,6"
                                     Margin="0,0,8,0"
                                     Click="UploadHoldMusicButton_Click"/>
                             <Button Content="Remove"
                                     Style="{StaticResource PhoneSecondaryButton}"
-                                    Padding="12,10"
+                                    Padding="10,6"
                                     Click="RemoveHoldMusicButton_Click"/>
                         </StackPanel>
                         <TextBlock Text="Ringtone" Style="{StaticResource SettingsLabel}"/>
-                        <TextBlock x:Name="RingtonePathText" Style="{StaticResource SettingsValue}" Margin="0,0,0,8"/>
+                        <TextBlock x:Name="RingtonePathText" Style="{StaticResource SettingsValue}" Margin="0,0,0,4"/>
                         <StackPanel Orientation="Horizontal">
                             <Button Content="Upload Ringtone"
                                     Style="{StaticResource PhoneSecondaryButton}"
-                                    Padding="12,10"
+                                    Padding="10,6"
                                     Margin="0,0,8,0"
                                     Click="UploadRingtoneButton_Click"/>
                             <Button Content="Remove"
                                     Style="{StaticResource PhoneSecondaryButton}"
-                                    Padding="12,10"
+                                    Padding="10,6"
                                     Click="RemoveRingtoneButton_Click"/>
                         </StackPanel>
                     </StackPanel>
@@ -201,7 +201,7 @@
                                    Style="{StaticResource TypeCaption}"
                                    Foreground="{StaticResource PhoneTextSecondaryBrush}"
                                    TextWrapping="Wrap"
-                                   Margin="0,0,0,8"/>
+                                   Margin="0,0,0,4"/>
                         <TextBlock Text="Use the dashboard toggles to enable DND or Auto Answer on this device."
                                    Style="{StaticResource TypeCaption}"
                                    Foreground="{StaticResource PhoneTextTertiaryBrush}"
@@ -216,21 +216,21 @@
                                    Style="{StaticResource TypeCaption}"
                                    Foreground="{StaticResource PhoneTextSecondaryBrush}"
                                    TextWrapping="Wrap"
-                                   Margin="0,0,0,10"/>
+                                   Margin="0,0,0,6"/>
                         <TextBlock Text="Voice profile" Style="{StaticResource SettingsLabel}"/>
-                        <ComboBox x:Name="VoiceProfileCombo" Style="{StaticResource PhoneComboBox}" Margin="0,0,0,12">
+                        <ComboBox x:Name="VoiceProfileCombo" Style="{StaticResource PhoneComboBox}" Margin="0,0,0,6">
                             <ComboBoxItem Content="Low latency" Tag="LowLatency"/>
                             <ComboBoxItem Content="Balanced" Tag="Balanced"/>
                             <ComboBoxItem Content="Stable (Wi-Fi)" Tag="StableWifi"/>
                         </ComboBox>
                         <TextBlock Text="Echo control" Style="{StaticResource SettingsLabel}"/>
-                        <ComboBox x:Name="VoiceEchoCombo" Style="{StaticResource PhoneComboBox}" Margin="0,0,0,12">
+                        <ComboBox x:Name="VoiceEchoCombo" Style="{StaticResource PhoneComboBox}" Margin="0,0,0,6">
                             <ComboBoxItem Content="Off" Tag="Off"/>
                             <ComboBoxItem Content="On" Tag="On"/>
                             <ComboBoxItem Content="Strong (speakerphone)" Tag="Strong"/>
                         </ComboBox>
                         <TextBlock Text="Noise reduction" Style="{StaticResource SettingsLabel}"/>
-                        <ComboBox x:Name="VoiceNoiseCombo" Style="{StaticResource PhoneComboBox}" Margin="0,0,0,12">
+                        <ComboBox x:Name="VoiceNoiseCombo" Style="{StaticResource PhoneComboBox}" Margin="0,0,0,6">
                             <ComboBoxItem Content="Off" Tag="Off"/>
                             <ComboBoxItem Content="Low" Tag="Low"/>
                             <ComboBoxItem Content="High" Tag="High"/>
@@ -238,7 +238,7 @@
                         <CheckBox x:Name="VoiceAutoGainCheckBox"
                                   Content="Automatic gain control"
                                   Style="{StaticResource PhoneCheckBox}"
-                                  Margin="0,0,0,8"/>
+                                  Margin="0,0,0,4"/>
                         <CheckBox x:Name="VoicePreferOpusCheckBox"
                                   Content="Prefer Opus when PBX supports it (falls back to G.711)"
                                   Style="{StaticResource PhoneCheckBox}"/>
@@ -252,8 +252,8 @@
                                    Style="{StaticResource TypeCaption}"
                                    Foreground="{StaticResource PhoneTextSecondaryBrush}"
                                    TextWrapping="Wrap"
-                                   Margin="0,0,0,10"/>
-                        <CheckBox x:Name="CodecPcmuCheckBox" Content="G.711 μ-law (PCMU)" Style="{StaticResource PhoneCheckBox}" Margin="0,0,0,8"/>
+                                   Margin="0,0,0,6"/>
+                        <CheckBox x:Name="CodecPcmuCheckBox" Content="G.711 μ-law (PCMU)" Style="{StaticResource PhoneCheckBox}" Margin="0,0,0,4"/>
                         <CheckBox x:Name="CodecPcmaCheckBox" Content="G.711 A-law (PCMA)" Style="{StaticResource PhoneCheckBox}"/>
                     </StackPanel>
                 </Border>
@@ -264,19 +264,19 @@
                         <CheckBox x:Name="CallRecordingCheckBox"
                                   Content="Enable local call recording"
                                   Style="{StaticResource PhoneCheckBox}"
-                                  Margin="0,0,0,8"/>
+                                  Margin="0,0,0,4"/>
                         <TextBlock Text="Records a mixed WAV/MP3 of both legs — your microphone and the remote caller on this device. PBX recording is separate."
                                    Foreground="{StaticResource PhoneTextSecondaryBrush}"
                                    Style="{StaticResource TypeCaption}"
                                    TextWrapping="Wrap"
-                                   Margin="0,0,0,8"/>
+                                   Margin="0,0,0,4"/>
                         <TextBlock Text="PBX call recording is controlled by your phone system. This toggle only enables recording on this device."
                                    Foreground="{StaticResource PhoneTextSecondaryBrush}"
                                    Style="{StaticResource TypeCaption}"
                                    TextWrapping="Wrap"
-                                   Margin="0,0,0,8"/>
+                                   Margin="0,0,0,4"/>
                         <TextBlock Text="Recording format" Style="{StaticResource SettingsLabel}"/>
-                        <ComboBox x:Name="RecordingFormatCombo" Style="{StaticResource PhoneComboBox}" Margin="0,0,0,12">
+                        <ComboBox x:Name="RecordingFormatCombo" Style="{StaticResource PhoneComboBox}" Margin="0,0,0,6">
                             <ComboBoxItem Content="WAV"/>
                             <ComboBoxItem Content="MP3"/>
                         </ComboBox>
@@ -284,11 +284,11 @@
                                    Foreground="{StaticResource PhoneTextSecondaryBrush}"
                                    Style="{StaticResource TypeCaption}"
                                    TextWrapping="Wrap"
-                                   Margin="0,0,0,8"/>
-                        <TextBlock x:Name="RecordingFolderText" Style="{StaticResource SettingsValue}" Margin="0,0,0,8"/>
+                                   Margin="0,0,0,4"/>
+                        <TextBlock x:Name="RecordingFolderText" Style="{StaticResource SettingsValue}" Margin="0,0,0,4"/>
                         <Button Content="Choose Folder"
                                 Style="{StaticResource PhoneSecondaryButton}"
-                                Padding="12,10"
+                                Padding="10,6"
                                 HorizontalAlignment="Left"
                                 Click="ChooseRecordingFolderButton_Click"/>
                     </StackPanel>
@@ -303,48 +303,48 @@
                         <CheckBox x:Name="CrashReportCheckBox"
                                   Content="Save crash reports locally"
                                   Style="{StaticResource PhoneCheckBox}"
-                                  Margin="0,0,0,8"/>
+                                  Margin="0,0,0,4"/>
                         <TextBlock x:Name="CrashReportNoteText"
                                    Text="Local logs only — email delivery is not configured."
                                    Style="{StaticResource TypeCaption}"
                                    Foreground="{StaticResource PhoneTextSecondaryBrush}"
                                    TextWrapping="Wrap"
-                                   Margin="0,0,0,12"/>
+                                   Margin="0,0,0,6"/>
                         <TextBlock Text="Crash report email" Style="{StaticResource SettingsLabel}"/>
                         <TextBlock Text="help@callanalog.com"
                                    Style="{StaticResource SettingsValue}"
-                                   Margin="0,0,0,12"/>
+                                   Margin="0,0,0,6"/>
                         <Button Content="Check for Updates"
                                 Style="{StaticResource PhoneSecondaryButton}"
-                                Padding="12,10"
+                                Padding="10,6"
                                 HorizontalAlignment="Left"
-                                Margin="0,0,0,8"
+                                Margin="0,0,0,4"
                                 Click="CheckUpdatesButton_Click"/>
                         <TextBlock x:Name="VersionInfoText"
                                    Style="{StaticResource SettingsValue}"
                                    TextWrapping="Wrap"
-                                   Margin="0,0,0,12"/>
+                                   Margin="0,0,0,6"/>
                         <Button Content="Export Diagnostics"
                                 Style="{StaticResource PhoneSecondaryButton}"
-                                Padding="12,10"
+                                Padding="10,6"
                                 HorizontalAlignment="Left"
-                                Margin="0,0,0,8"
+                                Margin="0,0,0,4"
                                 Click="ExportDiagnosticsButton_Click"/>
                         <Button Content="Open SIP Log"
                                 Style="{StaticResource PhoneSecondaryButton}"
-                                Padding="12,10"
+                                Padding="10,6"
                                 HorizontalAlignment="Left"
-                                Margin="0,0,0,8"
+                                Margin="0,0,0,4"
                                 Click="OpenSipLogButton_Click"/>
                         <Button Content="Open Logs Folder"
                                 Style="{StaticResource PhoneSecondaryButton}"
-                                Padding="12,10"
+                                Padding="10,6"
                                 HorizontalAlignment="Left"
-                                Margin="0,0,0,8"
+                                Margin="0,0,0,4"
                                 Click="OpenLogsFolderButton_Click"/>
                         <Button Content="Help — callanalog.com"
                                 Style="{StaticResource PhoneSecondaryButton}"
-                                Padding="12,10"
+                                Padding="10,6"
                                 HorizontalAlignment="Left"
                                 Click="OpenHelpButton_Click"/>
                     </StackPanel>
@@ -355,11 +355,11 @@
         <Border Grid.Row="3"
                 BorderBrush="{StaticResource PhoneDividerBrush}"
                 BorderThickness="0,1,0,0"
-                Padding="16,10">
+                Padding="16,6">
             <Button x:Name="SaveAllButton"
                     Content="Save All"
                     Style="{StaticResource PhonePrimaryButton}"
-                    Padding="14,12"
+                    Padding="14,8"
                     HorizontalAlignment="Stretch"
                     Click="SaveAllButton_Click"/>
         </Border>

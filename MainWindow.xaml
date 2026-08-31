@@ -347,11 +347,24 @@
                                             Grid.Column="1"
                                             Style="{StaticResource BottomNavButton}"
                                             Click="NavHistoryButton_Click">
-                                        <StackPanel Style="{StaticResource BottomNavContent}">
-                                            <Grid Width="18" Height="18" HorizontalAlignment="Center">
-                                                <controls:PackIcon IconKey="IconNavHistory"
-                                                                   Style="{StaticResource NavPackIcon}"
-                                                                   Width="18" Height="18"/>
+                                                <StackPanel Style="{StaticResource BottomNavContent}">
+                                                    <Grid Width="18"
+                                                        Height="18"
+                                                        HorizontalAlignment="Center"
+                                                        VerticalAlignment="Center">
+
+                                                        <controls:PackIcon  IconKey="IconNavHistory"
+                                                                            Style="{StaticResource NavPackIcon}"
+                                                                            Width="20"
+                                                                            Height="20"
+                                                                            HorizontalAlignment="Center"
+                                                                            VerticalAlignment="Center"
+                                                                            RenderTransformOrigin="0.5,0.5">
+                                                            <controls:PackIcon.RenderTransform>
+                                                                <ScaleTransform ScaleX="1.12" ScaleY="1.12"/>
+                                                            </controls:PackIcon.RenderTransform>
+                                                        </controls:PackIcon>
+
                                                 <Border x:Name="HistoryMissedBadge"
                                                         Background="{StaticResource PhoneHangupRedBrush}"
                                                         CornerRadius="6"
@@ -360,17 +373,18 @@
                                                         Padding="2,0"
                                                         HorizontalAlignment="Right"
                                                         VerticalAlignment="Top"
-                                                        Margin="0,-4,-5,0"
+                                                        Margin="0,-4,-4,0"
                                                         Visibility="Collapsed">
                                                     <TextBlock x:Name="HistoryMissedBadgeText"
-                                                               Text="1"
-                                                               FontSize="7"
-                                                               FontWeight="Bold"
-                                                               Foreground="White"
-                                                               HorizontalAlignment="Center"
-                                                               VerticalAlignment="Center"/>
+                                                            Text="1"
+                                                            FontSize="7"
+                                                            FontWeight="Bold"
+                                                            Foreground="White"
+                                                            HorizontalAlignment="Center"
+                                                            VerticalAlignment="Center"/>
                                                 </Border>
                                             </Grid>
+
                                             <TextBlock Text="History"/>
                                         </StackPanel>
                                     </Button>

@@ -1071,20 +1071,20 @@
     <Style x:Key="SettingsCard" TargetType="Border">
         <Setter Property="Background" Value="{StaticResource PhoneSurfaceBrush}" />
         <Setter Property="CornerRadius" Value="12" />
-        <Setter Property="Padding" Value="12" />
-        <Setter Property="Margin" Value="0,0,0,10" />
+        <Setter Property="Padding" Value="8,8" />
+        <Setter Property="Margin" Value="0,0,0,6" />
     </Style>
 
     <Style x:Key="SettingsSectionHeader" TargetType="TextBlock">
         <Setter Property="Foreground" Value="{StaticResource PhoneTextTertiaryBrush}" />
         <Setter Property="FontSize" Value="11" />
         <Setter Property="FontWeight" Value="SemiBold" />
-        <Setter Property="Margin" Value="0,6,0,4" />
+        <Setter Property="Margin" Value="0,4,0,2" />
     </Style>
 
     <Style x:Key="SettingsSectionHeaderRow" TargetType="StackPanel">
         <Setter Property="Orientation" Value="Horizontal" />
-        <Setter Property="Margin" Value="0,8,0,6" />
+        <Setter Property="Margin" Value="0,4,0,3" />
     </Style>
 
     <Style x:Key="SettingsSectionHeaderInline" TargetType="TextBlock" BasedOn="{StaticResource SettingsSectionHeader}">
@@ -1093,7 +1093,7 @@
     </Style>
 
     <Style x:Key="SettingsSubsectionHeader" TargetType="TextBlock" BasedOn="{StaticResource SettingsSectionHeader}">
-        <Setter Property="Margin" Value="0,12,0,6" />
+        <Setter Property="Margin" Value="0,6,0,3" />
         <Setter Property="FontSize" Value="11" />
     </Style>
 

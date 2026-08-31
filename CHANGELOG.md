@@ -7,7 +7,7 @@ When starting a new version, add a section here **before** running `build.ps1 -B
 
 ---
 
-## 2.2.6
+## 2.2.7
 
 ### Call waiting
 - When one party hangs up during a dual call (hold + switch), the other leg is resumed instead of resetting both calls

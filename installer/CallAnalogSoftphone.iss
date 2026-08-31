@@ -11,7 +11,7 @@
 ; certificate is installed. See docs/CODE_SIGNING.md.
 
 #define MyAppName "CallAnalog Softphone"
-#define MyAppVersion "2.2.6"
+#define MyAppVersion "2.2.7"
 #define MyAppPublisher "CallAnalog"
 #define MyAppExeName "CallAnalog.Softphone.exe"
 #define MyAppMutex "Global\CallAnalog.Softphone.SingleInstance"
