@@ -349,7 +349,9 @@
                                             Click="NavHistoryButton_Click">
                                         <StackPanel Style="{StaticResource BottomNavContent}">
                                             <Grid Width="18" Height="18" HorizontalAlignment="Center">
-                                                <controls:PackIcon IconKey="IconNavHistory" Style="{StaticResource NavPackIcon}"/>
+                                                <controls:PackIcon IconKey="IconNavHistory"
+                                                                   Style="{StaticResource NavPackIcon}"
+                                                                   Width="18" Height="18"/>
                                                 <Border x:Name="HistoryMissedBadge"
                                                         Background="{StaticResource PhoneHangupRedBrush}"
                                                         CornerRadius="6"
