@@ -192,7 +192,7 @@
     </Style>
 
     <Style x:Key="InCallPackIcon" TargetType="controls:PackIcon">
-        <Setter Property="IconSize" Value="20" />
+        <Setter Property="IconSize" Value="14" />
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="VerticalAlignment" Value="Center" />
     </Style>

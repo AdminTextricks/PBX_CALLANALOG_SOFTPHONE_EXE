@@ -87,7 +87,7 @@ public partial class CallSessionView : UserControl
         DualCallBannerPanel.Visibility = Visibility.Visible;
         ActiveCallStrip.Visibility = Visibility.Visible;
         WaitingCallStrip.Visibility = Visibility.Visible;
-        CallWaitingInlinePanel.Visibility = Visibility.Visible;
+        CallWaitingInlinePanel.Visibility = Visibility.Collapsed;
         UpdateWaitingCallActionButtons();
         HeaderText.Text = "Call Waiting";
         StatusText.BeginAnimation(UIElement.OpacityProperty, null);
@@ -290,7 +290,7 @@ public partial class CallSessionView : UserControl
         }
         else
         {
-            CallWaitingInlinePanel.Visibility = Visibility.Visible;
+            CallWaitingInlinePanel.Visibility = Visibility.Collapsed;
         }
 
         UpdateActiveCallStrip();
@@ -343,7 +343,8 @@ public partial class CallSessionView : UserControl
             _durationTimer.Start();
         }
 
-        NetworkQualityPanel.Visibility = Visibility.Visible;
+        NetworkQualityPanel.Visibility = Visibility.Collapsed;
+        MediaQualityText.Visibility = Visibility.Collapsed;
         _networkQuality?.StartMonitoring();
         UpdateNetworkQuality(_networkQuality?.Current);
         UpdateMediaQuality(_sipService?.CallQuality.Current);
@@ -357,6 +358,7 @@ public partial class CallSessionView : UserControl
 
     private void UpdateMediaQuality(CallMediaQualitySnapshot? snapshot)
     {
+        MediaQualityText.Visibility = Visibility.Collapsed;
         if (snapshot is null || snapshot.FramesReceived <= 0)
         {
             MediaQualityText.Text = "Call audio: waiting for RTP…";

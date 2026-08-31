@@ -125,13 +125,13 @@
 
     <Style x:Key="TypeHeroCaller" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{StaticResource PhoneDisplayFont}" />
-        <Setter Property="FontSize" Value="20" />
+        <Setter Property="FontSize" Value="18" />
         <Setter Property="FontWeight" Value="SemiBold" />
         <Setter Property="Foreground" Value="{StaticResource PhoneTextPrimaryBrush}" />
     </Style>
 
     <Style x:Key="TypeHeroNumber" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="15" />
+        <Setter Property="FontSize" Value="12" />
         <Setter Property="FontWeight" Value="Light" />
         <Setter Property="FontFamily" Value="{StaticResource PhoneMonoFont}" />
         <Setter Property="Foreground" Value="{StaticResource PhoneTextSecondaryBrush}" />
@@ -989,9 +989,9 @@
     <Style x:Key="InCallIconButton" TargetType="Button">
         <Setter Property="Width" Value="40" />
         <Setter Property="Height" Value="40" />
-        <Setter Property="Margin" Value="4" />
+        <Setter Property="Margin" Value="0,0,6,0" />
         <Setter Property="Cursor" Value="Hand" />
-        <Setter Property="Foreground" Value="{StaticResource PhoneTextSecondaryBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource PhoneTextPrimaryBrush}" />
         <Setter Property="Background" Value="{StaticResource PhoneSurfaceElevatedBrush}" />
         <Setter Property="BorderBrush" Value="{StaticResource PhoneCardBorderBrush}" />
         <Setter Property="BorderThickness" Value="1" />
@@ -1035,16 +1035,16 @@
     </Style>
 
     <Style x:Key="InCallActionButton" TargetType="Button">
-        <Setter Property="Height" Value="30" />
-        <Setter Property="MinWidth" Value="72" />
-        <Setter Property="Margin" Value="3" />
-        <Setter Property="Padding" Value="8,4" />
+        <Setter Property="Height" Value="26" />
+        <Setter Property="MinWidth" Value="64" />
+        <Setter Property="Margin" Value="3,0" />
+        <Setter Property="Padding" Value="10,0" />
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="Foreground" Value="{StaticResource PhoneTextSecondaryBrush}" />
         <Setter Property="Background" Value="{StaticResource PhoneSurfaceElevatedBrush}" />
         <Setter Property="BorderBrush" Value="{StaticResource PhoneCardBorderBrush}" />
         <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="FontSize" Value="10" />
+        <Setter Property="FontSize" Value="11" />
         <Setter Property="FontWeight" Value="SemiBold" />
         <Setter Property="Template">
             <Setter.Value>
@@ -1431,15 +1431,15 @@
         <Setter Property="Foreground" Value="White" />
         <Setter Property="FontSize" Value="13" />
         <Setter Property="FontWeight" Value="SemiBold" />
-        <Setter Property="Height" Value="44" />
-        <Setter Property="MinWidth" Value="108" />
+        <Setter Property="Height" Value="36" />
+        <Setter Property="MinWidth" Value="96" />
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="BorderThickness" Value="0" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="26"
-                            Padding="24,0">
+                    <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="18"
+                            Padding="16,0">
                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
                     <ControlTemplate.Triggers>
@@ -1464,8 +1464,8 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="26"
-                            Padding="24,0">
+                    <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="18"
+                            Padding="16,0">
                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
                     <ControlTemplate.Triggers>
