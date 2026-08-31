@@ -478,7 +478,8 @@
                         <Border Background="#CC0D1117"/>
                         <ScrollViewer VerticalScrollBarVisibility="Auto"
                                       Padding="10,10"
-                                      HorizontalScrollBarVisibility="Disabled">
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      Style="{StaticResource ThinListScrollViewer}">
                             <ContentControl x:Name="ShellOverlayContent"
                                             HorizontalAlignment="Center"
                                             VerticalAlignment="Center"

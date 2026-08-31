@@ -1213,7 +1213,8 @@
                                     CornerRadius="12"
                                     MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}"
                                     MaxHeight="200">
-                                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                              HorizontalScrollBarVisibility="Disabled">
                                     <ItemsPresenter />
                                 </ScrollViewer>
                             </Border>
@@ -1233,41 +1234,16 @@
         <Setter Property="BorderThickness" Value="0" />
     </Style>
 
-    <Style x:Key="PhoneScrollBar" TargetType="ScrollBar">
-        <Setter Property="Background" Value="Transparent" />
-        <Setter Property="Width" Value="8" />
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="ScrollBar">
-                    <Grid Background="Transparent">
-                        <Track x:Name="PART_Track" IsDirectionReversed="True">
-                            <Track.Thumb>
-                                <Thumb>
-                                    <Thumb.Template>
-                                        <ControlTemplate TargetType="Thumb">
-                                            <Border Background="{StaticResource PhoneSurfaceHoverBrush}"
-                                                    CornerRadius="4"
-                                                    Margin="1" />
-                                        </ControlTemplate>
-                                    </Thumb.Template>
-                                </Thumb>
-                            </Track.Thumb>
-                        </Track>
-                    </Grid>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
-
     <Style x:Key="ThinListScrollBar" TargetType="ScrollBar">
         <Setter Property="Background" Value="Transparent" />
-        <Setter Property="Width" Value="5" />
-        <Setter Property="MinWidth" Value="5" />
+        <Setter Property="Width" Value="8" />
+        <Setter Property="MinWidth" Value="8" />
         <Setter Property="Opacity" Value="0.72" />
+        <Setter Property="Stylus.IsPressAndHoldEnabled" Value="False" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ScrollBar">
-                    <Grid Background="#14FFFFFF" Width="5">
+                    <Grid x:Name="TrackBg" Background="#14FFFFFF" Width="8">
                         <Track x:Name="PART_Track" IsDirectionReversed="True">
                             <Track.Thumb>
                                 <Thumb>
@@ -1275,7 +1251,7 @@
                                         <ControlTemplate TargetType="Thumb">
                                             <Border x:Name="ThumbBd"
                                                     Background="#99FFFFFF"
-                                                    CornerRadius="2.5"
+                                                    CornerRadius="4"
                                                     Margin="1,3,1,3"
                                                     MinHeight="18"/>
                                             <ControlTemplate.Triggers>
@@ -1296,11 +1272,28 @@
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter Property="Opacity" Value="1"/>
                         </Trigger>
+                        <Trigger Property="Orientation" Value="Horizontal">
+                            <Setter TargetName="TrackBg" Property="Width" Value="Auto"/>
+                            <Setter TargetName="TrackBg" Property="Height" Value="8"/>
+                            <Setter TargetName="PART_Track" Property="IsDirectionReversed" Value="False"/>
+                        </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+        <Style.Triggers>
+            <Trigger Property="Orientation" Value="Horizontal">
+                <Setter Property="Width" Value="Auto" />
+                <Setter Property="MinWidth" Value="0" />
+                <Setter Property="Height" Value="8" />
+                <Setter Property="MinHeight" Value="8" />
+            </Trigger>
+        </Style.Triggers>
     </Style>
+
+    <Style x:Key="PhoneScrollBar" TargetType="ScrollBar" BasedOn="{StaticResource ThinListScrollBar}" />
+
+    <Style TargetType="ScrollBar" BasedOn="{StaticResource ThinListScrollBar}" />
 
     <Style x:Key="ThinListScrollViewer" TargetType="ScrollViewer">
         <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
@@ -1324,26 +1317,7 @@
         </Setter>
     </Style>
 
-    <Style x:Key="PhoneScrollViewer" TargetType="ScrollViewer">
-        <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
-        <Setter Property="HorizontalScrollBarVisibility" Value="Disabled" />
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="ScrollViewer">
-                    <Grid>
-                        <ScrollContentPresenter />
-                        <ScrollBar Style="{StaticResource PhoneScrollBar}"
-                                   x:Name="PART_VerticalScrollBar"
-                                   Value="{TemplateBinding VerticalOffset}"
-                                   Maximum="{TemplateBinding ScrollableHeight}"
-                                   ViewportSize="{TemplateBinding ViewportHeight}"
-                                   Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}"
-                                   HorizontalAlignment="Right" />
-                    </Grid>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
+    <Style x:Key="PhoneScrollViewer" TargetType="ScrollViewer" BasedOn="{StaticResource ThinListScrollViewer}" />
 
     <Style x:Key="DashboardDndPill" TargetType="Button">
         <Setter Property="Height" Value="28" />
