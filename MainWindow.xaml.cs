@@ -53,6 +53,7 @@ public partial class MainWindow : Window
     private double _navSwipeAccumulatedX;
     private double _navSwipeAccumulatedY;
     private CancellationTokenSource? _loginCts;
+    private IncomingCallPopupWindow? _incomingCallPopup;
 
     private const int PageDashboard = 0;
     private const int PageHistory = 1;
@@ -108,6 +109,7 @@ public partial class MainWindow : Window
 
         SourceInitialized += (_, _) => InitializeGlobalHotkeys();
         Activated += (_, _) => _sipService.EnsureCallStateConsistentWithSession();
+        StateChanged += MainWindow_StateChanged;
 
         VersionText.Text = BuildInfo.FullBuildLabel;
         _userSettings.RestoreCachedPublicIp(_sipLog);
@@ -490,6 +492,7 @@ public partial class MainWindow : Window
     public void ForceExit()
     {
         _forceClosing = true;
+        CloseIncomingCallPopup(force: true);
         if (Application.Current is App app)
         {
             app.RequestShutdown();
@@ -509,6 +512,7 @@ public partial class MainWindow : Window
 
         try
         {
+            CloseIncomingCallPopup(force: true);
             _ringtone.Stop();
             if (_sipService.CallState == CallState.Incoming)
             {
@@ -584,6 +588,7 @@ public partial class MainWindow : Window
 
             var callInfo = EnrichIncomingCall(e);
             DismissActiveShellPanel();
+            HideIncomingCallPopup();
             CallSessionView.Visibility = Visibility.Visible;
             CallSessionView.ShowCallWaiting(callInfo);
             FlashWindow();
@@ -622,7 +627,12 @@ public partial class MainWindow : Window
             CallSessionView.ShowIncoming(callInfo);
             FlashWindow();
 
-            if (ShouldShowIncomingToast(IncomingCallNotificationKind.Incoming))
+            var popupShown = TryShowMinimizedIncomingPopup(callInfo);
+            if (popupShown)
+            {
+                App.TrayIcon.DismissIncomingCallNotification();
+            }
+            else if (ShouldShowIncomingToast(IncomingCallNotificationKind.Incoming))
             {
                 App.TrayIcon.ShowIncomingNotification(callInfo);
             }
@@ -715,6 +725,145 @@ public partial class MainWindow : Window
     private bool IsAppBackgrounded() =>
         !IsVisible || WindowState == WindowState.Minimized || !ShowInTaskbar;
 
+    private void MainWindow_StateChanged(object? sender, EventArgs e)
+    {
+        if (WindowState != WindowState.Minimized)
+        {
+            HideIncomingCallPopup();
+        }
+    }
+
+    private bool TryShowMinimizedIncomingPopup(IncomingCallEventArgs callInfo)
+    {
+        if (WindowState != WindowState.Minimized)
+        {
+            return false;
+        }
+
+        if (_userSettings?.Settings.AutoAnswerEnabled == true)
+        {
+            return false;
+        }
+
+        try
+        {
+            var popup = EnsureIncomingCallPopup();
+            popup.Present(callInfo, _sipService.ActiveCallId);
+            return popup.IsVisible;
+        }
+        catch
+        {
+            HideIncomingCallPopup();
+            return false;
+        }
+    }
+
+    private IncomingCallPopupWindow EnsureIncomingCallPopup()
+    {
+        if (_incomingCallPopup is not null)
+        {
+            return _incomingCallPopup;
+        }
+
+        var popup = new IncomingCallPopupWindow();
+        popup.AnswerRequested += (_, _) => _ = HandleIncomingPopupAnswerAsync();
+        popup.DeclineRequested += (_, _) => _ = HandleIncomingPopupDeclineAsync();
+        _incomingCallPopup = popup;
+        return popup;
+    }
+
+    private bool IsPopupBoundToCurrentIncoming()
+    {
+        if (_sipService.CallState != CallState.Incoming)
+        {
+            return false;
+        }
+
+        var boundId = _incomingCallPopup?.BoundCallId;
+        var activeId = _sipService.ActiveCallId;
+        if (string.IsNullOrWhiteSpace(boundId) || string.IsNullOrWhiteSpace(activeId))
+        {
+            return false;
+        }
+
+        return string.Equals(
+            SipCallIdHelper.Normalize(boundId),
+            SipCallIdHelper.Normalize(activeId),
+            StringComparison.OrdinalIgnoreCase);
+    }
+
+    private async Task HandleIncomingPopupAnswerAsync()
+    {
+        if (!IsPopupBoundToCurrentIncoming())
+        {
+            HideIncomingCallPopup();
+            return;
+        }
+
+        try
+        {
+            await CallSessionView.AnswerIncomingAsync();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(
+                ex.Message,
+                "CallAnalog",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+            return;
+        }
+
+        HideIncomingCallPopup();
+        App.TrayIcon.ShowMainWindow();
+    }
+
+    private async Task HandleIncomingPopupDeclineAsync()
+    {
+        if (!IsPopupBoundToCurrentIncoming())
+        {
+            HideIncomingCallPopup();
+            return;
+        }
+
+        try
+        {
+            await _sipService.DeclineIncomingAsync();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(
+                ex.Message,
+                "CallAnalog",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+        }
+
+        HideIncomingCallPopup();
+    }
+
+    private void HideIncomingCallPopup()
+    {
+        _incomingCallPopup?.Dismiss();
+    }
+
+    private void CloseIncomingCallPopup(bool force)
+    {
+        if (_incomingCallPopup is null)
+        {
+            return;
+        }
+
+        if (force)
+        {
+            _incomingCallPopup.ForceClose();
+            _incomingCallPopup = null;
+            return;
+        }
+
+        HideIncomingCallPopup();
+    }
+
     /// <summary>True when the user may not see the in-app incoming UI (minimized, hidden, or unfocused).</summary>
     private bool ShouldShowIncomingToast(IncomingCallNotificationKind kind)
     {
@@ -759,6 +908,7 @@ public partial class MainWindow : Window
         if (state is not CallState.Incoming)
         {
             App.TrayIcon.DismissIncomingCallNotification();
+            HideIncomingCallPopup();
         }
 
         if (state is not CallState.CallWaitingRinging)
