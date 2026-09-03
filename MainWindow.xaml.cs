@@ -532,6 +532,8 @@ public partial class MainWindow : Window
 
     private void OnCallEnded(object? sender, CallEndedEventArgs e)
     {
+        Dispatcher.InvokeAsync(() => SyncLiveCallLists(e));
+
         if (!e.WasConnected)
         {
             return;
@@ -926,6 +928,7 @@ public partial class MainWindow : Window
         UpdateCallDurationDisplay(state);
         UpdateHeaderBarForCallState(state);
         UpdateTrayStatus(_currentStatus, state);
+        SyncLiveCallLists();
     }
 
     private void UpdateHeaderBarForCallState(CallState state)
@@ -944,26 +947,26 @@ public partial class MainWindow : Window
     {
         state ??= _sipService.CallState;
 
-        if (state is CallState.Idle or CallState.Incoming or CallState.Outgoing)
+        if (state is CallState.Incoming
+            or CallState.Outgoing
+            or CallState.InCall
+            or CallState.OnHold
+            or CallState.CallWaitingRinging)
         {
-            _callDurationTimer.Stop();
-            CallDurationText.Text = string.Empty;
-            CallDurationText.Visibility = Visibility.Collapsed;
-            return;
-        }
-
-        if (state is CallState.InCall or CallState.OnHold or CallState.CallWaitingRinging
-            && _sipService.ConnectedAt is not null)
-        {
-            var elapsed = state == CallState.OnHold
-                ? _sipService.ActiveCallDuration
-                : _sipService.ActiveCallDuration;
+            var elapsed = _sipService.ActiveCallDuration;
             var duration = CallSessionView.FormatDuration(elapsed);
             var remote = _sipService.RemoteParty;
+            var prefix = state switch
+            {
+                CallState.Incoming => "Ringing",
+                CallState.Outgoing => "Calling",
+                CallState.OnHold => "Hold",
+                _ => null
+            };
 
             CallDurationText.Text = string.IsNullOrWhiteSpace(remote)
-                ? duration
-                : $"{remote} · {duration}";
+                ? prefix is null ? duration : $"{prefix} · {duration}"
+                : prefix is null ? $"{remote} · {duration}" : $"{prefix} · {remote} · {duration}";
             CallDurationText.Visibility = Visibility.Visible;
 
             if (!_callDurationTimer.IsEnabled)
@@ -971,12 +974,65 @@ public partial class MainWindow : Window
                 _callDurationTimer.Start();
             }
 
+            SyncLiveCallLists();
             return;
         }
 
         _callDurationTimer.Stop();
         CallDurationText.Text = string.Empty;
         CallDurationText.Visibility = Visibility.Collapsed;
+    }
+
+    private void SyncLiveCallLists(CallEndedEventArgs? ended = null)
+    {
+        if (_currentPageIndex is not PageDashboard and not PageHistory)
+        {
+            return;
+        }
+
+        CallRecord record;
+        if (ended is not null)
+        {
+            record = CallRecordAnalytics.CreateLiveCall(
+                ended.SipCallId,
+                ended.RemoteParty ?? string.Empty,
+                contactName: null,
+                ended.IsOutbound,
+                ended.WasConnected ? "ANSWERED" : "NO ANSWER",
+                ended.DurationSeconds);
+        }
+        else
+        {
+            var state = _sipService.CallState;
+            if (state is CallState.Idle)
+            {
+                return;
+            }
+
+            var disposition = state switch
+            {
+                CallState.Incoming => "RINGING",
+                CallState.Outgoing => "DIALING",
+                _ => "ANSWERED"
+            };
+
+            record = CallRecordAnalytics.CreateLiveCall(
+                _sipService.ActiveCallId,
+                _sipService.RemoteParty ?? string.Empty,
+                contactName: null,
+                _sipService.IsOutboundCall,
+                disposition,
+                (int)Math.Max(0, _sipService.ActiveCallDuration.TotalSeconds));
+        }
+
+        if (_currentPageIndex == PageDashboard)
+        {
+            DashboardView.UpsertLiveCall(record);
+        }
+        else
+        {
+            HistoryView.UpsertLiveCall(record);
+        }
     }
 
     internal void FlashWindow()

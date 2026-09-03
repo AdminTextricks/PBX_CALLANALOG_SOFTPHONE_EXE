@@ -197,6 +197,59 @@ public partial class HistoryView : UserControl
         UpdateEmptyState();
     }
 
+    public void UpsertLiveCall(CallRecord live)
+    {
+        if (!_hasLoaded)
+        {
+            return;
+        }
+
+        var existingIndex = _allCalls.FindIndex(c => c.Id == live.Id);
+        if (existingIndex < 0)
+        {
+            _allCalls.Insert(0, live);
+            _total++;
+        }
+        else
+        {
+            if (!string.IsNullOrWhiteSpace(_allCalls[existingIndex].CallDate))
+            {
+                live.CallDate = _allCalls[existingIndex].CallDate;
+            }
+
+            _allCalls[existingIndex] = live;
+        }
+
+        if (!CallRecordAnalytics.MatchesFilter(live, _activeFilter))
+        {
+            ApplyFilterToDisplay();
+            UpdateStatusFromFilter();
+            return;
+        }
+
+        var displayIndex = -1;
+        for (var i = 0; i < _displayItems.Count; i++)
+        {
+            if (!_displayItems[i].IsHeader && _displayItems[i].Record?.Id == live.Id)
+            {
+                displayIndex = i;
+                break;
+            }
+        }
+
+        if (displayIndex >= 0)
+        {
+            _displayItems[displayIndex] = new HistoryListItem { IsHeader = false, Record = live };
+        }
+        else
+        {
+            ApplyFilterToDisplay();
+        }
+
+        UpdateStatusFromFilter();
+        UpdateEmptyState();
+    }
+
     private int FilteredCount() => _displayItems.Count(i => !i.IsHeader);
 
     private void SetLoading(bool isLoading)

@@ -225,9 +225,14 @@ public partial class CallSessionView : UserControl
         AudioMetersPanel.Visibility = Visibility.Collapsed;
         EndCallButton.Visibility = Visibility.Collapsed;
         NetworkQualityPanel.Visibility = Visibility.Collapsed;
-        StatusText.Text = "Ringing...";
+        StatusText.Text = FormatRingingLabel();
         StatusText.BeginAnimation(UIElement.OpacityProperty, null);
         StatusText.Opacity = 1;
+
+        if (!_durationTimer.IsEnabled)
+        {
+            _durationTimer.Start();
+        }
 
         if (!_pulseStarted)
         {
@@ -1128,7 +1133,7 @@ public partial class CallSessionView : UserControl
 
     private void UpdateConnectedDuration()
     {
-        if (_sipService?.CallState is not (CallState.InCall or CallState.OnHold or CallState.CallWaitingRinging))
+        if (_sipService?.CallState is not (CallState.Incoming or CallState.InCall or CallState.OnHold or CallState.CallWaitingRinging))
         {
             _durationTimer.Stop();
             return;
@@ -1143,9 +1148,20 @@ public partial class CallSessionView : UserControl
 
         StatusText.Text = _sipService.CallState switch
         {
+            CallState.Incoming => FormatRingingLabel(),
             CallState.OnHold => $"On hold · {duration}",
             _ => FormatDurationLabel()
         };
+    }
+
+    private string FormatRingingLabel()
+    {
+        if (_sipService is null)
+        {
+            return "Ringing...";
+        }
+
+        return $"Ringing · {FormatDuration(_sipService.ActiveCallDuration)}";
     }
 
     private string FormatDurationLabel()

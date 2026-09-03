@@ -107,6 +107,31 @@ public static class CallRecordAnalytics
         return FormatDuration((int)Math.Round(durations.Average()));
     }
 
+    public static CallRecord CreateLiveCall(
+        string? sipCallId,
+        string number,
+        string? contactName,
+        bool isOutbound,
+        string disposition,
+        int durationSeconds)
+    {
+        var hash = string.IsNullOrWhiteSpace(sipCallId)
+            ? number.GetHashCode(StringComparison.Ordinal)
+            : sipCallId.GetHashCode(StringComparison.Ordinal);
+        var id = hash == 0 ? -1 : -Math.Abs(hash);
+        return new CallRecord
+        {
+            Id = id,
+            CallType = isOutbound ? "Outbound" : "Inbound",
+            CallerNumber = isOutbound ? string.Empty : number,
+            Destination = isOutbound ? number : string.Empty,
+            ContactName = contactName,
+            Disposition = disposition,
+            CallDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+            DurationSeconds = Math.Max(0, durationSeconds)
+        };
+    }
+
     public static string FormatDuration(int totalSeconds)
     {
         var minutes = totalSeconds / 60;

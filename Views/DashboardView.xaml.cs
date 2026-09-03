@@ -18,6 +18,7 @@ public partial class DashboardView : UserControl
     private string _extension = string.Empty;
     private bool _isRefreshing;
     private List<CallRecord> _cachedRecentCalls = [];
+    private List<CallRecord> _todayCalls = [];
 
     public event EventHandler<string>? ComingSoonRequested;
     public event EventHandler<string>? VoicemailDialRequested;
@@ -130,11 +131,8 @@ public partial class DashboardView : UserControl
             var firstPageWrapped = await _callHistoryService.GetCallHistoryAsync(_extension, 1);
             var firstPage = firstPageWrapped.Result;
             _cachedRecentCalls = firstPage.Items.ToList();
-            var todayCalls = await LoadTodayCallsAsync(firstPage);
-
-            MadeCountText.Text = todayCalls.Count(c => c.IsOutbound).ToString();
-            AnsweredCountText.Text = todayCalls.Count(c => !c.IsOutbound && CallRecordAnalytics.IsAttended(c)).ToString();
-            MissedCountText.Text = todayCalls.Count(CallRecordAnalytics.IsMissed).ToString();
+            _todayCalls = await LoadTodayCallsAsync(firstPage);
+            ApplyTodayCounts();
 
             ApplyRecentCallsToList();
         }
@@ -284,5 +282,76 @@ public partial class DashboardView : UserControl
         }
 
         DialRecentRequested?.Invoke(this, record.DialNumber);
+    }
+
+    public void UpsertLiveCall(CallRecord live)
+    {
+        ReplaceOrInsert(_cachedRecentCalls, live);
+        ReplaceOrInsert(_todayCalls, live);
+        ApplyTodayCounts();
+
+        if (RecentCallsList.ItemsSource is not ObservableCollection<CallRecord> recent)
+        {
+            ApplyRecentCallsToList();
+            return;
+        }
+
+        var existingIndex = -1;
+        for (var i = 0; i < recent.Count; i++)
+        {
+            if (recent[i].Id == live.Id)
+            {
+                existingIndex = i;
+                break;
+            }
+        }
+
+        if (existingIndex >= 0)
+        {
+            if (!string.IsNullOrWhiteSpace(recent[existingIndex].CallDate))
+            {
+                live.CallDate = recent[existingIndex].CallDate;
+            }
+
+            recent[existingIndex] = live;
+        }
+        else
+        {
+            recent.Insert(0, live);
+            while (recent.Count > MaxDashboardRecentCalls)
+            {
+                recent.RemoveAt(recent.Count - 1);
+            }
+        }
+
+        var isEmpty = recent.Count == 0;
+        RecentCallsEmptyState.Visibility = isEmpty ? Visibility.Visible : Visibility.Collapsed;
+        RecentCallsScroll.Visibility = isEmpty ? Visibility.Collapsed : Visibility.Visible;
+        RecentCallsList.Visibility = isEmpty ? Visibility.Collapsed : Visibility.Visible;
+        RecentCallsSkeleton.Visibility = Visibility.Collapsed;
+    }
+
+    private void ApplyTodayCounts()
+    {
+        MadeCountText.Text = _todayCalls.Count(c => c.IsOutbound).ToString();
+        AnsweredCountText.Text = _todayCalls.Count(c => !c.IsOutbound && CallRecordAnalytics.IsAttended(c)).ToString();
+        MissedCountText.Text = _todayCalls.Count(CallRecordAnalytics.IsMissed).ToString();
+    }
+
+    private static void ReplaceOrInsert(List<CallRecord> list, CallRecord live)
+    {
+        var index = list.FindIndex(c => c.Id == live.Id);
+        if (index >= 0)
+        {
+            if (!string.IsNullOrWhiteSpace(list[index].CallDate))
+            {
+                live.CallDate = list[index].CallDate;
+            }
+
+            list[index] = live;
+            return;
+        }
+
+        list.Insert(0, live);
     }
 }

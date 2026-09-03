@@ -126,10 +126,18 @@ public sealed class SipService : IDisposable
 
     public DateTimeOffset? ConnectedAt { get; private set; }
 
+    public DateTimeOffset? IncomingStartedAt { get; private set; }
+
     public TimeSpan ActiveCallDuration
     {
         get
         {
+            if (IncomingStartedAt is DateTimeOffset ringingSince
+                && CallState is CallState.Incoming or CallState.InCall or CallState.OnHold or CallState.CallWaitingRinging)
+            {
+                return DateTimeOffset.Now - ringingSince;
+            }
+
             var total = _accumulatedActiveDuration;
             if (_activeSegmentStartedAt is not null && CallState is CallState.InCall)
             {
@@ -141,6 +149,8 @@ public sealed class SipService : IDisposable
     }
 
     public string? RemoteParty => _remoteParty;
+
+    public bool IsOutboundCall => _isOutboundCall;
 
     public bool IsMuted => _isMuted;
     public bool IsSpeakerMuted => _isSpeakerMuted;
@@ -1985,6 +1995,7 @@ public sealed class SipService : IDisposable
             }
 
             _pendingIncomingUas = incomingUas;
+            IncomingStartedAt ??= DateTimeOffset.Now;
             SetCallState(CallState.Incoming);
         }
 
@@ -2032,6 +2043,7 @@ public sealed class SipService : IDisposable
             var isOutbound = _isOutboundCall;
             var callId = SipCallIdHelper.Normalize(_activeCallId);
 
+            var durationSeconds = (int)Math.Max(0, ActiveCallDuration.TotalSeconds);
             StopRecordingInternal();
             StopHoldMusicInternal();
             CleanupWaitingCallInternal();
@@ -2045,6 +2057,7 @@ public sealed class SipService : IDisposable
             _isOutboundCall = false;
             _activeCallId = null;
             ConnectedAt = null;
+            IncomingStartedAt = null;
             _activeSegmentStartedAt = null;
             _accumulatedActiveDuration = TimeSpan.Zero;
             _heldRemoteParty = null;
@@ -2053,9 +2066,9 @@ public sealed class SipService : IDisposable
             _activeCallLeg = ActiveCallLeg.Primary;
             SetCallState(CallState.Idle);
 
-            if (wasConnected)
+            if (!string.IsNullOrWhiteSpace(remoteParty) || !string.IsNullOrWhiteSpace(callId))
             {
-                endedArgs = new CallEndedEventArgs(remoteParty, isOutbound, callId, true);
+                endedArgs = new CallEndedEventArgs(remoteParty, isOutbound, callId, wasConnected, durationSeconds);
             }
         }
 
