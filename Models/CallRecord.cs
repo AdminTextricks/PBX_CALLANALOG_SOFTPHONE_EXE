@@ -69,6 +69,31 @@ public sealed class CallRecord
             ? DialNumber
             : ContactName;
 
+    public string RecentPrimaryName
+    {
+        get
+        {
+            var name = ContactName?.Trim();
+            if (string.IsNullOrWhiteSpace(name)
+                || name.Equals("Unknown", StringComparison.OrdinalIgnoreCase)
+                || name.Equals("Anonymous", StringComparison.OrdinalIgnoreCase))
+            {
+                return DialNumber;
+            }
+
+            return name;
+        }
+    }
+
+    public string RecentNumberLine =>
+        string.Equals(RecentPrimaryName, DialNumber, StringComparison.Ordinal)
+            ? string.Empty
+            : DialNumber;
+
+    public string RecentDurationLabel => CallRecordAnalytics.FormatClockDuration(DurationSeconds);
+
+    public string RecentTimestampLabel => CallRecordAnalytics.FormatRecentTimestamp(CallDate);
+
     public string Subtitle => $"{DialNumber} · {Disposition}";
 
     public string Initial

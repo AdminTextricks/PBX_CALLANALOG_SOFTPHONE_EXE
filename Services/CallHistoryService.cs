@@ -110,9 +110,14 @@ public sealed class CallHistoryService
                 continue;
             }
 
-            if (TryParseCallTimestamp(call.CallDate, out var callTime) && callTime < recentWindow)
+            if (CallRecordAnalytics.TryParseCallTimestamp(call.CallDate, out var localTime))
             {
-                continue;
+                var offset = TimeZoneInfo.Local.GetUtcOffset(localTime);
+                var callTime = new DateTimeOffset(DateTime.SpecifyKind(localTime, DateTimeKind.Unspecified), offset);
+                if (callTime < recentWindow)
+                {
+                    continue;
+                }
             }
 
             var callNumber = NormalizeNumber(call.DialNumber);
@@ -130,19 +135,6 @@ public sealed class CallHistoryService
 
         var latest = result.Items.FirstOrDefault(c => c.Id > 0 && c.IsOutbound == isOutbound);
         return latest?.PbxCallId > 0 ? latest.PbxCallId.ToString() : null;
-    }
-
-    private static bool TryParseCallTimestamp(string? callDate, out DateTimeOffset timestamp)
-    {
-        timestamp = default;
-        if (string.IsNullOrWhiteSpace(callDate))
-        {
-            return false;
-        }
-
-        return DateTimeOffset.TryParse(callDate, out timestamp)
-            || (DateTime.TryParse(callDate, out var local)
-                && (timestamp = new DateTimeOffset(local)).Ticks > 0);
     }
 
     private static string NormalizeNumber(string? number) =>

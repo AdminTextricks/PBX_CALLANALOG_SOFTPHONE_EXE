@@ -267,7 +267,7 @@
                                                        Foreground="{StaticResource PhoneTextSecondaryBrush}"
                                                        TextTrimming="CharacterEllipsis"
                                                        Margin="0,2,0,0"/>
-                                            <TextBlock Text="{Binding Record.CallDate}"
+                                            <TextBlock Text="{Binding Record.RecentTimestampLabel}"
                                                        FontSize="11"
                                                        Foreground="{StaticResource PhoneTextSecondaryBrush}"
                                                        TextTrimming="CharacterEllipsis"
