@@ -269,20 +269,8 @@ public partial class DashboardView : UserControl
     private void MissedButton_Click(object sender, RoutedEventArgs e) =>
         ViewHistoryFilterRequested?.Invoke(this, CallHistoryFilter.Missed);
 
-    private void RecentCallButton_Click(object sender, RoutedEventArgs e)
-    {
-        if (sender is not Button { Tag: CallRecord record })
-        {
-            return;
-        }
-
-        if (string.IsNullOrWhiteSpace(record.DialNumber) || record.DialNumber == "—")
-        {
-            return;
-        }
-
-        DialRecentRequested?.Invoke(this, record.DialNumber);
-    }
+    private void CallRecordRow_DialRequested(object? sender, string number) =>
+        DialRecentRequested?.Invoke(this, number);
 
     public void UpsertLiveCall(CallRecord live)
     {

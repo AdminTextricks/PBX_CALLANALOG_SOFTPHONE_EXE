@@ -178,7 +178,8 @@
             <ScrollViewer x:Name="HistoryScrollViewer"
                           VerticalScrollBarVisibility="Auto"
                           Style="{StaticResource ThinListScrollViewer}">
-                <ItemsControl x:Name="HistoryList">
+                <ItemsControl x:Name="HistoryList"
+                              Grid.IsSharedSizeScope="True">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <StackPanel>
@@ -194,14 +195,9 @@
                                         </Style>
                                     </TextBlock.Style>
                                 </TextBlock>
-                                <Border CornerRadius="12"
-                                        Padding="8,7"
-                                        Margin="0,0,0,4"
-                                        Background="{StaticResource PhoneSurfaceElevatedBrush}"
-                                        BorderBrush="{StaticResource PhoneCardBorderBrush}"
-                                        BorderThickness="1">
-                                    <Border.Style>
-                                        <Style TargetType="Border">
+                                <ContentControl>
+                                    <ContentControl.Style>
+                                        <Style TargetType="ContentControl">
                                             <Setter Property="Visibility" Value="Visible"/>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsHeader}" Value="True">
@@ -209,91 +205,10 @@
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
-                                    </Border.Style>
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="3"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Border Grid.Column="0"
-                                                CornerRadius="2"
-                                                Margin="0,0,8,0"
-                                                VerticalAlignment="Stretch">
-                                            <Border.Style>
-                                                <Style TargetType="Border">
-                                                    <Setter Property="Background" Value="#0EA5E9"/>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding Record.HistoryTone}" Value="Answered">
-                                                            <Setter Property="Background" Value="#10B981"/>
-                                                        </DataTrigger>
-                                                        <DataTrigger Binding="{Binding Record.HistoryTone}" Value="Inbound">
-                                                            <Setter Property="Background" Value="#10B981"/>
-                                                        </DataTrigger>
-                                                        <DataTrigger Binding="{Binding Record.HistoryTone}" Value="Missed">
-                                                            <Setter Property="Background" Value="#DC2626"/>
-                                                        </DataTrigger>
-                                                        <DataTrigger Binding="{Binding Record.HistoryTone}" Value="Cancel">
-                                                            <Setter Property="Background" Value="#0EA5E9"/>
-                                                        </DataTrigger>
-                                                        <DataTrigger Binding="{Binding Record.HistoryTone}" Value="Outbound">
-                                                            <Setter Property="Background" Value="#0EA5E9"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Border.Style>
-                                        </Border>
-                                        <Border Grid.Column="1"
-                                                Width="32" Height="32"
-                                                CornerRadius="16"
-                                                Background="{StaticResource PhoneSurfaceBrush}"
-                                                Margin="0,0,8,0">
-                                            <TextBlock Text="{Binding Record.Initial}"
-                                                       FontSize="11"
-                                                       FontWeight="SemiBold"
-                                                       Foreground="{StaticResource PhoneTextPrimaryBrush}"
-                                                       HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center"/>
-                                        </Border>
-                                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding Record.DisplayName}"
-                                                       FontSize="12"
-                                                       FontWeight="SemiBold"
-                                                       Foreground="{StaticResource PhoneTextPrimaryBrush}"
-                                                       TextTrimming="CharacterEllipsis"/>
-                                            <TextBlock Text="{Binding Record.Subtitle}"
-                                                       FontSize="11"
-                                                       Foreground="{StaticResource PhoneTextSecondaryBrush}"
-                                                       TextTrimming="CharacterEllipsis"
-                                                       Margin="0,2,0,0"/>
-                                            <TextBlock Text="{Binding Record.RecentTimestampLabel}"
-                                                       FontSize="11"
-                                                       Foreground="{StaticResource PhoneTextSecondaryBrush}"
-                                                       TextTrimming="CharacterEllipsis"
-                                                       Margin="0,2,0,0"/>
-                                        </StackPanel>
-                                        <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
-                                            <Button Style="{StaticResource HistoryRowActionButton}"
-                                                    Background="{StaticResource PhoneCallGreenBrush}"
-                                                    Tag="{Binding Record}"
-                                                    Click="DialRecordButton_Click"
-                                                    ToolTip="Call">
-                                                <controls:PackIcon IconKey="IconSfPhoneFill" IconSize="11"
-                                                                   Foreground="{StaticResource PhoneTextPrimaryBrush}"/>
-                                            </Button>
-                                            <Button Style="{StaticResource HistoryRowActionButton}"
-                                                    Background="{StaticResource PhoneAccentBrush}"
-                                                    Margin="0"
-                                                    Tag="{Binding Record}"
-                                                    Click="CopyRecordButton_Click"
-                                                    ToolTip="Copy number">
-                                                <controls:PackIcon IconKey="IconSfDocOnDoc" IconSize="11"
-                                                                   Foreground="{StaticResource PhoneTextPrimaryBrush}"/>
-                                            </Button>
-                                        </StackPanel>
-                                    </Grid>
-                                </Border>
+                                    </ContentControl.Style>
+                                    <controls:CallRecordRow DataContext="{Binding Record}"
+                                                            DialRequested="CallRecordRow_DialRequested"/>
+                                </ContentControl>
                             </StackPanel>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>

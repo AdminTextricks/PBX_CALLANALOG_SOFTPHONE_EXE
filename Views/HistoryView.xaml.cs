@@ -409,23 +409,8 @@ public partial class HistoryView : UserControl
         await RefreshAsync();
     }
 
-    private void DialRecordButton_Click(object sender, RoutedEventArgs e)
-    {
-        if (sender is Button { Tag: CallRecord record } && !string.IsNullOrWhiteSpace(record.DialNumber))
-        {
-            DialRequested?.Invoke(this, record.DialNumber);
-        }
-    }
-
-    private void CopyRecordButton_Click(object sender, RoutedEventArgs e)
-    {
-        if (sender is Button { Tag: CallRecord record } && !string.IsNullOrWhiteSpace(record.DialNumber))
-        {
-            Clipboard.SetText(record.DialNumber);
-            CopiedNoticeText.Text = $"Copied {record.DialNumber}";
-            CopiedNoticeText.Visibility = Visibility.Visible;
-        }
-    }
+    private void CallRecordRow_DialRequested(object? sender, string number) =>
+        DialRequested?.Invoke(this, number);
 
     private void MessageRecordButton_Click(object sender, RoutedEventArgs e)
     {

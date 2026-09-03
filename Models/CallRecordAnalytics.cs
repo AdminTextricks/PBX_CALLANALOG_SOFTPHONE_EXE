@@ -10,7 +10,9 @@ public static partial class CallRecordAnalytics
     public static bool IsMissed(CallRecord call) =>
         call.Disposition.Contains("NO ANSWER", StringComparison.OrdinalIgnoreCase)
         || call.Disposition.Contains("MISSED", StringComparison.OrdinalIgnoreCase)
-        || call.Disposition.Contains("BUSY", StringComparison.OrdinalIgnoreCase);
+        || call.Disposition.Contains("BUSY", StringComparison.OrdinalIgnoreCase)
+        || (!call.IsOutbound
+            && call.Disposition.Contains("CANCEL", StringComparison.OrdinalIgnoreCase));
 
     public static bool IsToday(CallRecord call) => IsToday(call.CallDate);
 

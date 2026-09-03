@@ -112,10 +112,7 @@ public sealed class CallRecord
         : IsOutbound ? "IconCallMade"
         : "IconCallReceived";
 
-    public bool IsMissed =>
-        Disposition.Contains("NO ANSWER", StringComparison.OrdinalIgnoreCase)
-        || Disposition.Contains("MISSED", StringComparison.OrdinalIgnoreCase)
-        || Disposition.Contains("BUSY", StringComparison.OrdinalIgnoreCase);
+    public bool IsMissed => CallRecordAnalytics.IsMissed(this);
 
     public bool IsAnswered =>
         Disposition.Contains("ANSWER", StringComparison.OrdinalIgnoreCase)
@@ -129,9 +126,9 @@ public sealed class CallRecord
     {
         get
         {
-            if (IsCancelled)
+            if (IsMissed)
             {
-                return "Cancel";
+                return "Missed";
             }
 
             if (IsAnswered)
@@ -139,9 +136,9 @@ public sealed class CallRecord
                 return "Answered";
             }
 
-            if (IsMissed)
+            if (IsCancelled)
             {
-                return "Missed";
+                return "Cancel";
             }
 
             return IsOutbound ? "Outbound" : "Inbound";

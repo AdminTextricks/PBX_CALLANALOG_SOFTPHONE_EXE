@@ -1,0 +1,78 @@
+<UserControl x:Class="CallAnalog.Softphone.Views.Controls.CallRecordRow"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:CallAnalog.Softphone.Views.Controls"
+             HorizontalAlignment="Stretch">
+    <Button Style="{StaticResource RecentCallRowButton}"
+            Click="RowButton_Click"
+            Padding="0"
+            Margin="0,0,0,3"
+            HorizontalAlignment="Stretch"
+            HorizontalContentAlignment="Stretch">
+        <Border Style="{StaticResource RecentCallCardBorder}" Padding="7,5" Margin="0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="36" SharedSizeGroup="CallRowIcon"/>
+                    <ColumnDefinition Width="*" MinWidth="0"/>
+                    <ColumnDefinition Width="Auto" SharedSizeGroup="CallRowMeta" MinWidth="88"/>
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0"
+                        Width="28"
+                        Height="28"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Center">
+                    <controls:PackIcon IconKey="{Binding DirectionIconKey}"
+                                       IconSize="16"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center">
+                        <controls:PackIcon.Style>
+                            <Style TargetType="controls:PackIcon">
+                                <Setter Property="Foreground" Value="{StaticResource PhoneAccentBrush}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsOutbound}" Value="True">
+                                        <Setter Property="Foreground" Value="{StaticResource PhoneTextSecondaryBrush}"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsMissed}" Value="True">
+                                        <Setter Property="Foreground" Value="{StaticResource PhoneHangupRedBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </controls:PackIcon.Style>
+                    </controls:PackIcon>
+                </Border>
+                <StackPanel Grid.Column="1"
+                            VerticalAlignment="Center"
+                            Margin="0,0,8,0">
+                    <TextBlock Text="{Binding RecentPrimaryName}"
+                               FontSize="12"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource PhoneTextPrimaryBrush}"
+                               TextTrimming="CharacterEllipsis"/>
+                    <TextBlock Text="{Binding RecentNumberLine}"
+                               FontSize="10"
+                               FontFamily="Consolas, Courier New, monospace"
+                               Foreground="{StaticResource PhoneTextSecondaryBrush}"
+                               TextTrimming="CharacterEllipsis"
+                               Margin="0,1,0,0"/>
+                </StackPanel>
+                <StackPanel Grid.Column="2"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Right">
+                    <TextBlock Text="{Binding RecentDurationLabel}"
+                               FontSize="11"
+                               FontWeight="SemiBold"
+                               FontFamily="Consolas, Courier New, monospace"
+                               Foreground="{StaticResource PhoneTextPrimaryBrush}"
+                               TextAlignment="Right"
+                               TextWrapping="NoWrap"/>
+                    <TextBlock Text="{Binding RecentTimestampLabel}"
+                               FontSize="8"
+                               Foreground="{StaticResource PhoneTextTertiaryBrush}"
+                               TextAlignment="Right"
+                               TextWrapping="NoWrap"
+                               Margin="0,2,0,0"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Button>
+</UserControl>
