@@ -19,6 +19,7 @@ public partial class HistoryView : UserControl
 
     private readonly ObservableCollection<HistoryListItem> _displayItems = [];
     private readonly List<CallRecord> _allCalls = [];
+    private readonly List<CallRecord> _liveCalls = [];
     private CallHistoryService? _callHistoryService;
     private string _extension = string.Empty;
     private CallHistoryFilter _activeFilter = CallHistoryFilter.All;
@@ -58,6 +59,7 @@ public partial class HistoryView : UserControl
             _hasMore = false;
             _displayItems.Clear();
             _allCalls.Clear();
+            _liveCalls.Clear();
             _submittedSearch = string.Empty;
             HistorySearchBox.Text = string.Empty;
         }
@@ -116,6 +118,7 @@ public partial class HistoryView : UserControl
 
             _allCalls.Clear();
             _allCalls.AddRange(result.Items);
+            MergeLiveCalls();
 
             _total = result.Total;
             _hasMore = result.HasMore;
@@ -199,31 +202,14 @@ public partial class HistoryView : UserControl
 
     public void UpsertLiveCall(CallRecord live)
     {
+        ReplaceOrInsertLive(_liveCalls, live);
+
         if (!_hasLoaded)
         {
             return;
         }
 
-        var existingIndex = _allCalls.FindIndex(c => c.Id == live.Id);
-        if (existingIndex < 0)
-        {
-            _allCalls.Insert(0, live);
-            _total++;
-        }
-        else
-        {
-            if (!string.IsNullOrWhiteSpace(_allCalls[existingIndex].CallDate))
-            {
-                live.CallDate = _allCalls[existingIndex].CallDate;
-            }
-
-            live.ContactName = CallRecordAnalytics.PreferContactName(
-                _allCalls[existingIndex].ContactName,
-                live.ContactName,
-                live.DialNumber);
-
-            _allCalls[existingIndex] = live;
-        }
+        ReplaceOrInsertLive(_allCalls, live, incrementTotalOnInsert: true);
 
         if (!CallRecordAnalytics.MatchesFilter(live, _activeFilter))
         {
@@ -253,6 +239,75 @@ public partial class HistoryView : UserControl
 
         UpdateStatusFromFilter();
         UpdateEmptyState();
+    }
+
+    private void MergeLiveCalls()
+    {
+        foreach (var live in _liveCalls.ToList())
+        {
+            var apiIndex = _allCalls.FindIndex(c => c.Id > 0 && IsLikelySameCall(c, live));
+            if (apiIndex >= 0)
+            {
+                _allCalls[apiIndex].ContactName = CallRecordAnalytics.PreferContactName(
+                    _allCalls[apiIndex].ContactName,
+                    live.ContactName,
+                    live.DialNumber);
+                _liveCalls.Remove(live);
+                continue;
+            }
+
+            ReplaceOrInsertLive(_allCalls, live);
+        }
+    }
+
+    private void ReplaceOrInsertLive(List<CallRecord> list, CallRecord live, bool incrementTotalOnInsert = false)
+    {
+        var existingIndex = list.FindIndex(c => c.Id == live.Id);
+        if (existingIndex < 0)
+        {
+            list.Insert(0, live);
+            if (incrementTotalOnInsert)
+            {
+                _total++;
+            }
+
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(list[existingIndex].CallDate))
+        {
+            live.CallDate = list[existingIndex].CallDate;
+        }
+
+        live.ContactName = CallRecordAnalytics.PreferContactName(
+            list[existingIndex].ContactName,
+            live.ContactName,
+            live.DialNumber);
+        list[existingIndex] = live;
+    }
+
+    private static bool IsLikelySameCall(CallRecord left, CallRecord right)
+    {
+        if (left.IsOutbound != right.IsOutbound)
+        {
+            return false;
+        }
+
+        var leftNumber = new string(left.DialNumber.Where(char.IsDigit).ToArray());
+        var rightNumber = new string(right.DialNumber.Where(char.IsDigit).ToArray());
+        if (leftNumber.Length == 0
+            || !leftNumber.Equals(rightNumber, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        if (!CallRecordAnalytics.TryParseCallTimestamp(left.CallDate, out var leftTime)
+            || !CallRecordAnalytics.TryParseCallTimestamp(right.CallDate, out var rightTime))
+        {
+            return false;
+        }
+
+        return Math.Abs((leftTime - rightTime).TotalMinutes) <= 3;
     }
 
     private int FilteredCount() => _displayItems.Count(i => !i.IsHeader);

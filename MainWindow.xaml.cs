@@ -987,11 +987,6 @@ public partial class MainWindow : Window
 
     private void SyncLiveCallLists(CallEndedEventArgs? ended = null)
     {
-        if (_currentPageIndex is not PageDashboard and not PageHistory)
-        {
-            return;
-        }
-
         CallRecord record;
         if (ended is not null)
         {
@@ -1029,14 +1024,8 @@ public partial class MainWindow : Window
                 (int)Math.Max(0, _sipService.ActiveCallDuration.TotalSeconds));
         }
 
-        if (_currentPageIndex == PageDashboard)
-        {
-            DashboardView.UpsertLiveCall(record);
-        }
-        else
-        {
-            HistoryView.UpsertLiveCall(record);
-        }
+        DashboardView.UpsertLiveCall(record);
+        HistoryView.UpsertLiveCall(record);
     }
 
     private string? ResolveLiveContactName(string? callKey, string? number)

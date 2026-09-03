@@ -11,7 +11,7 @@
     <ApplicationTitle>CallAnalog Softphone</ApplicationTitle>
     <Product>CallAnalog Softphone</Product>
     <Company>CallAnalog</Company>
-    <Version>2.2.7</Version>
+    <Version>2.2.8</Version>
     <ApplicationIcon>CallAnalog.Softphone.ico</ApplicationIcon>
     <DefaultItemExcludes>$(DefaultItemExcludes);CallAnalog.Softphone.Tests/**;*_wpftmp.csproj;**/*_wpftmp.csproj</DefaultItemExcludes>
     <!-- WPF markup compile writes random *_wpftmp.csproj next to this project. Hot reload / watch
