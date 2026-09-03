@@ -5,6 +5,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Styles/PhoneTheme.xaml" />
+                <ResourceDictionary Source="Styles/PhoneThemeDark.xaml" />
                 <ResourceDictionary Source="Styles/PackIcons.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

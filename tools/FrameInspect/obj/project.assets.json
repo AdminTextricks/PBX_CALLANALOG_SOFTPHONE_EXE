@@ -191,32 +191,24 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Jatin Tomar\\AppData\\Local\\Temp\\cursor-sandbox-cache\\acfd7531a0189031d942014b5e671ee4\\nuget": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "C:\\Users\\USER\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Jatin Tomar\\Downloads\\softphone-new\\tools\\FrameInspect\\FrameInspect.csproj",
+      "projectUniqueName": "C:\\Users\\USER\\Desktop\\Cursor AI App\\PBX_CALLANALOG_SOFTPHONE_EXE\\tools\\FrameInspect\\FrameInspect.csproj",
       "projectName": "FrameInspect",
-      "projectPath": "C:\\Users\\Jatin Tomar\\Downloads\\softphone-new\\tools\\FrameInspect\\FrameInspect.csproj",
-      "packagesPath": "C:\\Users\\Jatin Tomar\\AppData\\Local\\Temp\\cursor-sandbox-cache\\acfd7531a0189031d942014b5e671ee4\\nuget",
-      "outputPath": "C:\\Users\\Jatin Tomar\\Downloads\\softphone-new\\tools\\FrameInspect\\obj\\",
+      "projectPath": "C:\\Users\\USER\\Desktop\\Cursor AI App\\PBX_CALLANALOG_SOFTPHONE_EXE\\tools\\FrameInspect\\FrameInspect.csproj",
+      "packagesPath": "C:\\Users\\USER\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\USER\\Desktop\\Cursor AI App\\PBX_CALLANALOG_SOFTPHONE_EXE\\tools\\FrameInspect\\obj\\",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-      ],
       "configFilePaths": [
-        "C:\\Users\\Jatin Tomar\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "C:\\Users\\USER\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net10.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -236,7 +228,7 @@
         "auditLevel": "low",
         "auditMode": "all"
       },
-      "SdkAnalysisLevel": "10.0.300"
+      "SdkAnalysisLevel": "10.0.400"
     },
     "frameworks": {
       "net10.0": {
@@ -264,7 +256,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.301/PortableRuntimeIdentifierGraph.json",
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.400/PortableRuntimeIdentifierGraph.json",
         "packagesToPrune": {
           "Microsoft.CSharp": "(,4.7.32767]",
           "Microsoft.VisualBasic": "(,10.4.32767]",

@@ -1,25 +1,17 @@
 using System.Windows;
-using Microsoft.Win32;
 
 namespace CallAnalog.Softphone.Helpers;
 
 public static class ThemeManager
 {
     private const string DarkDictionaryPath = "Styles/PhoneThemeDark.xaml";
-    private const string LightDictionaryPath = "Styles/PhoneThemeLight.xaml";
     private static ResourceDictionary? _darkDictionary;
-    private static ResourceDictionary? _lightDictionary;
 
     public static bool IsDarkApplied { get; private set; }
 
-    public static void ApplyFromSettings(bool darkModeEnabled, bool followSystemTheme)
+    public static void ApplyDarkMode(bool useDark = true)
     {
-        var useDark = followSystemTheme ? IsWindowsAppsDarkMode() : darkModeEnabled;
-        ApplyDarkMode(useDark);
-    }
-
-    public static void ApplyDarkMode(bool useDark)
-    {
+        _ = useDark;
         if (Application.Current?.Resources is not ResourceDictionary root)
         {
             return;
@@ -27,48 +19,23 @@ public static class ThemeManager
 
         var merged = root.MergedDictionaries;
         _darkDictionary ??= new ResourceDictionary { Source = new Uri(DarkDictionaryPath, UriKind.Relative) };
-        _lightDictionary ??= new ResourceDictionary { Source = new Uri(LightDictionaryPath, UriKind.Relative) };
 
-        if (useDark)
+        for (var i = merged.Count - 1; i >= 0; i--)
         {
-            if (merged.Contains(_lightDictionary))
+            var source = merged[i].Source?.OriginalString;
+            if (source is not null
+                && source.Contains("PhoneThemeLight.xaml", StringComparison.OrdinalIgnoreCase))
             {
-                merged.Remove(_lightDictionary);
-            }
-
-            if (!merged.Contains(_darkDictionary))
-            {
-                merged.Add(_darkDictionary);
-            }
-        }
-        else
-        {
-            if (merged.Contains(_darkDictionary))
-            {
-                merged.Remove(_darkDictionary);
-            }
-
-            if (!merged.Contains(_lightDictionary))
-            {
-                merged.Add(_lightDictionary);
+                merged.RemoveAt(i);
             }
         }
 
-        IsDarkApplied = useDark;
-    }
+        if (!merged.Contains(_darkDictionary))
+        {
+            merged.Add(_darkDictionary);
+        }
 
-    public static bool IsWindowsAppsDarkMode()
-    {
-        try
-        {
-            using var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
-            var value = key?.GetValue("AppsUseLightTheme");
-            return value is int i && i == 0;
-        }
-        catch
-        {
-            return true;
-        }
+        IsDarkApplied = true;
     }
 
     public static string GetGreeting()

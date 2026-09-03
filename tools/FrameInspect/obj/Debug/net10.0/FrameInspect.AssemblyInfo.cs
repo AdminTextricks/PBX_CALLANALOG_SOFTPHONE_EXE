@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("FrameInspect")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9cbfb12c17d71030a7e9ea68d2db554d719d996d")]
 [assembly: System.Reflection.AssemblyProductAttribute("FrameInspect")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FrameInspect")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -176,8 +176,6 @@ public partial class SettingsView : UserControl
         }
 
         StartWithWindowsCheckBox.IsChecked = settings.StartWithWindows;
-        DarkModeCheckBox.IsChecked = settings.DarkModeEnabled;
-        FollowSystemThemeCheckBox.IsChecked = settings.FollowSystemTheme;
         SelectComboByTag(VoiceProfileCombo, settings.VoiceQualityProfile, "Balanced");
         SelectComboByTag(VoiceEchoCombo, settings.VoiceEchoControl, "On");
         SelectComboByTag(VoiceNoiseCombo, settings.VoiceNoiseReduction, "Low");
@@ -353,8 +351,8 @@ public partial class SettingsView : UserControl
             CrashReportEmail = "help@callanalog.com",
             DndEnabled = existing.DndEnabled,
             AutoAnswerEnabled = existing.AutoAnswerEnabled,
-            DarkModeEnabled = DarkModeCheckBox.IsChecked == true,
-            FollowSystemTheme = FollowSystemThemeCheckBox.IsChecked == true,
+            DarkModeEnabled = true,
+            FollowSystemTheme = false,
             VoiceQualityProfile = ReadComboTag(VoiceProfileCombo, "Balanced"),
             VoiceEchoControl = ReadComboTag(VoiceEchoCombo, "On"),
             VoiceNoiseReduction = ReadComboTag(VoiceNoiseCombo, "Low"),
@@ -475,15 +473,8 @@ public partial class SettingsView : UserControl
         AppendWinMmFallbackMessage(messages, SpeakerCombo.SelectedItem as string, isInput: false, _settingsService!);
 
         SetStatus(string.Join(" ", messages.Distinct()), StatusMessageKind.Success);
-        ThemeManager.ApplyFromSettings(preferences.DarkModeEnabled, preferences.FollowSystemTheme);
+        ThemeManager.ApplyDarkMode();
         SaveAllCompleted?.Invoke(this, EventArgs.Empty);
-    }
-
-    private void ThemeSetting_Changed(object sender, RoutedEventArgs e)
-    {
-        ThemeManager.ApplyFromSettings(
-            DarkModeCheckBox.IsChecked == true,
-            FollowSystemThemeCheckBox.IsChecked == true);
     }
 
     private static void AppendWinMmFallbackMessage(

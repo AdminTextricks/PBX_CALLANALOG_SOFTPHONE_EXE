@@ -35,8 +35,8 @@ public sealed class AppSettings
     public bool DndEnabled { get; set; }
     public bool AutoAnswerEnabled { get; set; }
 
-    public bool DarkModeEnabled { get; set; }
-    public bool FollowSystemTheme { get; set; } = true;
+    public bool DarkModeEnabled { get; set; } = true;
+    public bool FollowSystemTheme { get; set; }
 
     /// <summary>LowLatency | Balanced | StableWifi</summary>
     public string VoiceQualityProfile { get; set; } = "Balanced";

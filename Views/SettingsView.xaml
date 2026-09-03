@@ -111,19 +111,7 @@
                         <CheckBox x:Name="StartWithWindowsCheckBox"
                                   Content="Start with Windows"
                                   Style="{StaticResource PhoneToggleSwitch}"
-                                  Margin="0,0,0,4"/>
-                        <CheckBox x:Name="DarkModeCheckBox"
-                                  Content="Dark mode"
-                                  Style="{StaticResource PhoneToggleSwitch}"
-                                  Margin="0,0,0,4"
-                                  Checked="ThemeSetting_Changed"
-                                  Unchecked="ThemeSetting_Changed"/>
-                        <CheckBox x:Name="FollowSystemThemeCheckBox"
-                                  Content="Follow Windows theme"
-                                  Style="{StaticResource PhoneToggleSwitch}"
-                                  Margin="0,0,0,6"
-                                  Checked="ThemeSetting_Changed"
-                                  Unchecked="ThemeSetting_Changed"/>
+                                  Margin="0,0,0,6"/>
                     </StackPanel>
                 </Border>
                 <TextBlock Text="Configured by your carrier at login."

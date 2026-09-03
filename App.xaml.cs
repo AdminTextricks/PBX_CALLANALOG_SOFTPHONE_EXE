@@ -47,7 +47,7 @@ public partial class App : Application
         TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
         _crashReportService = new CrashReportService(userSettings, sipLog, Configuration);
 
-        ThemeManager.ApplyFromSettings(userSettings.Settings.DarkModeEnabled, userSettings.Settings.FollowSystemTheme);
+        ThemeManager.ApplyDarkMode();
 
         TrayIcon = new TrayIconService();
 

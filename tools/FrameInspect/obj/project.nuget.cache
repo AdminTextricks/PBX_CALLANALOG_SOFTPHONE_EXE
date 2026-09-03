@@ -1,12 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "T3XT9KBg/Sc=",
+  "dgSpecHash": "lOLE+FPIGBI=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Jatin Tomar\\Downloads\\softphone-new\\tools\\FrameInspect\\FrameInspect.csproj",
+  "projectFilePath": "C:\\Users\\USER\\Desktop\\Cursor AI App\\PBX_CALLANALOG_SOFTPHONE_EXE\\tools\\FrameInspect\\FrameInspect.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\Jatin Tomar\\AppData\\Local\\Temp\\cursor-sandbox-cache\\acfd7531a0189031d942014b5e671ee4\\nuget\\microsoft.extensions.dependencyinjection.abstractions\\10.0.7\\microsoft.extensions.dependencyinjection.abstractions.10.0.7.nupkg.sha512",
-    "C:\\Users\\Jatin Tomar\\AppData\\Local\\Temp\\cursor-sandbox-cache\\acfd7531a0189031d942014b5e671ee4\\nuget\\microsoft.extensions.logging.abstractions\\10.0.7\\microsoft.extensions.logging.abstractions.10.0.7.nupkg.sha512",
-    "C:\\Users\\Jatin Tomar\\AppData\\Local\\Temp\\cursor-sandbox-cache\\acfd7531a0189031d942014b5e671ee4\\nuget\\sipsorcerymedia.abstractions\\10.0.12\\sipsorcerymedia.abstractions.10.0.12.nupkg.sha512"
+    "C:\\Users\\USER\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\10.0.7\\microsoft.extensions.dependencyinjection.abstractions.10.0.7.nupkg.sha512",
+    "C:\\Users\\USER\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\10.0.7\\microsoft.extensions.logging.abstractions.10.0.7.nupkg.sha512",
+    "C:\\Users\\USER\\.nuget\\packages\\sipsorcerymedia.abstractions\\10.0.12\\sipsorcerymedia.abstractions.10.0.12.nupkg.sha512"
   ],
   "logs": []
 }
