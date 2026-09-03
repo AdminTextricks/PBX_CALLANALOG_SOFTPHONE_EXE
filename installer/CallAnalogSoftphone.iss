@@ -5,7 +5,7 @@
 ; Compile (after publishing):
 ;   "%ProgramFiles(x86)%\Inno Setup 6\ISCC.exe" installer\CallAnalogSoftphone.iss
 ; Output:
-;   installer\output\CallAnalogSoftphone-Setup-<version>.exe
+;   installer\output\CallAnalog-Setup.exe
 ;
 ; Signing: uncomment SignTool / SignedUninstaller after a code-signing
 ; certificate is installed. See docs/CODE_SIGNING.md.
@@ -46,7 +46,7 @@ ArchitecturesInstallIn64BitMode=x64compatible
 MinVersion=10.0.18362
 
 OutputDir=output
-OutputBaseFilename=CallAnalogSoftphone-Setup-{#MyAppVersion}
+OutputBaseFilename=CallAnalog-Setup
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
@@ -72,17 +72,15 @@ SetupIconFile=..\CallAnalog.Softphone.ico
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
-[Tasks]
-Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
-
 [Files]
 ; Include the full publish tree. WPF self-contained output requires the
 ; accompanying *_cor3.dll files, appsettings.json, and Assets (when present).
-Source: "{#PublishDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+; Exclude debug symbols from the shipped installer.
+Source: "{#PublishDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: "*.pdb"
 
 [Icons]
 Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; Comment: "{#MyAppName}"
-Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; Comment: "{#MyAppName}"; Tasks: desktopicon
+Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; Comment: "{#MyAppName}"
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
