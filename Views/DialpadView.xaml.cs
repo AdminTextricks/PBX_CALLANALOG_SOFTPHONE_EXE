@@ -46,15 +46,20 @@ public partial class DialpadView : UserControl
             }
 
             _zeroLongPressFired = true;
-            AppendDigit("+");
+            _ = HandleDigitAsync("+");
         };
 
-        Loaded += (_, _) => ApplyPendingNumber();
+        Loaded += (_, _) =>
+        {
+            ApplyPendingNumber();
+            ActivateInput();
+        };
         IsVisibleChanged += (_, _) =>
         {
             if (IsVisible)
             {
                 ApplyPendingNumber();
+                ActivateInput();
             }
         };
 
@@ -77,6 +82,16 @@ public partial class DialpadView : UserControl
     {
         _pendingNumber = number ?? string.Empty;
         ApplyPendingNumber();
+    }
+
+    public void ActivateInput()
+    {
+        Dispatcher.BeginInvoke(() =>
+        {
+            Focus();
+            NumberBox.Focus();
+            NumberBox.SelectAll();
+        }, DispatcherPriority.Input);
     }
 
     private void ApplyPendingNumber()
@@ -121,7 +136,7 @@ public partial class DialpadView : UserControl
     private void BackButton_Click(object sender, RoutedEventArgs e) =>
         BackRequested?.Invoke(this, EventArgs.Empty);
 
-    private void DigitButton_Click(object sender, RoutedEventArgs e)
+    private async void DigitButton_Click(object sender, RoutedEventArgs e)
     {
         if (sender is Button button && button.Tag is string digit)
         {
@@ -131,7 +146,7 @@ public partial class DialpadView : UserControl
                 return;
             }
 
-            AppendDigit(digit);
+            await HandleDigitAsync(digit);
         }
     }
 
@@ -151,6 +166,29 @@ public partial class DialpadView : UserControl
     {
         _zeroLongPressTimer.Stop();
     }
+
+    private async Task HandleDigitAsync(string digit)
+    {
+        if (digit.Length == 1 && IsDtmfReady() && IsDtmfChar(digit[0]))
+        {
+            try
+            {
+                await _sipService!.SendDtmfAsync(digit[0]);
+            }
+            catch (Exception ex)
+            {
+                SetInCallStatus(ex.Message);
+            }
+        }
+
+        AppendDigit(digit);
+    }
+
+    private bool IsDtmfReady() =>
+        _sipService?.CallState is CallState.InCall or CallState.OnHold or CallState.CallWaitingRinging;
+
+    private static bool IsDtmfChar(char tone) =>
+        tone is >= '0' and <= '9' or '*' or '#';
 
     private void AppendDigit(string digit)
     {
@@ -308,11 +346,11 @@ public partial class DialpadView : UserControl
         }
     }
 
-    private void DialpadView_PreviewKeyDown(object sender, KeyEventArgs e)
+    private async void DialpadView_PreviewKeyDown(object sender, KeyEventArgs e)
     {
         if (TryGetDialSymbol(e.Key, out var symbol))
         {
-            AppendDigit(symbol);
+            await HandleDigitAsync(symbol);
             e.Handled = true;
             return;
         }
@@ -326,6 +364,12 @@ public partial class DialpadView : UserControl
 
         if (e.Key == Key.Enter)
         {
+            if (IsDtmfReady())
+            {
+                e.Handled = true;
+                return;
+            }
+
             _ = PlaceCallAsync(PhoneNumberFormatter.Unformat(NumberBox.Text));
             e.Handled = true;
         }

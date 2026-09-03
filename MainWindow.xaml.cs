@@ -1598,6 +1598,8 @@ public partial class MainWindow : Window
         {
             DialpadView.SetNumber(number);
         }
+
+        DialpadView.ActivateInput();
     }
 
     private async void ShowContacts()
