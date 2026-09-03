@@ -47,3 +47,5 @@ installer/Output/
 *.tmp
 *.bak
 *.swp
+*_wpftmp.csproj
+*_wpftmp.csproj.user

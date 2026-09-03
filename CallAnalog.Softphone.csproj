@@ -13,7 +13,10 @@
     <Company>CallAnalog</Company>
     <Version>2.2.7</Version>
     <ApplicationIcon>CallAnalog.Softphone.ico</ApplicationIcon>
-    <DefaultItemExcludes>$(DefaultItemExcludes);CallAnalog.Softphone.Tests/**</DefaultItemExcludes>
+    <DefaultItemExcludes>$(DefaultItemExcludes);CallAnalog.Softphone.Tests/**;*_wpftmp.csproj;**/*_wpftmp.csproj</DefaultItemExcludes>
+    <!-- WPF markup compile writes random *_wpftmp.csproj next to this project. Hot reload / watch
+         treating those as extra projects races MarkupCompilePass2 and produces BG1002 missing .baml. -->
+    <HotReloadEnabled>false</HotReloadEnabled>
   </PropertyGroup>
 
   <ItemGroup>
@@ -40,6 +43,11 @@
     <Content Remove="tools/**" />
     <EmbeddedResource Remove="tools/**" />
     <Page Remove="tools/**" />
+    <Watch Remove="obj\**\*" />
+    <Watch Remove="bin\**\*" />
+    <Watch Remove="*_wpftmp.csproj" />
+    <Watch Remove="**\*_wpftmp.csproj" />
+    <Watch Remove="**\*_wpftmp.csproj.user" />
     <None Update="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -56,5 +64,12 @@
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>
   </ItemGroup>
+
+  <Target Name="DeleteWpfTemporaryProjectFiles" AfterTargets="CleanupTemporaryTargetAssembly">
+    <ItemGroup>
+      <_WpfTmpProjects Include="$(MSBuildProjectDirectory)\$(MSBuildProjectName)_*_wpftmp.csproj" />
+    </ItemGroup>
+    <Delete Files="@(_WpfTmpProjects)" ContinueOnError="true" TreatErrorsAsWarnings="true" />
+  </Target>
 
 </Project>

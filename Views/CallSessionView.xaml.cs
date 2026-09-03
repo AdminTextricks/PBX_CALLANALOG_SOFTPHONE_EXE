@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
@@ -23,7 +24,8 @@ public partial class CallSessionView : UserControl
     private readonly double[] _ringBarTargets = new double[6];
     private bool _pulseStarted;
     private bool _waitingCallUiActive;
-    private string _dtmfSentDigits = string.Empty;
+    private int _dtmfSentCount;
+    private bool _dtmfHandledFromKeyDown;
 
     public event EventHandler<string>? ComingSoonRequested;
     public event EventHandler? BlindTransferRequested;
@@ -42,6 +44,8 @@ public partial class CallSessionView : UserControl
         _ringVisualizerTimer.Tick += (_, _) => UpdateRingVisualizerBars();
 
         RingingWavePanel.ItemsSource = _ringBarHeights;
+        SizeChanged += (_, _) => PositionDtmfKeypadIfOpen();
+        DtmfOverlayHost.SizeChanged += (_, _) => PositionDtmfKeypadIfOpen();
     }
 
     public void Initialize(
@@ -217,7 +221,7 @@ public partial class CallSessionView : UserControl
         CancelOutgoingButton.Visibility = Visibility.Collapsed;
         ConnectedActionsPanel.Visibility = Visibility.Collapsed;
         ConnectedSecondaryPanel.Visibility = Visibility.Collapsed;
-        InCallKeypadPanel.Visibility = Visibility.Collapsed;
+        CloseDtmfKeypad();
         AudioMetersPanel.Visibility = Visibility.Collapsed;
         EndCallButton.Visibility = Visibility.Collapsed;
         NetworkQualityPanel.Visibility = Visibility.Collapsed;
@@ -256,7 +260,7 @@ public partial class CallSessionView : UserControl
         CancelOutgoingButton.Visibility = Visibility.Visible;
         ConnectedActionsPanel.Visibility = Visibility.Collapsed;
         ConnectedSecondaryPanel.Visibility = Visibility.Collapsed;
-        InCallKeypadPanel.Visibility = Visibility.Collapsed;
+        CloseDtmfKeypad();
         AudioMetersPanel.Visibility = Visibility.Collapsed;
         EndCallButton.Visibility = Visibility.Collapsed;
         NetworkQualityPanel.Visibility = Visibility.Collapsed;
@@ -412,8 +416,7 @@ public partial class CallSessionView : UserControl
         _networkQuality?.StopMonitoring();
         NetworkQualityPanel.Visibility = Visibility.Collapsed;
         HideDualCallBanner();
-        InCallKeypadPanel.Visibility = Visibility.Collapsed;
-        KeypadToggleButton.Content = "Keypad";
+        CloseDtmfKeypad();
         _pulseStarted = false;
         _ringVisualizerTimer.Stop();
         ResetRingVisualizerBars();
@@ -823,22 +826,185 @@ public partial class CallSessionView : UserControl
 
     private void KeypadToggleButton_Click(object sender, RoutedEventArgs e)
     {
-        var show = InCallKeypadPanel.Visibility != Visibility.Visible;
-        InCallKeypadPanel.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
-        KeypadToggleButton.Content = show ? "Hide Keypad" : "Keypad";
+        if (DtmfOverlayHost.Visibility == Visibility.Visible)
+        {
+            CloseDtmfKeypad();
+            return;
+        }
+
+        OpenDtmfKeypad();
     }
 
-    private async void DtmfButton_Click(object sender, RoutedEventArgs e)
+    private void OpenDtmfKeypad()
     {
-        if (_sipService is null || sender is not Button { Tag: string tone } || tone.Length != 1)
+        KeypadToggleButton.Content = "Hide Keypad";
+        DtmfOverlayHost.Visibility = Visibility.Visible;
+        DtmfOverlayHost.UpdateLayout();
+        if (!TryPositionDtmfKeypad())
+        {
+            Dispatcher.BeginInvoke(() => TryPositionDtmfKeypad(), DispatcherPriority.Loaded);
+        }
+
+        Dispatcher.BeginInvoke(() =>
+        {
+            TryPositionDtmfKeypad();
+            DtmfInput.Focus();
+            DtmfInput.SelectAll();
+        }, DispatcherPriority.Input);
+    }
+
+    private void PositionDtmfKeypadIfOpen()
+    {
+        if (DtmfOverlayHost.Visibility == Visibility.Visible)
+        {
+            TryPositionDtmfKeypad();
+        }
+    }
+
+    private void CloseDtmfKeypad()
+    {
+        DtmfOverlayHost.Visibility = Visibility.Collapsed;
+        InCallKeypadPanel.Opacity = 0;
+        KeypadToggleButton.Content = "Keypad";
+    }
+
+    private void DtmfOverlayHost_MouseDown(object sender, MouseButtonEventArgs e)
+    {
+        CloseDtmfKeypad();
+        e.Handled = true;
+    }
+
+    private void InCallKeypadPanel_MouseDown(object sender, MouseButtonEventArgs e) =>
+        e.Handled = true;
+
+    private void CallSessionView_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        if (DtmfOverlayHost.Visibility != Visibility.Visible)
         {
             return;
         }
 
+        if (e.Key == Key.Escape)
+        {
+            CloseDtmfKeypad();
+            e.Handled = true;
+            return;
+        }
+
+        if (e.Key == Key.Enter)
+        {
+            _ = SendUnsentDtmfAsync();
+            e.Handled = true;
+            return;
+        }
+
+        if (TryGetDtmfChar(e) is char tone)
+        {
+            _ = SendImmediateDtmfAsync(tone, replaceSelection: true);
+            _dtmfHandledFromKeyDown = true;
+            e.Handled = true;
+            return;
+        }
+
+        if (e.Key is Key.Space or Key.PageUp or Key.PageDown)
+        {
+            e.Handled = true;
+        }
+    }
+
+    private void DtmfInput_PreviewTextInput(object sender, TextCompositionEventArgs e)
+    {
+        if (_dtmfHandledFromKeyDown)
+        {
+            _dtmfHandledFromKeyDown = false;
+            e.Handled = true;
+            return;
+        }
+
+        if (string.IsNullOrEmpty(e.Text) || e.Text.Any(ch => !IsDtmfChar(ch)))
+        {
+            e.Handled = true;
+            return;
+        }
+
+        foreach (var ch in e.Text)
+        {
+            _ = SendImmediateDtmfAsync(ch, replaceSelection: true);
+        }
+
+        e.Handled = true;
+    }
+
+    private bool TryPositionDtmfKeypad()
+    {
+        if (DtmfOverlayHost.Visibility != Visibility.Visible
+            || !DtmfAnchor.IsVisible
+            || !DtmfAnchor.IsArrangeValid
+            || DtmfAnchor.ActualWidth < 1
+            || DtmfAnchor.ActualHeight < 1
+            || DtmfOverlayHost.ActualWidth < 1
+            || DtmfOverlayHost.ActualHeight < 1)
+        {
+            return false;
+        }
+
+        InCallKeypadPanel.Measure(new Size(DtmfOverlayHost.ActualWidth, DtmfOverlayHost.ActualHeight));
+        InCallKeypadPanel.UpdateLayout();
+        var popupWidth = InCallKeypadPanel.ActualWidth > 1
+            ? InCallKeypadPanel.ActualWidth
+            : InCallKeypadPanel.DesiredSize.Width;
+        var popupHeight = InCallKeypadPanel.ActualHeight > 1
+            ? InCallKeypadPanel.ActualHeight
+            : InCallKeypadPanel.DesiredSize.Height;
+        if (popupWidth < 1 || popupHeight < 1)
+        {
+            return false;
+        }
+
+        var origin = DtmfAnchor.TranslatePoint(new Point(0, 0), DtmfOverlayHost);
+        if (origin.X == 0
+            && origin.Y == 0
+            && DtmfOverlayHost.ActualHeight > DtmfAnchor.ActualHeight * 2)
+        {
+            return false;
+        }
+
+        var desiredLeft = origin.X + ((DtmfAnchor.ActualWidth - popupWidth) / 2);
+        var desiredTop = origin.Y - popupHeight - 6;
+
+        var pad = 8.0;
+        var maxLeft = Math.Max(pad, DtmfOverlayHost.ActualWidth - popupWidth - pad);
+        var maxTop = Math.Max(pad, DtmfOverlayHost.ActualHeight - popupHeight - pad);
+        var left = Math.Clamp(desiredLeft, pad, maxLeft);
+        var top = Math.Clamp(desiredTop, pad, maxTop);
+        InCallKeypadPanel.Margin = new Thickness(left, top, 0, 0);
+        InCallKeypadPanel.Opacity = 1;
+        return true;
+    }
+
+    private async void DtmfButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button { Tag: string tone } || tone.Length != 1)
+        {
+            return;
+        }
+
+        await SendImmediateDtmfAsync(tone[0], replaceSelection: true);
+        RestoreDtmfInputFocus(selectAll: false);
+    }
+
+    private async Task SendImmediateDtmfAsync(char tone, bool replaceSelection)
+    {
+        if (_sipService is null || !IsDtmfChar(tone))
+        {
+            return;
+        }
+
+        ApplyDtmfDigitToInput(tone, replaceSelection);
         try
         {
-            await _sipService.SendDtmfAsync(tone[0]);
-            AppendDtmfDigit(tone[0]);
+            await _sipService.SendDtmfAsync(tone);
+            _dtmfSentCount = DtmfInput.Text.Length;
         }
         catch (Exception ex)
         {
@@ -846,18 +1012,112 @@ public partial class CallSessionView : UserControl
         }
     }
 
-    private void AppendDtmfDigit(char tone)
+    private async Task SendUnsentDtmfAsync()
     {
-        _dtmfSentDigits += tone;
-        DtmfSentText.Text = $"Sent: {_dtmfSentDigits}";
-        DtmfSentText.Visibility = Visibility.Visible;
+        if (_sipService is null)
+        {
+            return;
+        }
+
+        var text = new string((DtmfInput.Text ?? string.Empty).Where(IsDtmfChar).ToArray());
+        if (DtmfInput.Text != text)
+        {
+            DtmfInput.Text = text;
+        }
+
+        _dtmfSentCount = Math.Clamp(_dtmfSentCount, 0, text.Length);
+        try
+        {
+            for (var i = _dtmfSentCount; i < text.Length; i++)
+            {
+                await _sipService.SendDtmfAsync(text[i]);
+                _dtmfSentCount = i + 1;
+            }
+        }
+        catch (Exception ex)
+        {
+            StatusText.Text = ex.Message;
+        }
+    }
+
+    private void ApplyDtmfDigitToInput(char tone, bool replaceSelection)
+    {
+        var text = DtmfInput.Text ?? string.Empty;
+        var start = DtmfInput.SelectionStart;
+        var length = DtmfInput.SelectionLength;
+        if (replaceSelection && length > 0)
+        {
+            text = text.Remove(start, length).Insert(start, tone.ToString());
+            if (length == (DtmfInput.Text ?? string.Empty).Length)
+            {
+                _dtmfSentCount = 0;
+            }
+            else
+            {
+                _dtmfSentCount = Math.Min(_dtmfSentCount, start);
+            }
+
+            DtmfInput.Text = text;
+            DtmfInput.CaretIndex = start + 1;
+            return;
+        }
+
+        var insertAt = Math.Clamp(DtmfInput.CaretIndex, 0, text.Length);
+        DtmfInput.Text = text.Insert(insertAt, tone.ToString());
+        DtmfInput.CaretIndex = insertAt + 1;
+    }
+
+    private void RestoreDtmfInputFocus(bool selectAll)
+    {
+        Dispatcher.BeginInvoke(() =>
+        {
+            DtmfInput.Focus();
+            if (selectAll)
+            {
+                DtmfInput.SelectAll();
+            }
+            else
+            {
+                DtmfInput.CaretIndex = DtmfInput.Text?.Length ?? 0;
+            }
+        }, DispatcherPriority.Input);
+    }
+
+    private static bool IsDtmfChar(char tone) =>
+        tone is >= '0' and <= '9' or '*' or '#';
+
+    private static char? TryGetDtmfChar(KeyEventArgs e)
+    {
+        if (e.Key is >= Key.D0 and <= Key.D9 && Keyboard.Modifiers == ModifierKeys.None)
+        {
+            return (char)('0' + (e.Key - Key.D0));
+        }
+
+        if (e.Key is >= Key.NumPad0 and <= Key.NumPad9 && Keyboard.Modifiers == ModifierKeys.None)
+        {
+            return (char)('0' + (e.Key - Key.NumPad0));
+        }
+
+        if (e.Key == Key.Multiply || (e.Key == Key.D8 && Keyboard.Modifiers == ModifierKeys.Shift))
+        {
+            return '*';
+        }
+
+        if (e.Key == Key.D3 && Keyboard.Modifiers == ModifierKeys.Shift)
+        {
+            return '#';
+        }
+
+        return null;
     }
 
     private void ClearDtmfDisplay()
     {
-        _dtmfSentDigits = string.Empty;
-        DtmfSentText.Text = string.Empty;
-        DtmfSentText.Visibility = Visibility.Collapsed;
+        _dtmfSentCount = 0;
+        if (DtmfInput is not null)
+        {
+            DtmfInput.Text = string.Empty;
+        }
     }
 
     private void UpdateMeterBars()
