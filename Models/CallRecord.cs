@@ -74,14 +74,12 @@ public sealed class CallRecord
         get
         {
             var name = ContactName?.Trim();
-            if (string.IsNullOrWhiteSpace(name)
-                || name.Equals("Unknown", StringComparison.OrdinalIgnoreCase)
-                || name.Equals("Anonymous", StringComparison.OrdinalIgnoreCase))
+            if (!CallRecordAnalytics.IsUsableContactName(name, DialNumber))
             {
                 return DialNumber;
             }
 
-            return name;
+            return name!;
         }
     }
 

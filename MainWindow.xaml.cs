@@ -45,6 +45,8 @@ public partial class MainWindow : Window
     private bool _isNavigating;
     private bool _forceClosing;
     private readonly ContactLookupService _contactLookup = new();
+    private string? _liveHistoryContactName;
+    private string? _liveHistoryCallKey;
     private GlobalHotkeyService? _globalHotkeys;
     private int _unreadMissedCalls;
     private bool _isSplashVisible;
@@ -993,10 +995,11 @@ public partial class MainWindow : Window
         CallRecord record;
         if (ended is not null)
         {
+            var number = ended.RemoteParty ?? string.Empty;
             record = CallRecordAnalytics.CreateLiveCall(
                 ended.SipCallId,
-                ended.RemoteParty ?? string.Empty,
-                contactName: null,
+                number,
+                ResolveLiveContactName(ended.SipCallId, number),
                 ended.IsOutbound,
                 ended.WasConnected ? "ANSWERED" : "NO ANSWER",
                 ended.DurationSeconds);
@@ -1016,10 +1019,11 @@ public partial class MainWindow : Window
                 _ => "ANSWERED"
             };
 
+            var number = _sipService.RemoteParty ?? string.Empty;
             record = CallRecordAnalytics.CreateLiveCall(
                 _sipService.ActiveCallId,
-                _sipService.RemoteParty ?? string.Empty,
-                contactName: null,
+                number,
+                ResolveLiveContactName(_sipService.ActiveCallId, number),
                 _sipService.IsOutboundCall,
                 disposition,
                 (int)Math.Max(0, _sipService.ActiveCallDuration.TotalSeconds));
@@ -1033,6 +1037,25 @@ public partial class MainWindow : Window
         {
             HistoryView.UpsertLiveCall(record);
         }
+    }
+
+    private string? ResolveLiveContactName(string? callKey, string? number)
+    {
+        var key = !string.IsNullOrWhiteSpace(callKey) ? callKey : number ?? string.Empty;
+        if (!string.Equals(_liveHistoryCallKey, key, StringComparison.Ordinal))
+        {
+            _liveHistoryCallKey = key;
+            _liveHistoryContactName = null;
+        }
+
+        var sessionName = CallSessionView.TryGetResolvedCallerName();
+        var lookupName = _contactLookup.ResolveName(_loggedInExtension, number);
+        _liveHistoryContactName = CallRecordAnalytics.PreferContactName(
+            _liveHistoryContactName,
+            CallRecordAnalytics.PreferContactName(sessionName, lookupName, number),
+            number);
+
+        return _liveHistoryContactName;
     }
 
     internal void FlashWindow()
@@ -1668,15 +1691,7 @@ public partial class MainWindow : Window
     {
         ClearMissedCallBadge();
         await NavigateToPageAsync(HistoryView, PageHistory);
-
-        if (filter == CallHistoryFilter.All)
-        {
-            await HistoryView.EnsureLoadedAsync();
-        }
-        else
-        {
-            await HistoryView.NavigateWithFilterAsync(filter);
-        }
+        await HistoryView.NavigateWithFilterAsync(filter);
     }
 
     private async void ShowSettings()

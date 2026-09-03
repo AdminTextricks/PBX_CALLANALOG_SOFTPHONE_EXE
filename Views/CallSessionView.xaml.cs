@@ -107,6 +107,13 @@ public partial class CallSessionView : UserControl
         RecordButton.Opacity = enabled ? 1.0 : 0.45;
     }
 
+    public string? TryGetResolvedCallerName()
+    {
+        var name = CallerNameText.Text;
+        var number = CallerNumberText.Text;
+        return CallRecordAnalytics.IsUsableContactName(name, number) ? name.Trim() : null;
+    }
+
     public void UpdateRecordingState(bool isRecording) =>
         SetRecordingButtonActive(isRecording);
 

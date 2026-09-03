@@ -301,6 +301,11 @@ public partial class DashboardView : UserControl
                 live.CallDate = recent[existingIndex].CallDate;
             }
 
+            live.ContactName = CallRecordAnalytics.PreferContactName(
+                recent[existingIndex].ContactName,
+                live.ContactName,
+                live.DialNumber);
+
             recent[existingIndex] = live;
         }
         else
@@ -335,6 +340,11 @@ public partial class DashboardView : UserControl
             {
                 live.CallDate = list[index].CallDate;
             }
+
+            live.ContactName = CallRecordAnalytics.PreferContactName(
+                list[index].ContactName,
+                live.ContactName,
+                live.DialNumber);
 
             list[index] = live;
             return;

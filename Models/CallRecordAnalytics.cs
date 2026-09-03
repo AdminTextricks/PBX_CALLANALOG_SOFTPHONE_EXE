@@ -234,6 +234,49 @@ public static partial class CallRecordAnalytics
         return FormatDuration((int)Math.Round(durations.Average()));
     }
 
+    public static string? PreferContactName(string? existing, string? incoming, string? number)
+    {
+        if (IsUsableContactName(incoming, number))
+        {
+            return incoming?.Trim();
+        }
+
+        if (IsUsableContactName(existing, number))
+        {
+            return existing?.Trim();
+        }
+
+        return null;
+    }
+
+    public static bool IsUsableContactName(string? name, string? number)
+    {
+        var trimmed = name?.Trim();
+        if (string.IsNullOrWhiteSpace(trimmed)
+            || trimmed.Equals("Unknown", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("Anonymous", StringComparison.OrdinalIgnoreCase)
+            || trimmed == "—")
+        {
+            return false;
+        }
+
+        var nameDigits = new string(trimmed.Where(char.IsDigit).ToArray());
+        var numberDigits = new string((number ?? string.Empty).Where(char.IsDigit).ToArray());
+        if (nameDigits.Length > 0
+            && numberDigits.Length > 0
+            && nameDigits.Equals(numberDigits, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        if (trimmed.Equals(number?.Trim(), StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
     public static CallRecord CreateLiveCall(
         string? sipCallId,
         string number,
@@ -252,7 +295,9 @@ public static partial class CallRecordAnalytics
             CallType = isOutbound ? "Outbound" : "Inbound",
             CallerNumber = isOutbound ? string.Empty : number,
             Destination = isOutbound ? number : string.Empty,
-            ContactName = contactName,
+            ContactName = CallRecordAnalytics.IsUsableContactName(contactName, number)
+                ? contactName?.Trim()
+                : null,
             Disposition = disposition,
             CallDate = DateTimeOffset.Now.ToString("yyyy-MM-dd HH:mm:ss zzz", CultureInfo.InvariantCulture),
             DurationSeconds = Math.Max(0, durationSeconds)

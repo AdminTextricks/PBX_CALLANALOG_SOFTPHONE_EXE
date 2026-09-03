@@ -217,6 +217,11 @@ public partial class HistoryView : UserControl
                 live.CallDate = _allCalls[existingIndex].CallDate;
             }
 
+            live.ContactName = CallRecordAnalytics.PreferContactName(
+                _allCalls[existingIndex].ContactName,
+                live.ContactName,
+                live.DialNumber);
+
             _allCalls[existingIndex] = live;
         }
 
