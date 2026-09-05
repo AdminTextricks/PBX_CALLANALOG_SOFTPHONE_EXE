@@ -1,5 +1,5 @@
 ﻿Version=2.2.8
 Commit=
 Branch=
-BuiltUtc=2026-08-14T15:00:44Z
-OutputDir=C:\Users\Jatin Tomar\Downloads\softphone-new\dist\callanalog v2.2.8
+BuiltUtc=2026-09-03T18:17:56Z
+OutputDir=C:\Users\USER\Desktop\Cursor AI App\PBX_CALLANALOG_SOFTPHONE_EXE\bin\Release\net10.0-windows10.0.18362\win-x64\publish
