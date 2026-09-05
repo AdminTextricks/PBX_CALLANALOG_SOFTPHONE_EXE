@@ -15,7 +15,9 @@ public sealed class RingtoneService : IDisposable
     private string? _currentDeviceName;
     private string? _currentDeviceId;
 
-    public bool IsPlaying => _player?.PlaybackState == PlaybackState.Playing;
+    private volatile bool _stopping;
+
+    public bool IsPlaying => !_stopping && _player?.PlaybackState == PlaybackState.Playing;
 
     public event EventHandler<double>? LevelChanged;
 
@@ -31,10 +33,12 @@ public sealed class RingtoneService : IDisposable
             return;
         }
 
+        IncomingCallLog.Marker("RINGTONE_START", resolvedPath ?? "default-tone");
         Stop();
 
         try
         {
+            _stopping = false;
             _loop = true;
             _currentResolvedPath = resolvedPath;
             _currentDeviceName = outputDeviceName;
@@ -67,10 +71,12 @@ public sealed class RingtoneService : IDisposable
 
             _player.PlaybackStopped += OnPlaybackStopped;
             _player.Play();
+            IncomingCallLog.Marker("RINGTONE_START", "playing");
         }
         catch (Exception ex)
         {
-            App.SipLog.Error($"Ringtone playback failed: {ex.Message}");
+            App.SipLog.Error($"Ringtone playback failed: {ex}");
+            IncomingCallLog.Marker("RINGTONE_START", $"failed {ex.GetType().Name}");
             Stop();
         }
     }
@@ -112,11 +118,19 @@ public sealed class RingtoneService : IDisposable
         }
     }
 
-    private void OnLevelSampled(double level) =>
+    private void OnLevelSampled(double level)
+    {
+        if (_stopping)
+        {
+            return;
+        }
+
         LevelChanged?.Invoke(this, level);
+    }
 
     private void DrainAndStop()
     {
+        _stopping = true;
         _loop = false;
 
         if (_player is not null)
@@ -128,9 +142,9 @@ public sealed class RingtoneService : IDisposable
                 _player.Volume = 0f;
                 _player.Stop();
             }
-            catch
+            catch (Exception ex)
             {
-                // Best-effort immediate silence.
+                App.SipLog.Error($"Ringtone stop failed: {ex}");
             }
 
             WinMmAudioOutputManager.Release(WinMmAudioOutputManager.OwnerRingtone);
@@ -160,7 +174,14 @@ public sealed class RingtoneService : IDisposable
         _currentResolvedPath = null;
         _currentDeviceName = null;
         _currentDeviceId = null;
-        LevelChanged?.Invoke(this, 0);
+        try
+        {
+            LevelChanged?.Invoke(this, 0);
+        }
+        catch (Exception ex)
+        {
+            App.SipLog.Error($"Ringtone level reset failed: {ex}");
+        }
     }
 
     private void OnPlaybackStopped(object? sender, StoppedEventArgs e)

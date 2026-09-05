@@ -625,6 +625,7 @@ public partial class MainWindow : Window
             }
 
             var callInfo = EnrichIncomingCall(e);
+            IncomingCallLog.Marker("UI_START", "main-window");
             _wrapUpCts?.Cancel();
             DismissActiveShellPanel();
 

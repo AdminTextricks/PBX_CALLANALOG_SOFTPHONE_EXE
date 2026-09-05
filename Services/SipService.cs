@@ -565,9 +565,12 @@ public sealed class SipService : IDisposable
             throw new InvalidOperationException("No incoming call to answer.");
         }
 
-        _log.Info(SipLogTag.Inbound, $"Answering call from {_remoteParty}");
-
+        IncomingCallLog.Marker("ANSWER_START", _remoteParty);
+        IncomingCallLog.Marker("MEDIA_INIT_START");
+        IncomingCallLog.Marker("AUDIO_DEVICE_ENUMERATION_START");
         var mediaSession = CreateMediaSession();
+        IncomingCallLog.Marker("AUDIO_DEVICE_ENUMERATION_END");
+        IncomingCallLog.Marker("MEDIA_START");
         var serverAgent = pendingUas ?? userAgent.AcceptCall(pendingRequest);
         var answered = await userAgent.Answer(
             serverAgent,
@@ -592,6 +595,7 @@ public sealed class SipService : IDisposable
         _isOutboundCall = false;
         _activeCallId = SipCallIdHelper.Normalize(userAgent.Dialogue?.CallId ?? pendingRequest.Header.CallId);
         await EnsurePlaybackReadyAsync();
+        IncomingCallLog.Marker("CALL_CONNECTED", _remoteParty);
         _log.Info($"Connected to {_remoteParty}");
     }
 
@@ -2007,6 +2011,7 @@ public sealed class SipService : IDisposable
 
         _log.BeginSection("INCOMING CALL");
         _log.Info(SipLogTag.Inbound, $"Incoming call from {callerName ?? callerNumber}");
+        IncomingCallLog.Marker("INVITE_RECEIVED", callerName ?? callerNumber);
         IncomingCall?.Invoke(this, new IncomingCallEventArgs(callerNumber, callerName, isQueueCall));
     }
 

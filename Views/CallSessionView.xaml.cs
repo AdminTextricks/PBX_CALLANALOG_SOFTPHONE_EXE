@@ -5,6 +5,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
+using CallAnalog.Softphone.Helpers;
 using CallAnalog.Softphone.Models;
 using CallAnalog.Softphone.Services;
 
@@ -25,6 +26,8 @@ public partial class CallSessionView : UserControl
     private bool _pulseStarted;
     private bool _waitingCallUiActive;
     private int _dtmfSentCount;
+    private double _pendingRingtoneLevel;
+    private int _ringtoneLevelDispatchQueued;
     private bool _dtmfHandledFromKeyDown;
 
     public event EventHandler<string>? ComingSoonRequested;
@@ -132,11 +135,13 @@ public partial class CallSessionView : UserControl
             ? Visibility.Collapsed
             : Visibility.Visible;
 
+        IncomingCallLog.Marker("UI_START", callInfo.IsQueueCall ? "queue" : callInfo.CallerNumber);
         ShowIncomingState();
         Visibility = Visibility.Visible;
 
         if (_settings?.Settings.AutoAnswerEnabled == true)
         {
+            IncomingCallLog.Marker("ANSWER_START", "auto-answer");
             _ = AnswerCallAsync();
         }
     }
@@ -148,6 +153,7 @@ public partial class CallSessionView : UserControl
             return;
         }
 
+        IncomingCallLog.Marker("RINGTONE_START");
         _ringtone?.Start(
             _settings!.Settings.RingtonePath,
             _settings.Settings.RingtoneDevice,
@@ -563,13 +569,21 @@ public partial class CallSessionView : UserControl
 
     private void OnRingtoneLevelChanged(object? sender, double level)
     {
-        Dispatcher.Invoke(() =>
+        _pendingRingtoneLevel = level;
+        if (Interlocked.Exchange(ref _ringtoneLevelDispatchQueued, 1) == 1)
         {
+            return;
+        }
+
+        _ = Dispatcher.BeginInvoke(() =>
+        {
+            Interlocked.Exchange(ref _ringtoneLevelDispatchQueued, 0);
+            var pending = _pendingRingtoneLevel;
             for (var i = 0; i < _ringBarTargets.Length; i++)
             {
                 var spread = 0.55 + (i * 0.12);
                 var jitter = 0.85 + ((i % 3) * 0.08);
-                _ringBarTargets[i] = Math.Max(6, 6 + (level * 18 * spread * jitter));
+                _ringBarTargets[i] = Math.Max(6, 6 + (pending * 18 * spread * jitter));
             }
         });
     }
@@ -613,8 +627,11 @@ public partial class CallSessionView : UserControl
         }
     }
 
-    private async void AnswerButton_Click(object sender, RoutedEventArgs e) =>
+    private async void AnswerButton_Click(object sender, RoutedEventArgs e)
+    {
+        IncomingCallLog.Marker("ANSWER_CLICK");
         await AnswerCallAsync();
+    }
 
     private async Task AnswerCallAsync()
     {
@@ -623,6 +640,7 @@ public partial class CallSessionView : UserControl
             return;
         }
 
+        IncomingCallLog.Marker("ANSWER_START");
         _ringtone?.StopForAnswer();
         AnswerButton.IsEnabled = false;
         DeclineButton.IsEnabled = false;
@@ -631,6 +649,7 @@ public partial class CallSessionView : UserControl
         try
         {
             await _sipService.AnswerAsync();
+            IncomingCallLog.Marker("ANSWER_COMPLETE", _sipService.CallState.ToString());
             if (_sipService.CallState is CallState.InCall or CallState.OnHold)
             {
                 ShowConnectedState(_sipService.CallState);
