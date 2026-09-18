@@ -7,7 +7,7 @@ When starting a new version, add a section here **before** running `build.ps1 -B
 
 ---
 
-## 2.2.8
+## 2.2.9
 
 ### Call waiting
 - When one party hangs up during a dual call (hold + switch), the other leg is resumed instead of resetting both calls
@@ -50,7 +50,7 @@ When starting a new version, add a section here **before** running `build.ps1 -B
 - Star rating is sent on the same `/public/api/callNote` API as column `rating` (no separate rating endpoint)
 
 ### Crash reports
-- SMTP email delivery enabled (`no-reply@textricks.com` via configured SMTP host/port 587)
+- SMTP email delivery enabled (`no-reply@callanalog.com` via configured SMTP host/port 587)
 
 ### Network quality
 - Best-effort DSCP 46 (EF) marking on SIP and RTP/RTCP sockets (`Network:EnableDscp`, default on)

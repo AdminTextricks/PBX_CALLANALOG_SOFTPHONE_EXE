@@ -11,12 +11,15 @@
     <ApplicationTitle>CallAnalog Softphone</ApplicationTitle>
     <Product>CallAnalog Softphone</Product>
     <Company>CallAnalog</Company>
-    <Version>2.2.8</Version>
+    <Version>2.2.9</Version>
     <ApplicationIcon>CallAnalog.Softphone.ico</ApplicationIcon>
     <DefaultItemExcludes>$(DefaultItemExcludes);CallAnalog.Softphone.Tests/**;*_wpftmp.csproj;**/*_wpftmp.csproj</DefaultItemExcludes>
     <!-- WPF markup compile writes random *_wpftmp.csproj next to this project. Hot reload / watch
          treating those as extra projects races MarkupCompilePass2 and produces BG1002 missing .baml. -->
     <HotReloadEnabled>false</HotReloadEnabled>
+    <WatchdogProject>$(MSBuildThisFileDirectory)tools\CallAnalog.Watchdog\CallAnalog.Watchdog.csproj</WatchdogProject>
+    <WatchdogPublishDir>$(MSBuildThisFileDirectory)tools\CallAnalog.Watchdog\bin\$(Configuration)\publish-win-x64\</WatchdogPublishDir>
+    <WatchdogExeName>CallAnalog.Watchdog.exe</WatchdogExeName>
   </PropertyGroup>
 
   <ItemGroup>
@@ -64,6 +67,31 @@
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>
   </ItemGroup>
+
+  <Target Name="PublishCallAnalogWatchdog" Condition="'$(MSBuildProjectName)' == 'CallAnalog.Softphone'">
+    <MSBuild
+      Projects="$(WatchdogProject)"
+      Targets="Restore"
+      Properties="Configuration=$(Configuration);RuntimeIdentifier=win-x64;SelfContained=true;PublishSingleFile=true" />
+    <MSBuild
+      Projects="$(WatchdogProject)"
+      Targets="Publish"
+      Properties="Configuration=$(Configuration);RuntimeIdentifier=win-x64;SelfContained=true;PublishSingleFile=true;PublishDir=$(WatchdogPublishDir)" />
+  </Target>
+
+  <Target Name="CopyCallAnalogWatchdogToOutput" AfterTargets="AfterBuild" DependsOnTargets="PublishCallAnalogWatchdog" Condition="'$(MSBuildProjectName)' == 'CallAnalog.Softphone'">
+    <Copy
+      SourceFiles="$(WatchdogPublishDir)$(WatchdogExeName)"
+      DestinationFolder="$(OutDir)"
+      SkipUnchangedFiles="true" />
+  </Target>
+
+  <Target Name="CopyCallAnalogWatchdogToPublish" AfterTargets="Publish" DependsOnTargets="PublishCallAnalogWatchdog" Condition="'$(MSBuildProjectName)' == 'CallAnalog.Softphone'">
+    <Copy
+      SourceFiles="$(WatchdogPublishDir)$(WatchdogExeName)"
+      DestinationFolder="$(PublishDir)"
+      SkipUnchangedFiles="true" />
+  </Target>
 
   <Target Name="DeleteWpfTemporaryProjectFiles" AfterTargets="CleanupTemporaryTargetAssembly">
     <ItemGroup>

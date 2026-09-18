@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using System.IO;
 using System.Windows;
 using System.Windows.Threading;
 using CallAnalog.Softphone.Services;
@@ -8,6 +10,9 @@ namespace CallAnalog.Softphone;
 
 public partial class App : Application
 {
+    private const string WatchdogExeName = "CallAnalog.Watchdog.exe";
+    private static readonly TimeSpan WatchdogHeartbeatInterval = TimeSpan.FromSeconds(5);
+
     public static IConfiguration Configuration { get; private set; } = null!;
     public static TrayIconService TrayIcon { get; private set; } = null!;
     public static UserSettingsService UserSettings { get; private set; } = null!;
@@ -15,6 +20,10 @@ public partial class App : Application
 
     private CrashReportService? _crashReportService;
     private SingleInstanceService? _singleInstance;
+    private Process? _watchdogProcess;
+    private Timer? _watchdogHeartbeat;
+    private EventWaitHandle? _watchdogHeartbeatEvent;
+    private EventWaitHandle? _watchdogStoppingEvent;
     private bool _isExiting;
 
     protected override void OnStartup(StartupEventArgs e)
@@ -65,6 +74,7 @@ public partial class App : Application
         MainWindow = mainWindow;
         mainWindow.Show();
 
+        StartWatchdog();
         _ = Task.Run(() => _crashReportService.SendPendingReports());
 
         base.OnStartup(e);
@@ -72,6 +82,11 @@ public partial class App : Application
 
     protected override void OnExit(ExitEventArgs e)
     {
+        SignalWatchdogStopping();
+        StopWatchdogHeartbeat();
+        WaitForWatchdogExit();
+        StopWatchdogProcess(killIfRunning: false);
+        DisposeWatchdogEvents();
         MediaFoundationLifecycle.ForceShutdown();
         TrayIcon?.Dispose();
         _singleInstance?.Dispose();
@@ -81,6 +96,9 @@ public partial class App : Application
     internal void RequestShutdown()
     {
         _isExiting = true;
+        SignalWatchdogStopping();
+        StopWatchdogHeartbeat();
+        WaitForWatchdogExit();
         Shutdown();
     }
 
@@ -145,5 +163,162 @@ public partial class App : Application
         }
 
         return false;
+    }
+
+    private void StartWatchdog()
+    {
+        var exePath = Path.Combine(AppContext.BaseDirectory, WatchdogExeName);
+        if (!File.Exists(exePath))
+        {
+            SipLog.Warn(SipLogTag.Startup, $"Watchdog executable not found: {exePath}");
+            return;
+        }
+
+        var pid = Environment.ProcessId;
+        try
+        {
+            _watchdogHeartbeatEvent = new EventWaitHandle(
+                initialState: false,
+                EventResetMode.AutoReset,
+                $"Local\\CallAnalog.Softphone.Heartbeat.{pid}");
+            _watchdogStoppingEvent = new EventWaitHandle(
+                initialState: false,
+                EventResetMode.ManualReset,
+                $"Local\\CallAnalog.Softphone.Stopping.{pid}");
+        }
+        catch (Exception ex)
+        {
+            SipLog.Warn(SipLogTag.Startup, $"Watchdog event create failed: {ex.GetType().Name}: {ex.Message}");
+            DisposeWatchdogEvents();
+            return;
+        }
+
+        try
+        {
+            _watchdogProcess = Process.Start(new ProcessStartInfo
+            {
+                FileName = exePath,
+                Arguments = $"--pid {pid}",
+                WorkingDirectory = AppContext.BaseDirectory,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            });
+        }
+        catch (Exception ex)
+        {
+            SipLog.Warn(SipLogTag.Startup, $"Watchdog start failed: {ex.GetType().Name}: {ex.Message}");
+            DisposeWatchdogEvents();
+            return;
+        }
+
+        _watchdogHeartbeat = new Timer(
+            OnWatchdogHeartbeat,
+            state: null,
+            dueTime: WatchdogHeartbeatInterval,
+            period: WatchdogHeartbeatInterval);
+    }
+
+    private void OnWatchdogHeartbeat(object? state)
+    {
+        if (_isExiting)
+        {
+            return;
+        }
+
+        Dispatcher.BeginInvoke(() =>
+        {
+            if (_isExiting)
+            {
+                return;
+            }
+
+            try
+            {
+                _watchdogHeartbeatEvent?.Set();
+            }
+            catch
+            {
+                // Best-effort pulse.
+            }
+        });
+    }
+
+    private void SignalWatchdogStopping()
+    {
+        try
+        {
+            _watchdogStoppingEvent?.Set();
+        }
+        catch
+        {
+            // Best-effort clean-exit signal.
+        }
+    }
+
+    private void StopWatchdogHeartbeat()
+    {
+        var timer = _watchdogHeartbeat;
+        _watchdogHeartbeat = null;
+        timer?.Dispose();
+    }
+
+    private void DisposeWatchdogEvents()
+    {
+        try
+        {
+            _watchdogHeartbeatEvent?.Dispose();
+        }
+        catch
+        {
+        }
+
+        try
+        {
+            _watchdogStoppingEvent?.Dispose();
+        }
+        catch
+        {
+        }
+
+        _watchdogHeartbeatEvent = null;
+        _watchdogStoppingEvent = null;
+    }
+
+    private void WaitForWatchdogExit()
+    {
+        try
+        {
+            _watchdogProcess?.WaitForExit();
+        }
+        catch
+        {
+            // Watchdog may already have exited.
+        }
+    }
+
+    private void StopWatchdogProcess(bool killIfRunning)
+    {
+        var process = _watchdogProcess;
+        _watchdogProcess = null;
+        if (process is null)
+        {
+            return;
+        }
+
+        try
+        {
+            if (killIfRunning && !process.HasExited)
+            {
+                process.Kill(entireProcessTree: false);
+            }
+        }
+        catch
+        {
+            // Best-effort; watchdog may already have exited.
+        }
+        finally
+        {
+            process.Dispose();
+        }
     }
 }

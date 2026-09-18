@@ -372,11 +372,27 @@ public partial class CallSessionView : UserControl
         UpdateMediaQuality(_sipService?.CallQuality.Current);
     }
 
+    private int _mediaQualityDispatchLogCount;
+
     private void OnNetworkQualityUpdated(object? sender, NetworkQualitySnapshot snapshot) =>
         Dispatcher.Invoke(() => UpdateNetworkQuality(snapshot));
 
-    private void OnMediaQualityUpdated(object? sender, CallMediaQualitySnapshot snapshot) =>
+    private void OnMediaQualityUpdated(object? sender, CallMediaQualitySnapshot snapshot)
+    {
+        if (!Dispatcher.CheckAccess())
+        {
+            var n = Interlocked.Increment(ref _mediaQualityDispatchLogCount);
+            if (n == 1 || n % 100 == 0)
+            {
+                AudioLifecycleLog.Write(
+                    "DispatcherInvoke_FromRtpCallback",
+                    _sipService?.ActiveCallId,
+                    $"handler=OnMediaQualityUpdated count={n} frames={snapshot.FramesReceived}");
+            }
+        }
+
         Dispatcher.Invoke(() => UpdateMediaQuality(snapshot));
+    }
 
     private void UpdateMediaQuality(CallMediaQualitySnapshot? snapshot)
     {

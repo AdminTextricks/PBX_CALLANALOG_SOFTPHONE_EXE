@@ -566,6 +566,10 @@ public sealed class SipService : IDisposable
         }
 
         IncomingCallLog.Marker("ANSWER_START", _remoteParty);
+        AudioLifecycleLog.Write(
+            "AnswerAsync_Enter",
+            _activeCallId,
+            $"party={_remoteParty} state={CallState}");
         IncomingCallLog.Marker("MEDIA_INIT_START");
         IncomingCallLog.Marker("AUDIO_DEVICE_ENUMERATION_START");
         var mediaSession = CreateMediaSession();
@@ -579,6 +583,7 @@ public sealed class SipService : IDisposable
 
         if (!answered)
         {
+            AudioLifecycleLog.Write("AnswerAsync_Failed", _activeCallId, $"party={_remoteParty}");
             throw new InvalidOperationException("Failed to answer the call.");
         }
 
@@ -596,6 +601,10 @@ public sealed class SipService : IDisposable
         _activeCallId = SipCallIdHelper.Normalize(userAgent.Dialogue?.CallId ?? pendingRequest.Header.CallId);
         await EnsurePlaybackReadyAsync();
         IncomingCallLog.Marker("CALL_CONNECTED", _remoteParty);
+        AudioLifecycleLog.Write(
+            "AnswerAsync_Exit",
+            _activeCallId,
+            $"party={_remoteParty} media=0x{mediaSession.GetHashCode():x8}");
         _log.Info($"Connected to {_remoteParty}");
     }
 
@@ -686,6 +695,10 @@ public sealed class SipService : IDisposable
         {
             var resumedHeldCall = false;
             var declinedWaitingOnly = false;
+            AudioLifecycleLog.Write(
+                "HangupAsync_Enter",
+                _activeCallId,
+                $"state={CallState} mediaAlive={_mediaSession is not null} audioAlive={_audioEndPoint is not null}");
 
             lock (_sync)
             {
@@ -740,6 +753,9 @@ public sealed class SipService : IDisposable
             }
 
             ResetCallState();
+            AudioLifecycleLog.Write(
+                "HangupAsync_Exit",
+                detail: $"resumedHeld={resumedHeldCall} declinedWaitingOnly={declinedWaitingOnly}");
         });
     }
 
@@ -1425,6 +1441,10 @@ public sealed class SipService : IDisposable
             : 0;
         _log.Info(
             $"Call hung up after {durationSeconds:F0}s (Call-ID: {endedCallId ?? _activeCallId ?? "unknown"})");
+        AudioLifecycleLog.Write(
+            "RemoteHangup",
+            SipCallIdHelper.Normalize(endedCallId) ?? _activeCallId,
+            $"state={CallState} mediaAlive={_mediaSession is not null} audioAlive={_audioEndPoint is not null}");
         _outboundCallCompletion?.TrySetResult(new OutboundCallOutcome(false, "Call ended", 487));
         lock (_sync)
         {
@@ -2040,6 +2060,7 @@ public sealed class SipService : IDisposable
                 && _pendingIncomingRequest is null
                 && _activeCallId is null)
             {
+                AudioLifecycleLog.Write("ResetCallState_NoOp", detail: $"state={CallState}");
                 return;
             }
 
@@ -2047,6 +2068,10 @@ public sealed class SipService : IDisposable
             var remoteParty = _remoteParty;
             var isOutbound = _isOutboundCall;
             var callId = SipCallIdHelper.Normalize(_activeCallId);
+            AudioLifecycleLog.Write(
+                "ResetCallState_Enter",
+                callId,
+                $"state={CallState} wasConnected={wasConnected} mediaAlive={_mediaSession is not null} audioAlive={_audioEndPoint is not null} party={remoteParty}");
 
             var durationSeconds = (int)Math.Max(0, ActiveCallDuration.TotalSeconds);
             StopRecordingInternal();
@@ -2081,6 +2106,11 @@ public sealed class SipService : IDisposable
         {
             CallEnded?.Invoke(this, endedArgs);
         }
+
+        AudioLifecycleLog.Write(
+            "ResetCallState_Exit",
+            endedArgs?.SipCallId,
+            $"mediaAlive={_mediaSession is not null} audioAlive={_audioEndPoint is not null}");
     }
 
     private void MarkConnected()
@@ -2518,6 +2548,10 @@ public sealed class SipService : IDisposable
 
     private VoIPMediaSession CreateMediaSession()
     {
+        AudioLifecycleLog.Write(
+            "CreateMediaSession_Enter",
+            _activeCallId,
+            $"state={CallState} existingMedia={_mediaSession is not null}");
         DisposeMediaSession();
 
         var enabled = CodecConfiguration.BuildEnabledCodecs(
@@ -2558,6 +2592,10 @@ public sealed class SipService : IDisposable
         _mediaSession = new CallAnalogVoIPMediaSession(
             _audioEndPoint.ToMediaEndPoints(),
             SipNatHelper.CachedPublicIp);
+        AudioLifecycleLog.Write(
+            "CreateMediaSession_Created",
+            _activeCallId,
+            $"media=0x{_mediaSession.GetHashCode():x8} endpoint=0x{_audioEndPoint.GetHashCode():x8}");
         _mediaSession.OnAudioFrameReceived += frame =>
         {
             _lastRtpUtc = DateTimeOffset.UtcNow;
@@ -2580,6 +2618,10 @@ public sealed class SipService : IDisposable
                     $"First playback frame queued ({frame.EncodedAudio.Length} bytes, {frame.AudioFormat.FormatName}).");
             }
         };
+        AudioLifecycleLog.Write(
+            "CreateMediaSession_Exit",
+            _activeCallId,
+            $"media=0x{_mediaSession.GetHashCode():x8}");
         return _mediaSession;
     }
 
@@ -2723,9 +2765,14 @@ public sealed class SipService : IDisposable
 
                 await _audioEndPoint.Inner.ResumeAudioSink();
                 _log.Info("Audio playback sink re-armed after connect delay.");
+                AudioLifecycleLog.Write("PlaybackEnsureRetry_Done", _activeCallId);
             }
-            catch
+            catch (Exception ex)
             {
+                AudioLifecycleLog.Write(
+                    "PlaybackEnsureRetry_Exception",
+                    _activeCallId,
+                    $"{ex.GetType().Name}: {ex.Message}");
                 // Best-effort after SDP renegotiation recreates WaveOut.
             }
         });
@@ -3521,6 +3568,10 @@ public sealed class SipService : IDisposable
 
     private void DisposeMediaSession()
     {
+        AudioLifecycleLog.Write(
+            "DisposeMediaSession_Enter",
+            _activeCallId,
+            $"mediaAlive={_mediaSession is not null} audioAlive={_audioEndPoint is not null} frames={_callQualityMonitor.Current.FramesReceived}");
         StopMediaRecoveryMonitor();
 
         if (_callQualityMonitor.Current.FramesReceived > 0)
@@ -3528,6 +3579,7 @@ public sealed class SipService : IDisposable
             _log.Info(_callQualityMonitor.FormatHangupSummary());
         }
 
+        AudioLifecycleLog.Write("DisposeMediaSession_CloseMedia", _activeCallId);
         _mediaSession?.Close("shutdown");
         _mediaSession = null;
 
@@ -3538,9 +3590,15 @@ public sealed class SipService : IDisposable
                 _ = _audioEndPoint.SetSpeakerMuted(false);
             }
 
+            AudioLifecycleLog.Write(
+                "DisposeMediaSession_CloseAudio",
+                _activeCallId,
+                $"endpoint=0x{_audioEndPoint.GetHashCode():x8}");
             _ = _audioEndPoint.Close();
             _audioEndPoint = null;
         }
+
+        AudioLifecycleLog.Write("DisposeMediaSession_Exit", _activeCallId);
     }
 
     private void SetRegistrationState(SipRegistrationState state)

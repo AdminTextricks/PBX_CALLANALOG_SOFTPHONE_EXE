@@ -159,6 +159,7 @@ public sealed class CallAnalogWindowsAudioEndPoint : IAudioEndPoint
 
     public Task Start()
     {
+        AudioLifecycleLog.Write("Endpoint_Start", detail: DescribeEndpoint());
         StartAudio();
         StartAudioSink();
         return Task.CompletedTask;
@@ -166,10 +167,12 @@ public sealed class CallAnalogWindowsAudioEndPoint : IAudioEndPoint
 
     public Task Close()
     {
+        AudioLifecycleLog.Write("Endpoint_CloseEnter", detail: DescribeEndpoint());
         CloseAudio();
         CloseAudioSink();
         DetachPlaybackStoppedHandler();
         ReleasePlaybackDevice();
+        AudioLifecycleLog.Write("Endpoint_CloseExit", detail: DescribeEndpoint());
         return Task.CompletedTask;
     }
 
@@ -223,13 +226,16 @@ public sealed class CallAnalogWindowsAudioEndPoint : IAudioEndPoint
         if (!_isAudioSinkClosed)
         {
             _isAudioSinkClosed = true;
+            AudioLifecycleLog.Write("Endpoint_CloseAudioSink", detail: DescribeEndpoint());
             try
             {
                 _wavePlayer?.Stop();
             }
-            catch
+            catch (Exception ex)
             {
-                // Best-effort.
+                AudioLifecycleLog.Write(
+                    "Endpoint_CloseAudioSink_StopException",
+                    detail: $"{DescribeEndpoint()} ex={ex.GetType().Name}: {ex.Message}");
             }
 
             DetachPlaybackStoppedHandler();
@@ -269,6 +275,7 @@ public sealed class CallAnalogWindowsAudioEndPoint : IAudioEndPoint
         if (!_isAudioSourceClosed)
         {
             _isAudioSourceClosed = true;
+            AudioLifecycleLog.Write("Endpoint_CloseAudio", detail: DescribeEndpoint());
             DisposeCaptureDevice();
         }
 
@@ -342,6 +349,11 @@ public sealed class CallAnalogWindowsAudioEndPoint : IAudioEndPoint
             return;
         }
 
+        if (_receivedFrameCount == 0)
+        {
+            AudioLifecycleLog.Write("GotEncodedMediaFrame_Enter", detail: DescribeEndpoint());
+        }
+
         var pcmSample = _audioEncoder.DecodeAudio(encodedMediaFrame.EncodedAudio, audioFormat);
         var pcmBytes = PcmSamplesToBytes(pcmSample);
 
@@ -366,6 +378,9 @@ public sealed class CallAnalogWindowsAudioEndPoint : IAudioEndPoint
             App.SipLog.Info(
                 $"Call audio playback frame #{_receivedFrameCount} ({pcmBytes.Length} PCM bytes, {audioFormat.FormatName}, " +
                 $"buffer={waveProvider.BufferedBytes} bytes, backend={(_usingWasapiPlayback ? "WASAPI" : "WinMM")}).");
+            AudioLifecycleLog.Write(
+                "GotEncodedMediaFrame",
+                detail: $"{DescribeEndpoint()} frame={_receivedFrameCount} buffered={waveProvider.BufferedBytes}");
             EnsurePlaying();
             CheckPlaybackDraining(waveProvider);
         }
@@ -400,14 +415,19 @@ public sealed class CallAnalogWindowsAudioEndPoint : IAudioEndPoint
 
             _playbackStoppedHandler = (_, args) =>
             {
+                AudioLifecycleLog.Write(
+                    "PlaybackStopped_Enter",
+                    detail: $"{DescribeEndpoint()} ex={args.Exception?.GetType().Name ?? "none"}");
                 if (args.Exception is not null)
                 {
                     App.SipLog.Warn($"Call playback stopped: {args.Exception.Message}");
                     RequestPlaybackRecovery();
+                    AudioLifecycleLog.Write("PlaybackStopped_Exit", detail: $"{DescribeEndpoint()} recoveryRequested=true");
                     return;
                 }
 
                 EnsurePlaying();
+                AudioLifecycleLog.Write("PlaybackStopped_Exit", detail: DescribeEndpoint());
             };
             _wavePlayer!.PlaybackStopped += _playbackStoppedHandler;
 
@@ -417,6 +437,9 @@ public sealed class CallAnalogWindowsAudioEndPoint : IAudioEndPoint
         catch (Exception excp)
         {
             _logger.LogWarning(0, excp, "CallAnalogWindowsAudioEndPoint failed to initialise playback device.");
+            AudioLifecycleLog.Write(
+                "Endpoint_InitPlaybackException",
+                detail: $"{DescribeEndpoint()} ex={excp.GetType().Name}: {excp.Message}");
             OnAudioSinkError?.Invoke($"Playback init failed: {excp.Message}");
         }
     }
@@ -464,9 +487,12 @@ public sealed class CallAnalogWindowsAudioEndPoint : IAudioEndPoint
             audioOutDeviceIndex,
             desiredLatency: _playbackLatencyMs,
             numberOfBuffers: _playbackBuffers);
-        _waveOutEvent.Volume = 1f;
-        _wavePlayer = _waveOutEvent;
-        _usingWasapiPlayback = false;
+            _waveOutEvent.Volume = 1f;
+            _wavePlayer = _waveOutEvent;
+            _usingWasapiPlayback = false;
+            AudioLifecycleLog.Write(
+                "Endpoint_InitWinMmPlayback",
+                detail: $"{DescribeEndpoint()} waveOut={FormatPlayer(_waveOutEvent)} deviceIndex={audioOutDeviceIndex}");
 
         if (audioOutDeviceIndex >= 0)
         {
@@ -510,6 +536,7 @@ public sealed class CallAnalogWindowsAudioEndPoint : IAudioEndPoint
             return;
         }
 
+        AudioLifecycleLog.Write("Endpoint_ReleasePlayback", detail: DescribeEndpoint());
         WinMmAudioOutputManager.Release(WinMmAudioOutputManager.OwnerCallPlayback);
         _waveOutEvent = null;
         _wavePlayer = null;
@@ -575,10 +602,20 @@ public sealed class CallAnalogWindowsAudioEndPoint : IAudioEndPoint
         _waveInEvent.DataAvailable += LocalAudioSampleAvailable;
         _usingWasapiCapture = false;
         App.SipLog.Info($"Call capture WinMM device index: {(audioInDeviceIndex >= 0 ? audioInDeviceIndex : 0)}");
+        AudioLifecycleLog.Write(
+            "Endpoint_WaveInCreated",
+            detail: $"{DescribeEndpoint()} waveIn={FormatCapture(_waveInEvent)} deviceIndex={_waveInEvent.DeviceNumber}");
     }
 
     private void DisposeCaptureDevice()
     {
+        if (_wasapiCapture is not null || _waveInEvent is not null)
+        {
+            AudioLifecycleLog.Write(
+                "Endpoint_WaveInDisposeEnter",
+                detail: $"{DescribeEndpoint()} waveIn={FormatCapture(_waveInEvent)} wasapi={_wasapiCapture is not null}");
+        }
+
         if (_wasapiCapture is not null)
         {
             _wasapiCapture.DataAvailable -= LocalAudioSampleAvailable;
@@ -625,6 +662,7 @@ public sealed class CallAnalogWindowsAudioEndPoint : IAudioEndPoint
             }
 
             _waveInEvent = null;
+            AudioLifecycleLog.Write("Endpoint_WaveInDisposed", detail: DescribeEndpoint());
         }
 
         _usingWasapiCapture = false;
@@ -734,6 +772,9 @@ public sealed class CallAnalogWindowsAudioEndPoint : IAudioEndPoint
         {
             if (_wavePlayer.PlaybackState != PlaybackState.Playing)
             {
+                AudioLifecycleLog.Write(
+                    "EnsurePlaying_Play",
+                    detail: $"{DescribeEndpoint()} player={FormatPlayer(_wavePlayer)} state={_wavePlayer.PlaybackState}");
                 _wavePlayer.Play();
             }
         }
@@ -741,6 +782,9 @@ public sealed class CallAnalogWindowsAudioEndPoint : IAudioEndPoint
         {
             // Never let an audio fault propagate into the RTP receive path.
             App.SipLog.Warn($"Call playback could not resume ({ex.Message}).");
+            AudioLifecycleLog.Write(
+                "EnsurePlaying_Exception",
+                detail: $"{DescribeEndpoint()} ex={ex.GetType().Name}: {ex.Message}");
             RequestPlaybackRecovery();
         }
     }
@@ -771,6 +815,7 @@ public sealed class CallAnalogWindowsAudioEndPoint : IAudioEndPoint
         }
 
         // Off the audio callback thread: disposing a wave player from its own event can deadlock.
+        AudioLifecycleLog.Write("PlaybackRecovery_Queued", detail: DescribeEndpoint());
         Task.Run(RecoverPlayback);
     }
 
@@ -780,18 +825,24 @@ public sealed class CallAnalogWindowsAudioEndPoint : IAudioEndPoint
         {
             if (_isAudioSinkClosed)
             {
+                AudioLifecycleLog.Write("PlaybackRecovery_SkippedClosed", detail: DescribeEndpoint());
                 return;
             }
 
+            AudioLifecycleLog.Write("PlaybackRecovery_Enter", detail: DescribeEndpoint());
             _forceWinMmPlayback = true;
             _waveProvider?.ClearBuffer();
             InitPlaybackDevice(_audioOutDeviceIndex, _waveSinkFormat.SampleRate, _waveSinkFormat.Channels);
             _saturatedPlaybackChecks = 0;
             App.SipLog.Info("Call playback restarted on WinMM after sink failure.");
+            AudioLifecycleLog.Write("PlaybackRecovery_Exit", detail: DescribeEndpoint());
         }
         catch (Exception ex)
         {
             App.SipLog.Error($"Call playback recovery failed: {ex.Message}");
+            AudioLifecycleLog.Write(
+                "PlaybackRecovery_Exception",
+                detail: $"{DescribeEndpoint()} ex={ex.GetType().Name}: {ex.Message}");
             OnAudioSinkError?.Invoke($"Playback recovery failed: {ex.Message}");
         }
         finally
@@ -836,4 +887,17 @@ public sealed class CallAnalogWindowsAudioEndPoint : IAudioEndPoint
             return count;
         }
     }
+
+    private string DescribeEndpoint()
+    {
+        var capture = _waveInEvent is not null || _wasapiCapture is not null ? 1 : 0;
+        var playback = _wavePlayer is not null ? 1 : 0;
+        return $"endpoint=0x{GetHashCode():x8} player={FormatPlayer(_wavePlayer)} closed={_isAudioSinkClosed} started={_isAudioSinkStarted} paused={_isAudioSinkPaused} playbackCount={playback} captureCount={capture}";
+    }
+
+    private static string FormatPlayer(IWavePlayer? player) =>
+        player is null ? "none" : $"0x{player.GetHashCode():x8}";
+
+    private static string FormatCapture(WaveInEvent? capture) =>
+        capture is null ? "none" : $"0x{capture.GetHashCode():x8}";
 }

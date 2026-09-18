@@ -1,3 +1,4 @@
+using CallAnalog.Softphone.Helpers;
 using NAudio.Wave;
 
 namespace CallAnalog.Softphone.Services;
@@ -30,6 +31,9 @@ internal static class WinMmAudioOutputManager
             if (_activeOutput is not null)
             {
                 App.SipLog.Info($"WinMM: releasing '{_activeOwner}' so '{owner}' can use the output device.");
+                AudioLifecycleLog.Write(
+                    "WinMM_Preempt",
+                    detail: $"fromOwner={_activeOwner} toOwner={owner} waveOut={FormatWaveOut(_activeOutput)}");
                 DisposeActiveOutput();
             }
 
@@ -52,6 +56,9 @@ internal static class WinMmAudioOutputManager
             output.Init(provider);
             _activeOutput = output;
             _activeOwner = owner;
+            AudioLifecycleLog.Write(
+                "WinMM_Create",
+                detail: $"owner={owner} waveOut={FormatWaveOut(output)} deviceIndex={deviceIndex} latency={desiredLatency} buffers={numberOfBuffers}");
             return output;
         }
     }
@@ -62,9 +69,13 @@ internal static class WinMmAudioOutputManager
         {
             if (_activeOwner != owner)
             {
+                AudioLifecycleLog.Write(
+                    "WinMM_ReleaseSkipped",
+                    detail: $"requestedOwner={owner} activeOwner={_activeOwner ?? "none"}");
                 return;
             }
 
+            AudioLifecycleLog.Write("WinMM_Release", detail: $"owner={owner}");
             DisposeActiveOutput();
         }
     }
@@ -73,7 +84,17 @@ internal static class WinMmAudioOutputManager
     {
         lock (Sync)
         {
+            AudioLifecycleLog.Write("WinMM_ForceReleaseAll", detail: $"activeOwner={_activeOwner ?? "none"}");
             DisposeActiveOutput();
+        }
+    }
+
+    internal static string DescribeForLog()
+    {
+        lock (Sync)
+        {
+            var count = _activeOutput is null ? 0 : 1;
+            return $"winmmOwner={_activeOwner ?? "none"} waveOut={FormatWaveOut(_activeOutput)} winmmCount={count}";
         }
     }
 
@@ -93,26 +114,34 @@ internal static class WinMmAudioOutputManager
         }
 
         var owner = _activeOwner;
+        var waveOut = FormatWaveOut(_activeOutput);
+        AudioLifecycleLog.Write("WinMM_StopEnter", detail: $"owner={owner} waveOut={waveOut}");
         try
         {
             _activeOutput.Stop();
+            AudioLifecycleLog.Write("WinMM_StopExit", detail: $"owner={owner} waveOut={waveOut}");
         }
-        catch
+        catch (Exception ex)
         {
-            // Best-effort immediate silence.
+            AudioLifecycleLog.Write("WinMM_StopException", detail: $"owner={owner} waveOut={waveOut} ex={ex.GetType().Name}: {ex.Message}");
         }
 
+        AudioLifecycleLog.Write("WinMM_DisposeEnter", detail: $"owner={owner} waveOut={waveOut}");
         try
         {
             _activeOutput.Dispose();
+            AudioLifecycleLog.Write("WinMM_DisposeExit", detail: $"owner={owner} waveOut={waveOut}");
         }
-        catch
+        catch (Exception ex)
         {
-            // Best-effort teardown.
+            AudioLifecycleLog.Write("WinMM_DisposeException", detail: $"owner={owner} waveOut={waveOut} ex={ex.GetType().Name}: {ex.Message}");
         }
 
         _activeOutput = null;
         _activeOwner = null;
         App.SipLog.Info($"WinMM: released output device (was '{owner}').");
     }
+
+    private static string FormatWaveOut(WaveOutEvent? output) =>
+        output is null ? "none" : $"0x{output.GetHashCode():x8}";
 }

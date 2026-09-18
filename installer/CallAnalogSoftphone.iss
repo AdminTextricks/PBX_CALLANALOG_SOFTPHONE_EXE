@@ -11,7 +11,7 @@
 ; certificate is installed. See docs/CODE_SIGNING.md.
 
 #define MyAppName "CallAnalog Softphone"
-#define MyAppVersion "2.2.8"
+#define MyAppVersion "2.2.9"
 #define MyAppPublisher "CallAnalog"
 #define MyAppExeName "CallAnalog.Softphone.exe"
 #define MyAppMutex "Global\CallAnalog.Softphone.SingleInstance"
@@ -20,6 +20,8 @@
 ; This is a multi-file self-contained layout (exe + native WPF runtime DLLs +
 ; appsettings.json + Assets), not PublishSingleFile.
 #define PublishDir "..\bin\Release\net10.0-windows10.0.18362\win-x64\publish"
+; Single-file watchdog EXE copied beside the WPF app on Build/Publish (and into dist by build.ps1).
+#define WatchdogExe "..\tools\CallAnalog.Watchdog\bin\Release\publish-win-x64\CallAnalog.Watchdog.exe"
 
 ; Stable AppId so upgrades replace the previous install instead of duplicating
 ; Add/Remove Programs and Start Menu entries.
@@ -77,6 +79,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 ; accompanying *_cor3.dll files, appsettings.json, and Assets (when present).
 ; Exclude debug symbols from the shipped installer.
 Source: "{#PublishDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: "*.pdb"
+Source: "{#WatchdogExe}"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; Comment: "{#MyAppName}"
