@@ -449,6 +449,37 @@ public sealed class SipService : IDisposable
         });
     }
 
+    public Task ReloadRegistrationAsync()
+    {
+        ProvisionConfig? current;
+        lock (_sync)
+        {
+            current = _config;
+        }
+
+        if (current is null || RegistrationState != SipRegistrationState.Registered)
+        {
+            return Task.CompletedTask;
+        }
+
+        var transport = UserSettingsService.NormalizeTransport(_settingsService.Transport);
+        if (transport.Equals("tls", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new NotSupportedException("SIP TLS is saved, but this build has no SIPSorcery TLS channel.");
+        }
+
+        return RegisterAsync(new ProvisionConfig
+        {
+            Extension = current.Extension,
+            Password = current.Password,
+            SipServer = current.SipServer,
+            SipPort = current.SipPort,
+            SipConnectHost = current.SipConnectHost,
+            DisplayName = current.DisplayName,
+            Transport = transport
+        });
+    }
+
     public async Task CallAsync(string number, CancellationToken cancellationToken = default)
     {
         SIPUserAgent? userAgent;
@@ -1578,6 +1609,11 @@ public sealed class SipService : IDisposable
         }
 
         var localEndPoint = new IPEndPoint(IPAddress.Any, 0);
+        if (config.IsTls)
+        {
+            throw new NotSupportedException("SIP TLS is saved, but this build has no SIPSorcery TLS channel.");
+        }
+
         if (config.UseTcp)
         {
             _transport.AddSIPChannel(new SIPTCPChannel(localEndPoint));
@@ -1586,7 +1622,13 @@ public sealed class SipService : IDisposable
                 _log.Info($"TCP registration will connect via {config.SipConnectHost} (SIP domain {config.SipServer}).");
             }
         }
-        else
+
+        if (config.UseUdp)
+        {
+            _transport.AddSIPChannel(new SIPUDPChannel(new IPEndPoint(IPAddress.Any, 0)));
+        }
+
+        if (!config.UseTcp && !config.UseUdp)
         {
             _transport.AddSIPChannel(new SIPUDPChannel(localEndPoint));
         }
@@ -3537,7 +3579,7 @@ public sealed class SipService : IDisposable
             throw new InvalidOperationException("SIP is not configured.");
         }
 
-        return SipUriBuilder.BuildDialUri(_config, number);
+        return SipUriBuilder.BuildOutboundDialUri(_config, number);
     }
 
     private SIPCallDescriptor CreateOutboundCallDescriptor(string destination)

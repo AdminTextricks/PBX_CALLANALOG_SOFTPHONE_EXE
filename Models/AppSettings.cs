@@ -9,7 +9,7 @@ public sealed class AppSettings
     public string CompanyName { get; set; } = "CallAnalog";
     public string CarrierHost { get; set; } = "user.callanalog.com";
     public string? CarrierConnectHost { get; set; }
-    public string DefaultTransport { get; set; } = "tcp";
+    public string DefaultTransport { get; set; } = "udp";
     public int SipPort { get; set; } = 5065;
     public int RegistrationExpirySeconds { get; set; } = 3600;
     public int KeepAliveSeconds { get; set; } = 15;

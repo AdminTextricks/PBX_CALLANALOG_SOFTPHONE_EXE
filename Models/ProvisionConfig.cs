@@ -6,7 +6,7 @@ public sealed class ProvisionConfig
     public string Password { get; set; } = string.Empty;
     public string SipServer { get; set; } = string.Empty;
     public int SipPort { get; set; } = 5065;
-    public string Transport { get; set; } = "tcp";
+    public string Transport { get; set; } = "udp";
     public string? DisplayName { get; set; }
 
     /// <summary>Optional IP/hostname for the TCP socket (defaults to SipServer).</summary>
@@ -14,11 +14,18 @@ public sealed class ProvisionConfig
 
     public string SipUri => $"sip:{Extension}@{SipServer}";
 
-    public bool UseTcp => Transport.Equals("tcp", StringComparison.OrdinalIgnoreCase);
+    public bool IsTls => Transport.Equals("tls", StringComparison.OrdinalIgnoreCase);
+
+    public bool UseUdp =>
+        Transport.Equals("udp", StringComparison.OrdinalIgnoreCase)
+        || Transport.Equals("udp+tcp", StringComparison.OrdinalIgnoreCase);
+
+    public bool UseTcp =>
+        Transport.Equals("tcp", StringComparison.OrdinalIgnoreCase)
+        || Transport.Equals("udp+tcp", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
-    /// MicroSIP-style registrar string passed to SIPSorcery (host:port;transport=tcp).
-    /// Builds AOR sip:ext@host:port;transport=tcp matching CallAnalog C++ client.
+    /// Registrar target. TCP and UDP+TCP register over TCP. UDP registers without a transport suffix.
     /// </summary>
     public string RegistrarServer =>
         UseTcp

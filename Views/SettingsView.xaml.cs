@@ -197,7 +197,13 @@ public partial class SettingsView : UserControl
         KeepAliveBox.Text = settings.KeepAliveSeconds.ToString();
         _previousRegisterSeconds = settings.RegistrationExpirySeconds;
         _previousKeepAliveSeconds = settings.KeepAliveSeconds;
-        TransportCombo.SelectedIndex = settings.DefaultTransport.Equals("udp", StringComparison.OrdinalIgnoreCase) ? 1 : 0;
+        TransportCombo.SelectedIndex = UserSettingsService.NormalizeTransport(settings.DefaultTransport) switch
+        {
+            "tcp" => 1,
+            "udp+tcp" => 2,
+            "tls" => 3,
+            _ => 0
+        };
 
         HoldMusicPathText.Text = FormatMediaPath(settings.HoldMusicPath);
         RingtonePathText.Text = FormatMediaPath(settings.RingtonePath);
@@ -509,9 +515,29 @@ public partial class SettingsView : UserControl
         }
 
         var transportItem = TransportCombo.SelectedItem as ComboBoxItem;
-        var transport = transportItem?.Content?.ToString() ?? "TCP";
+        var transport = transportItem?.Content?.ToString() ?? "UDP";
         await _settingsService.SaveTransportAsync(transport);
-        SetStatus("Transport saved. Sign out and sign in for this change to apply.", StatusMessageKind.Warning);
+
+        if (_sipService?.RegistrationState == SipRegistrationState.Registered)
+        {
+            try
+            {
+                await _sipService.ReloadRegistrationAsync();
+                SetStatus("Transport saved. SIP re-registered.", StatusMessageKind.Success);
+            }
+            catch (NotSupportedException ex)
+            {
+                SetStatus(ex.Message, StatusMessageKind.Warning);
+            }
+            catch (Exception ex)
+            {
+                SetStatus($"Transport saved, but SIP re-register failed — {ex.Message}", StatusMessageKind.Error);
+            }
+
+            return;
+        }
+
+        SetStatus("Transport saved. It applies the next time you sign in.", StatusMessageKind.Success);
     }
 
     private void TestMicButton_Click(object sender, RoutedEventArgs e)

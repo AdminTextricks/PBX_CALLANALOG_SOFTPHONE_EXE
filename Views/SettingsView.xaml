@@ -137,8 +137,10 @@
                                  Margin="0,0,0,6"/>
                         <TextBlock Text="Transport" Style="{StaticResource SettingsLabel}"/>
                         <ComboBox x:Name="TransportCombo" Style="{StaticResource PhoneComboBox}" Margin="0,0,0,6">
-                            <ComboBoxItem Content="TCP"/>
                             <ComboBoxItem Content="UDP"/>
+                            <ComboBoxItem Content="TCP"/>
+                            <ComboBoxItem Content="UDP + TCP"/>
+                            <ComboBoxItem Content="TLS"/>
                         </ComboBox>
                         <Button Content="Save Transport"
                                 Style="{StaticResource PhonePrimaryButton}"

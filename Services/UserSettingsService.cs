@@ -59,7 +59,7 @@ public sealed class UserSettingsService
         {
             CompanyName = configuration["App:CompanyName"] ?? "CallAnalog",
             CarrierHost = configuration["Sip:CarrierHost"] ?? "user.callanalog.com",
-            DefaultTransport = configuration["Sip:DefaultTransport"] ?? "tcp",
+            DefaultTransport = configuration["Sip:DefaultTransport"] ?? "udp",
             SipPort = configuration.GetValue("Sip:SipPort", 5065),
             RegistrationExpirySeconds = configuration.GetValue("Sip:RegistrationExpirySeconds", 3600),
             KeepAliveSeconds = configuration.GetValue("Sip:KeepAliveSeconds", 15),
@@ -96,7 +96,7 @@ public sealed class UserSettingsService
             SipServer = _settings.CarrierHost,
             SipConnectHost = _settings.CarrierConnectHost,
             SipPort = _settings.SipPort,
-            Transport = _settings.DefaultTransport,
+            Transport = UserSettingsService.NormalizeTransport(_settings.DefaultTransport),
             DisplayName = extension.Trim()
         };
 
@@ -159,7 +159,6 @@ public sealed class UserSettingsService
         var host = carrierHost.Contains(':') ? carrierHost.Split(':')[0] : carrierHost.Trim();
         _settings.CarrierHost = host;
         _settings.CarrierConnectHost = string.IsNullOrWhiteSpace(connectHost) ? null : connectHost.Trim();
-        _settings.DefaultTransport = transport.Trim().ToLowerInvariant();
         _settings.SipPort = sipPort;
         Persist();
         return Task.CompletedTask;
@@ -217,9 +216,21 @@ public sealed class UserSettingsService
 
     public Task SaveTransportAsync(string transport)
     {
-        _settings.DefaultTransport = transport.Trim().ToLowerInvariant();
+        _settings.DefaultTransport = NormalizeTransport(transport);
         Persist();
         return Task.CompletedTask;
+    }
+
+    public static string NormalizeTransport(string? transport)
+    {
+        var value = transport?.Trim().ToLowerInvariant() ?? "udp";
+        return value switch
+        {
+            "tcp" => "tcp",
+            "udp+tcp" or "udp + tcp" => "udp+tcp",
+            "tls" => "tls",
+            _ => "udp"
+        };
     }
 
     public Task SaveDashboardTogglesAsync(bool dndEnabled, bool autoAnswerEnabled)
@@ -241,7 +252,7 @@ public sealed class UserSettingsService
         }
 
         _settings.CarrierHost = configuration["Sip:CarrierHost"] ?? "user.callanalog.com";
-        _settings.DefaultTransport = configuration["Sip:DefaultTransport"] ?? "tcp";
+        _settings.DefaultTransport = configuration["Sip:DefaultTransport"] ?? "udp";
         _settings.SipPort = configuration.GetValue("Sip:SipPort", SipDomainParser.DesktopTcpPort);
         Persist();
     }

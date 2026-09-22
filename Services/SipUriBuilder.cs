@@ -17,6 +17,17 @@ internal static class SipUriBuilder
         return BuildUserUri(config, NormalizeDialUser(number));
     }
 
+    /// <summary>
+    /// Outbound INVITE Request-URI. Same server and port as registration, sent as UDP.
+    /// </summary>
+    public static string BuildOutboundDialUri(ProvisionConfig config, string number)
+    {
+        var user = number.StartsWith("sip:", StringComparison.OrdinalIgnoreCase)
+            ? SipUserFromUri(number)
+            : NormalizeDialUser(number);
+        return $"sip:{user}@{config.SipServer}:{config.SipPort};transport={(config.UseUdp ? "udp" : "tcp")}";
+    }
+
     public static string BuildFromUri(ProvisionConfig config) =>
         BuildUserUri(config, config.Extension);
 
@@ -35,6 +46,14 @@ internal static class SipUriBuilder
     /// <summary>Strips E.164 leading + so INVITE Request-URI uses digits only (e.g. +1866… → 1866…).</summary>
     private static string NormalizeDialUser(string number) =>
         number.StartsWith('+') ? number[1..] : number;
+
+    private static string SipUserFromUri(string uri)
+    {
+        var withoutScheme = uri.Length > 4 ? uri[4..] : uri;
+        var at = withoutScheme.IndexOf('@');
+        var user = at >= 0 ? withoutScheme[..at] : withoutScheme;
+        return NormalizeDialUser(user);
+    }
 
     private static string BuildUserUri(ProvisionConfig config, string user)
     {
