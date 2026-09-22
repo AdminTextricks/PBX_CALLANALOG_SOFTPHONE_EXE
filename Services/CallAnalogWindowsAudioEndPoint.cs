@@ -537,9 +537,13 @@ public sealed class CallAnalogWindowsAudioEndPoint : IAudioEndPoint
         }
 
         AudioLifecycleLog.Write("Endpoint_ReleasePlayback", detail: DescribeEndpoint());
-        WinMmAudioOutputManager.Release(WinMmAudioOutputManager.OwnerCallPlayback);
+        var output = _waveOutEvent;
         _waveOutEvent = null;
         _wavePlayer = null;
+        if (output is not null)
+        {
+            WinMmAudioOutputManager.DisposeInstance(output, WinMmAudioOutputManager.OwnerCallPlayback);
+        }
     }
 
     private void InitCaptureDevice(int audioInDeviceIndex, int audioSourceSampleRate, int audioSourceChannels)

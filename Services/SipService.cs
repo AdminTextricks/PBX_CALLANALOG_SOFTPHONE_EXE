@@ -88,6 +88,7 @@ public sealed class SipService : IDisposable
     private SIPUserAgent? _wiredWaitingEventsAgent;
     private bool _suppressMissedCallBadge;
     private EventHandler<StoppedEventArgs>? _holdMusicStoppedHandler;
+    private Task _playbackRestoreTask = Task.CompletedTask;
 
     private readonly record struct OutboundCallOutcome(bool Success, string Message, int StatusCode);
 
@@ -487,7 +488,7 @@ public sealed class SipService : IDisposable
         _activeCallId = Guid.NewGuid().ToString("N");
         SetCallState(CallState.Outgoing);
 
-        var mediaSession = CreateMediaSession();
+        var mediaSession = await CreateMediaSessionAsync(cancellationToken);
         var completion = new TaskCompletionSource<OutboundCallOutcome>(TaskCreationOptions.RunContinuationsAsynchronously);
         _outboundCallCompletion = completion;
 
@@ -572,7 +573,7 @@ public sealed class SipService : IDisposable
             $"party={_remoteParty} state={CallState}");
         IncomingCallLog.Marker("MEDIA_INIT_START");
         IncomingCallLog.Marker("AUDIO_DEVICE_ENUMERATION_START");
-        var mediaSession = CreateMediaSession();
+        var mediaSession = await CreateMediaSessionAsync();
         IncomingCallLog.Marker("AUDIO_DEVICE_ENUMERATION_END");
         IncomingCallLog.Marker("MEDIA_START");
         var serverAgent = pendingUas ?? userAgent.AcceptCall(pendingRequest);
@@ -1015,7 +1016,7 @@ public sealed class SipService : IDisposable
         }
 
         EnsureWaitingCallUserAgent();
-        var waitingMedia = CreateWaitingMediaSession();
+        var waitingMedia = await CreateWaitingMediaSessionAsync();
         SIPServerUserAgent serverAgent;
         lock (_sync)
         {
@@ -1099,13 +1100,14 @@ public sealed class SipService : IDisposable
             endedCallId = _activeCallId;
             endedWasOutbound = _isOutboundCall;
             endedWasConnected = _wasConnected;
-            StopHoldMusicInternal();
             _replacingPrimaryWithWaitingCall = true;
             _hasHeldCall = false;
             _heldRemoteParty = null;
             _heldCallId = null;
             _activeCallLeg = ActiveCallLeg.Primary;
         }
+
+        await Task.Run(StopHoldMusicInternal);
 
         _log.Info($"Answering waiting call from {waitingNumber} (ending current call with {endedRemoteParty})");
 
@@ -1123,7 +1125,7 @@ public sealed class SipService : IDisposable
         }
 
         EnsureWaitingCallUserAgent();
-        var waitingMedia = CreateWaitingMediaSession();
+        var waitingMedia = await CreateWaitingMediaSessionAsync();
         SIPServerUserAgent serverAgent;
         lock (_sync)
         {
@@ -1267,6 +1269,7 @@ public sealed class SipService : IDisposable
             return;
         }
 
+        var expectedCallId = _activeCallId;
         _log.Info("Applying in-call audio device change.");
         ApplyCallAudioLevels();
 
@@ -1276,7 +1279,7 @@ public sealed class SipService : IDisposable
             return;
         }
 
-        await audioEndPoint.Close();
+        await Task.Run(audioEndPoint.Close);
         var enabled = CodecConfiguration.BuildEnabledCodecs(
             _settingsService.Settings.EnabledCodecs,
             _settingsService.Settings.VoicePreferOpus);
@@ -1288,12 +1291,29 @@ public sealed class SipService : IDisposable
             _settingsService.Settings.MicrophoneDevice,
             _settingsService.Settings.MicrophoneDeviceId);
 
-        var innerAudio = CreateConfiguredAudioEndPoint(encoder, outputDevice, inputDevice);
-        _audioEndPoint = new MutingAudioEndPoint(innerAudio);
-        _audioEndPoint.SetMuted(_isMuted);
+        var innerAudio = await Task.Run(
+            () => CreateConfiguredAudioEndPoint(encoder, outputDevice, inputDevice));
+        var replacementEndPoint = new MutingAudioEndPoint(innerAudio);
+        replacementEndPoint.SetMuted(_isMuted);
         if (_isSpeakerMuted)
         {
-            await _audioEndPoint.SetSpeakerMuted(true);
+            await replacementEndPoint.SetSpeakerMuted(true);
+        }
+
+        var published = false;
+        lock (_sync)
+        {
+            if (IsPrimaryMediaCreationCurrentUnlocked(expectedCallId))
+            {
+                _audioEndPoint = replacementEndPoint;
+                published = true;
+            }
+        }
+
+        if (!published)
+        {
+            await Task.Run(innerAudio.Close);
+            return;
         }
 
         AttachPlaybackTap();
@@ -2546,13 +2566,15 @@ public sealed class SipService : IDisposable
     private bool _loggedFirstIncomingRtp;
     private bool _loggedFirstPlaybackFrame;
 
-    private VoIPMediaSession CreateMediaSession()
+    private async Task<VoIPMediaSession> CreateMediaSessionAsync(
+        CancellationToken cancellationToken = default)
     {
+        var expectedCallId = _activeCallId;
         AudioLifecycleLog.Write(
             "CreateMediaSession_Enter",
             _activeCallId,
             $"state={CallState} existingMedia={_mediaSession is not null}");
-        DisposeMediaSession();
+        await Task.Run(DisposeMediaSession);
 
         var enabled = CodecConfiguration.BuildEnabledCodecs(
             _settingsService.Settings.EnabledCodecs,
@@ -2571,32 +2593,22 @@ public sealed class SipService : IDisposable
             $"voiceProfile={_settingsService.Settings.VoiceQualityProfile}.");
 
         _callQualityMonitor.Reset();
-        var innerAudio = CreateConfiguredAudioEndPoint(encoder, outputDevice, inputDevice);
-        _audioEndPoint = new MutingAudioEndPoint(innerAudio);
-        _audioEndPoint.OnAudioSinkError += message => _log.Warn($"Audio playback: {message}");
-        AttachPlaybackTap();
+        var innerAudio = await Task.Run(
+            () => CreateConfiguredAudioEndPoint(encoder, outputDevice, inputDevice));
+        var audioEndPoint = new MutingAudioEndPoint(innerAudio);
+        audioEndPoint.OnAudioSinkError += message => _log.Warn($"Audio playback: {message}");
         if (_isMuted)
         {
-            _audioEndPoint.SetMuted(true);
+            audioEndPoint.SetMuted(true);
         }
 
         var allowedPayloadIds = CodecConfiguration.GetNegotiableRtpPayloadIds(enabled);
-        _audioEndPoint.RestrictFormats(format => CodecConfiguration.IsFormatAllowed(format, allowedPayloadIds));
+        audioEndPoint.RestrictFormats(format => CodecConfiguration.IsFormatAllowed(format, allowedPayloadIds));
 
-        ApplyCallAudioLevels();
-
-        _loggedFirstIncomingRtp = false;
-        _loggedFirstPlaybackFrame = false;
-        _lastRtpUtc = null;
-        _localMediaRecoveryAttemptsSinceRtp = 0;
-        _mediaSession = new CallAnalogVoIPMediaSession(
-            _audioEndPoint.ToMediaEndPoints(),
+        var mediaSession = new CallAnalogVoIPMediaSession(
+            audioEndPoint.ToMediaEndPoints(),
             SipNatHelper.CachedPublicIp);
-        AudioLifecycleLog.Write(
-            "CreateMediaSession_Created",
-            _activeCallId,
-            $"media=0x{_mediaSession.GetHashCode():x8} endpoint=0x{_audioEndPoint.GetHashCode():x8}");
-        _mediaSession.OnAudioFrameReceived += frame =>
+        mediaSession.OnAudioFrameReceived += frame =>
         {
             _lastRtpUtc = DateTimeOffset.UtcNow;
             _localMediaRecoveryAttemptsSinceRtp = 0;
@@ -2607,7 +2619,7 @@ public sealed class SipService : IDisposable
                 _log.Info(
                     $"First RTP audio frame received ({frame.EncodedAudio.Length} bytes, {frame.AudioFormat.FormatName}, PT {frame.AudioFormat.FormatID}).");
                 // RTP sockets exist after the first media exchange — mark DSCP now.
-                TryMarkMediaSessionDscp(_mediaSession);
+                TryMarkMediaSessionDscp(mediaSession);
                 StartMediaRecoveryMonitor();
             }
 
@@ -2618,11 +2630,42 @@ public sealed class SipService : IDisposable
                     $"First playback frame queued ({frame.EncodedAudio.Length} bytes, {frame.AudioFormat.FormatName}).");
             }
         };
+
+        var published = false;
+        lock (_sync)
+        {
+            if (!cancellationToken.IsCancellationRequested
+                && IsPrimaryMediaCreationCurrentUnlocked(expectedCallId))
+            {
+                _audioEndPoint = audioEndPoint;
+                _mediaSession = mediaSession;
+                published = true;
+            }
+        }
+
+        if (!published)
+        {
+            await Task.Run(innerAudio.Close);
+            cancellationToken.ThrowIfCancellationRequested();
+            throw new OperationCanceledException("Call ended during media initialization.");
+        }
+
+        AttachPlaybackTap();
+        ApplyCallAudioLevels();
+
+        _loggedFirstIncomingRtp = false;
+        _loggedFirstPlaybackFrame = false;
+        _lastRtpUtc = null;
+        _localMediaRecoveryAttemptsSinceRtp = 0;
+        AudioLifecycleLog.Write(
+            "CreateMediaSession_Created",
+            _activeCallId,
+            $"media=0x{mediaSession.GetHashCode():x8} endpoint=0x{audioEndPoint.GetHashCode():x8}");
         AudioLifecycleLog.Write(
             "CreateMediaSession_Exit",
             _activeCallId,
-            $"media=0x{_mediaSession.GetHashCode():x8}");
-        return _mediaSession;
+            $"media=0x{mediaSession.GetHashCode():x8}");
+        return mediaSession;
     }
 
     private void StartMediaRecoveryMonitor()
@@ -2990,9 +3033,11 @@ public sealed class SipService : IDisposable
         }
     }
 
-    private VoIPMediaSession CreateWaitingMediaSession()
+    private async Task<VoIPMediaSession> CreateWaitingMediaSessionAsync()
     {
-        DisposeWaitingMediaSession();
+        var expectedRequest = _waitingIncomingRequest;
+        var expectedUas = _waitingIncomingUas;
+        await Task.Run(DisposeWaitingMediaSession);
 
         var enabled = CodecConfiguration.BuildEnabledCodecs(
             _settingsService.Settings.EnabledCodecs,
@@ -3008,22 +3053,40 @@ public sealed class SipService : IDisposable
             $"Creating waiting-call media session: WinMM output={(outputDevice < 0 ? "default (-1)" : outputDevice.ToString())}, " +
             $"input={(inputDevice < 0 ? "default (-1)" : inputDevice.ToString())}.");
 
-        var innerAudio = CreateConfiguredAudioEndPoint(encoder, outputDevice, inputDevice);
-        _waitingAudioEndPoint = new MutingAudioEndPoint(innerAudio);
-        _waitingAudioEndPoint.OnAudioSinkError += message => _log.Warn($"Waiting-call audio playback: {message}");
+        var innerAudio = await Task.Run(
+            () => CreateConfiguredAudioEndPoint(encoder, outputDevice, inputDevice));
+        var audioEndPoint = new MutingAudioEndPoint(innerAudio);
+        audioEndPoint.OnAudioSinkError += message => _log.Warn($"Waiting-call audio playback: {message}");
         if (_isMuted)
         {
-            _waitingAudioEndPoint.SetMuted(true);
+            audioEndPoint.SetMuted(true);
         }
 
         var allowedPayloadIds = CodecConfiguration.GetNegotiableRtpPayloadIds(enabled);
-        _waitingAudioEndPoint.RestrictFormats(format => CodecConfiguration.IsFormatAllowed(format, allowedPayloadIds));
-        ApplyCallAudioLevels();
-
-        _waitingMediaSession = new CallAnalogVoIPMediaSession(
-            _waitingAudioEndPoint.ToMediaEndPoints(),
+        audioEndPoint.RestrictFormats(format => CodecConfiguration.IsFormatAllowed(format, allowedPayloadIds));
+        var mediaSession = new CallAnalogVoIPMediaSession(
+            audioEndPoint.ToMediaEndPoints(),
             SipNatHelper.CachedPublicIp);
-        return _waitingMediaSession;
+
+        var published = false;
+        lock (_sync)
+        {
+            if (IsWaitingMediaCreationCurrentUnlocked(expectedRequest, expectedUas))
+            {
+                _waitingAudioEndPoint = audioEndPoint;
+                _waitingMediaSession = mediaSession;
+                published = true;
+            }
+        }
+
+        if (!published)
+        {
+            await Task.Run(innerAudio.Close);
+            throw new OperationCanceledException("Waiting call ended during media initialization.");
+        }
+
+        ApplyCallAudioLevels();
+        return mediaSession;
     }
 
     private void DisposeWaitingMediaSession()
@@ -3145,17 +3208,21 @@ public sealed class SipService : IDisposable
         var endpoint = GetActiveAudioEndPoint();
         if (endpoint is not null)
         {
-            endpoint.Inner.ClearPlaybackBuffer();
-            endpoint.Inner.ReinitializePlayback();
-            _ = endpoint.Inner.StartAudioSink();
-            _ = endpoint.Inner.ResumeAudioSink();
-            _log.Info("Call playback reinitialized after hold music stopped.");
+            _playbackRestoreTask = Task.Run(() =>
+            {
+                endpoint.Inner.ClearPlaybackBuffer();
+                endpoint.Inner.ReinitializePlayback();
+                _ = endpoint.Inner.StartAudioSink();
+                _ = endpoint.Inner.ResumeAudioSink();
+                _log.Info("Call playback reinitialized after hold music stopped.");
+            });
         }
     }
 
     private async Task FinalizeLegSwapPlaybackAsync()
     {
-        StopHoldMusicInternal();
+        await Task.Run(StopHoldMusicInternal);
+        await _playbackRestoreTask;
         ApplyCallAudioLevels();
         AttachPlaybackTap();
         _loggedFirstIncomingRtp = false;
@@ -3164,8 +3231,11 @@ public sealed class SipService : IDisposable
         var endpoint = GetActiveAudioEndPoint();
         if (endpoint?.Inner is CallAnalogWindowsAudioEndPoint inner)
         {
-            inner.ClearPlaybackBuffer();
-            inner.ReinitializePlayback();
+            await Task.Run(() =>
+            {
+                inner.ClearPlaybackBuffer();
+                inner.ReinitializePlayback();
+            });
         }
 
         await EnsureActiveLegPlaybackReadyAsync();
@@ -3565,6 +3635,17 @@ public sealed class SipService : IDisposable
             settings.MicrophoneDeviceId,
             _preferWasapiAudio);
     }
+
+    private bool IsPrimaryMediaCreationCurrentUnlocked(string? expectedCallId) =>
+        CallState != CallState.Idle
+        && string.Equals(_activeCallId, expectedCallId, StringComparison.Ordinal);
+
+    private bool IsWaitingMediaCreationCurrentUnlocked(
+        SIPRequest? expectedRequest,
+        SIPServerUserAgent? expectedUas) =>
+        CallState != CallState.Idle
+        && ReferenceEquals(_waitingIncomingRequest, expectedRequest)
+        && ReferenceEquals(_waitingIncomingUas, expectedUas);
 
     private void DisposeMediaSession()
     {

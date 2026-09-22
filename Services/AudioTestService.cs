@@ -6,6 +6,8 @@ public sealed class AudioTestService : IDisposable
 {
     private const int MaxTestDurationMs = 5000;
 
+    private readonly object _speakerGate = new();
+    private int _speakerGeneration;
     private WaveOutEvent? _waveOut;
     private WaveInEvent? _waveIn;
     private CancellationTokenSource? _speakerAutoStop;
@@ -16,29 +18,67 @@ public sealed class AudioTestService : IDisposable
 
     public void StartSpeakerTest(string? deviceName, double volume, string? deviceId = null)
     {
-        StopSpeaker();
+        int generation;
+        WaveOutEvent? previous;
+        CancellationTokenSource? previousStop;
+        lock (_speakerGate)
+        {
+            _speakerGeneration++;
+            generation = _speakerGeneration;
+            previous = _waveOut;
+            _waveOut = null;
+            previousStop = _speakerAutoStop;
+            _speakerAutoStop = null;
+        }
 
+        previousStop?.Cancel();
+        previousStop?.Dispose();
+        if (previous is not null)
+        {
+            TearDownSpeaker(previous);
+        }
+
+        WaveOutEvent? created = null;
         try
         {
             var signal = new PleasantToneProvider(ringPattern: false);
-
-            _waveOut = WinMmPlaybackHelper.CreateWaveOutOutput(
+            created = WinMmPlaybackHelper.CreateWaveOutOutput(
                 WinMmAudioOutputManager.OwnerAudioTest,
                 signal,
                 deviceName,
                 deviceId);
-            _waveOut.Volume = 1f;
-            _waveOut.Play();
 
-            App.SipLog.Info($"Speaker test started (WinMM, volume {volume:P0}).");
+            lock (_speakerGate)
+            {
+                if (generation != _speakerGeneration)
+                {
+                    // A newer test or Stop owns playback.
+                }
+                else
+                {
+                    _waveOut = created;
+                    created = null;
+                    _waveOut.Volume = 1f;
+                    _waveOut.Play();
+                    App.SipLog.Info($"Speaker test started (WinMM, volume {volume:P0}).");
+                    _speakerAutoStop = new CancellationTokenSource();
+                    _ = AutoStopSpeakerAsync(_speakerAutoStop.Token);
+                }
+            }
 
-            _speakerAutoStop = new CancellationTokenSource();
-            _ = AutoStopSpeakerAsync(_speakerAutoStop.Token);
+            if (created is not null)
+            {
+                TearDownSpeaker(created);
+            }
         }
         catch (Exception ex)
         {
             App.SipLog.Error($"Speaker test failed: {ex.Message}");
-            StopSpeaker();
+            if (created is not null)
+            {
+                TearDownSpeaker(created);
+            }
+
             throw;
         }
     }
@@ -80,26 +120,37 @@ public sealed class AudioTestService : IDisposable
 
     public void StopSpeaker()
     {
-        _speakerAutoStop?.Cancel();
-        _speakerAutoStop?.Dispose();
-        _speakerAutoStop = null;
-
-        if (_waveOut is null)
+        WaveOutEvent? player;
+        CancellationTokenSource? autoStop;
+        lock (_speakerGate)
         {
-            return;
+            _speakerGeneration++;
+            player = _waveOut;
+            _waveOut = null;
+            autoStop = _speakerAutoStop;
+            _speakerAutoStop = null;
         }
 
+        autoStop?.Cancel();
+        autoStop?.Dispose();
+        if (player is not null)
+        {
+            ThreadPool.QueueUserWorkItem(_ => TearDownSpeaker(player));
+        }
+    }
+
+    private static void TearDownSpeaker(WaveOutEvent player)
+    {
         try
         {
-            _waveOut.Stop();
+            player.Stop();
         }
         catch
         {
             // Best-effort.
         }
 
-        WinMmAudioOutputManager.Release(WinMmAudioOutputManager.OwnerAudioTest);
-        _waveOut = null;
+        WinMmAudioOutputManager.DisposeInstance(player, WinMmAudioOutputManager.OwnerAudioTest);
     }
 
     public void StopMicrophone()

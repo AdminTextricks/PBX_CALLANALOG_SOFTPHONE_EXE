@@ -50,6 +50,14 @@ public partial class App : Application
         }
 
         sipLog.WriteStartupBanner(userSettings.Settings.Extension);
+        try
+        {
+            Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.High;
+        }
+        catch (Exception ex)
+        {
+            sipLog.Error($"Failed to set process priority to High: {ex.Message}");
+        }
 
         DispatcherUnhandledException += OnDispatcherUnhandledException;
         AppDomain.CurrentDomain.UnhandledException += OnDomainUnhandledException;

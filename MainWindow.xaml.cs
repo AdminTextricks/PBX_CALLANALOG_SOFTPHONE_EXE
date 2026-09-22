@@ -901,9 +901,9 @@ public partial class MainWindow : Window
 
         if (state == CallState.Outgoing)
         {
-            _ringback.Start(
-                _userSettings.Settings.SpeakerDevice,
-                _userSettings.Settings.SpeakerDeviceId);
+            var speakerDevice = _userSettings.Settings.SpeakerDevice;
+            var speakerDeviceId = _userSettings.Settings.SpeakerDeviceId;
+            _ = Task.Run(() => _ringback.Start(speakerDevice, speakerDeviceId));
         }
         else
         {

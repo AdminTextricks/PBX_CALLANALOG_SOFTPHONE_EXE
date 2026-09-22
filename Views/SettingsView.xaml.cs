@@ -532,25 +532,27 @@ public partial class SettingsView : UserControl
 
     private void TestSpeakerButton_Click(object sender, RoutedEventArgs e)
     {
-        try
+        var speakerName = SpeakerCombo.SelectedItem as string;
+        var outputVolume = OutputVolumeSlider.Value;
+        var deviceId = _settingsService?.GetSpeakerDeviceId(speakerName);
+        var volumeNote = outputVolume <= 0
+            ? " Output volume was 0 — using 50% for this test."
+            : string.Empty;
+        _ = Task.Run(() =>
         {
-            var speakerName = SpeakerCombo.SelectedItem as string;
-            var outputVolume = OutputVolumeSlider.Value;
-            _audioTestService.StartSpeakerTest(
-                speakerName,
-                outputVolume,
-                _settingsService?.GetSpeakerDeviceId(speakerName));
-            var volumeNote = outputVolume <= 0
-                ? " Output volume was 0 — using 50% for this test."
-                : string.Empty;
-            SetStatus(
-                $"Playing test tone for up to 5 seconds on {speakerName ?? "default speaker"}...{volumeNote}",
-                StatusMessageKind.Progress);
-        }
-        catch (Exception ex)
-        {
-            SetStatus($"Speaker test failed — {ex.Message}", StatusMessageKind.Error);
-        }
+            try
+            {
+                _audioTestService.StartSpeakerTest(speakerName, outputVolume, deviceId);
+                Dispatcher.BeginInvoke(() => SetStatus(
+                    $"Playing test tone for up to 5 seconds on {speakerName ?? "default speaker"}...{volumeNote}",
+                    StatusMessageKind.Progress));
+            }
+            catch (Exception ex)
+            {
+                Dispatcher.BeginInvoke(() =>
+                    SetStatus($"Speaker test failed — {ex.Message}", StatusMessageKind.Error));
+            }
+        });
     }
 
     private void StopAudioTestButton_Click(object sender, RoutedEventArgs e)

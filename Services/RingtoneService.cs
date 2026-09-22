@@ -6,6 +6,7 @@ namespace CallAnalog.Softphone.Services;
 
 public sealed class RingtoneService : IDisposable
 {
+    private readonly object _gate = new();
     private WaveOutEvent? _player;
     private WaveStream? _reader;
     private IWaveProvider? _generatedProvider;
@@ -17,20 +18,33 @@ public sealed class RingtoneService : IDisposable
 
     private volatile bool _stopping;
 
-    public bool IsPlaying => !_stopping && _player?.PlaybackState == PlaybackState.Playing;
+    public bool IsPlaying
+    {
+        get
+        {
+            lock (_gate)
+            {
+                return !_stopping && _player?.PlaybackState == PlaybackState.Playing;
+            }
+        }
+    }
 
     public event EventHandler<double>? LevelChanged;
 
     public void Start(string? ringtonePath, string? outputDeviceName = null, string? outputDeviceId = null)
     {
         var resolvedPath = MediaFileStorage.ResolveRingtonePath(ringtonePath);
-        if (IsPlaying
-            && string.Equals(_currentResolvedPath, resolvedPath, StringComparison.OrdinalIgnoreCase)
-            && string.Equals(_currentDeviceName, outputDeviceName, StringComparison.Ordinal)
-            && string.Equals(_currentDeviceId, outputDeviceId, StringComparison.Ordinal))
+        lock (_gate)
         {
-            App.SipLog.Info("Ringtone: already playing same file on same device; skipping duplicate start.");
-            return;
+            if (!_stopping
+                && _player?.PlaybackState == PlaybackState.Playing
+                && string.Equals(_currentResolvedPath, resolvedPath, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(_currentDeviceName, outputDeviceName, StringComparison.Ordinal)
+                && string.Equals(_currentDeviceId, outputDeviceId, StringComparison.Ordinal))
+            {
+                App.SipLog.Info("Ringtone: already playing same file on same device; skipping duplicate start.");
+                return;
+            }
         }
 
         IncomingCallLog.Marker("RINGTONE_START", resolvedPath ?? "default-tone");
@@ -38,40 +52,43 @@ public sealed class RingtoneService : IDisposable
 
         try
         {
-            _stopping = false;
-            _loop = true;
-            _currentResolvedPath = resolvedPath;
-            _currentDeviceName = outputDeviceName;
-            _currentDeviceId = outputDeviceId;
+            lock (_gate)
+            {
+                _stopping = false;
+                _loop = true;
+                _currentResolvedPath = resolvedPath;
+                _currentDeviceName = outputDeviceName;
+                _currentDeviceId = outputDeviceId;
 
-            if (!string.IsNullOrWhiteSpace(resolvedPath) && File.Exists(resolvedPath))
-            {
-                App.SipLog.Info($"Ringtone: playing custom file {resolvedPath}");
-                _reader = AudioFilePlaybackHelper.OpenAudioFile(resolvedPath);
-                _meteringProvider = new MeteringWaveProvider(_reader, OnLevelSampled);
-                _player = CreateRingtoneOutput(_meteringProvider, outputDeviceName, outputDeviceId);
-                App.SipLog.Info("Ringtone: custom file PCM stream feeding WaveOut.");
-            }
-            else
-            {
-                if (!string.IsNullOrWhiteSpace(ringtonePath))
+                if (!string.IsNullOrWhiteSpace(resolvedPath) && File.Exists(resolvedPath))
                 {
-                    App.SipLog.Warn($"Ringtone: custom file not found at '{ringtonePath}'; using default tone.");
+                    App.SipLog.Info($"Ringtone: playing custom file {resolvedPath}");
+                    _reader = AudioFilePlaybackHelper.OpenAudioFile(resolvedPath);
+                    _meteringProvider = new MeteringWaveProvider(_reader, OnLevelSampled);
+                    _player = CreateRingtoneOutput(_meteringProvider, outputDeviceName, outputDeviceId);
+                    App.SipLog.Info("Ringtone: custom file PCM stream feeding WaveOut.");
                 }
                 else
                 {
-                    App.SipLog.Info("Ringtone: no custom file configured; using default tone.");
+                    if (!string.IsNullOrWhiteSpace(ringtonePath))
+                    {
+                        App.SipLog.Warn($"Ringtone: custom file not found at '{ringtonePath}'; using default tone.");
+                    }
+                    else
+                    {
+                        App.SipLog.Info("Ringtone: no custom file configured; using default tone.");
+                    }
+
+                    _generatedProvider = CreateDefaultRingtoneProvider();
+                    _meteringProvider = new MeteringWaveProvider(_generatedProvider, OnLevelSampled);
+                    _player = CreateRingtoneOutput(_meteringProvider, outputDeviceName, outputDeviceId);
+                    App.SipLog.Info("Ringtone: generated default tone feeding WaveOut.");
                 }
 
-                _generatedProvider = CreateDefaultRingtoneProvider();
-                _meteringProvider = new MeteringWaveProvider(_generatedProvider, OnLevelSampled);
-                _player = CreateRingtoneOutput(_meteringProvider, outputDeviceName, outputDeviceId);
-                App.SipLog.Info("Ringtone: generated default tone feeding WaveOut.");
+                _player.PlaybackStopped += OnPlaybackStopped;
+                _player.Play();
+                IncomingCallLog.Marker("RINGTONE_START", "playing");
             }
-
-            _player.PlaybackStopped += OnPlaybackStopped;
-            _player.Play();
-            IncomingCallLog.Marker("RINGTONE_START", "playing");
         }
         catch (Exception ex)
         {
@@ -86,7 +103,11 @@ public sealed class RingtoneService : IDisposable
     /// </summary>
     public void StopForAnswer()
     {
-        _loop = false;
+        lock (_gate)
+        {
+            _loop = false;
+        }
+
         DrainAndStop();
     }
 
@@ -130,50 +151,30 @@ public sealed class RingtoneService : IDisposable
 
     private void DrainAndStop()
     {
-        _stopping = true;
-        _loop = false;
+        WaveOutEvent? player;
+        WaveStream? reader;
 
-        if (_player is not null)
+        lock (_gate)
         {
-            _player.PlaybackStopped -= OnPlaybackStopped;
+            _stopping = true;
+            _loop = false;
 
-            try
-            {
-                _player.Volume = 0f;
-                _player.Stop();
-            }
-            catch (Exception ex)
-            {
-                App.SipLog.Error($"Ringtone stop failed: {ex}");
-            }
-
-            WinMmAudioOutputManager.Release(WinMmAudioOutputManager.OwnerRingtone);
+            player = _player;
+            reader = _reader;
             _player = null;
-        }
-
-        if (_reader is not null)
-        {
-            if (_reader is AudioFileReader audioFileReader)
-            {
-                try
-                {
-                    audioFileReader.Volume = 0f;
-                }
-                catch
-                {
-                    // Best-effort.
-                }
-            }
-
-            AudioFilePlaybackHelper.SafeDispose(_reader);
             _reader = null;
+            _generatedProvider = null;
+            _meteringProvider = null;
+            _currentResolvedPath = null;
+            _currentDeviceName = null;
+            _currentDeviceId = null;
+
+            if (player is not null)
+            {
+                player.PlaybackStopped -= OnPlaybackStopped;
+            }
         }
 
-        _generatedProvider = null;
-        _meteringProvider = null;
-        _currentResolvedPath = null;
-        _currentDeviceName = null;
-        _currentDeviceId = null;
         try
         {
             LevelChanged?.Invoke(this, 0);
@@ -182,23 +183,70 @@ public sealed class RingtoneService : IDisposable
         {
             App.SipLog.Error($"Ringtone level reset failed: {ex}");
         }
-    }
 
-    private void OnPlaybackStopped(object? sender, StoppedEventArgs e)
-    {
-        if (!_loop || _player is null)
+        if (player is null && reader is null)
         {
             return;
         }
 
-        try
+        ThreadPool.QueueUserWorkItem(_ =>
         {
-            if (_reader is not null)
+            if (player is not null)
             {
-                _reader.Position = 0;
+                WinMmAudioOutputManager.DisposeInstance(
+                    player,
+                    WinMmAudioOutputManager.OwnerRingtone,
+                    () =>
+                    {
+                        try
+                        {
+                            player.Volume = 0f;
+                            player.Stop();
+                        }
+                        catch (Exception ex)
+                        {
+                            App.SipLog.Error($"Ringtone stop failed: {ex}");
+                        }
+                    });
             }
 
-            _player.Play();
+            if (reader is not null)
+            {
+                if (reader is AudioFileReader audioFileReader)
+                {
+                    try
+                    {
+                        audioFileReader.Volume = 0f;
+                    }
+                    catch
+                    {
+                        // Best-effort.
+                    }
+                }
+
+                AudioFilePlaybackHelper.SafeDispose(reader);
+            }
+        });
+    }
+
+    private void OnPlaybackStopped(object? sender, StoppedEventArgs e)
+    {
+        try
+        {
+            lock (_gate)
+            {
+                if (!_loop || _player is null)
+                {
+                    return;
+                }
+
+                if (_reader is not null)
+                {
+                    _reader.Position = 0;
+                }
+
+                _player.Play();
+            }
         }
         catch (Exception ex)
         {

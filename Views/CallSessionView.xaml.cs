@@ -154,10 +154,11 @@ public partial class CallSessionView : UserControl
         }
 
         IncomingCallLog.Marker("RINGTONE_START");
-        _ringtone?.Start(
-            _settings!.Settings.RingtonePath,
-            _settings.Settings.RingtoneDevice,
-            _settings.Settings.RingtoneDeviceId);
+        var ringtonePath = _settings!.Settings.RingtonePath;
+        var ringtoneDevice = _settings.Settings.RingtoneDevice;
+        var ringtoneDeviceId = _settings.Settings.RingtoneDeviceId;
+        var ringtone = _ringtone;
+        _ = Task.Run(() => ringtone?.Start(ringtonePath, ringtoneDevice, ringtoneDeviceId));
     }
 
     public void UpdateCallState(CallState state)

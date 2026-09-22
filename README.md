@@ -10,7 +10,7 @@ This README was written from the current source, project, config, and installer 
 |------|----------------------------|
 | App name | CallAnalog Softphone |
 | Product / company | CallAnalog Softphone / CallAnalog |
-| App version (`VERSION`, `appsettings.json` `App:Version`, `.csproj` `<Version>`, installer `#define MyAppVersion`) | 2.2.9 |
+| App version (`VERSION`, `appsettings.json` `App:Version`, `.csproj` `<Version>`, installer `#define MyAppVersion`) | 2.3.0 |
 | Main project | `CallAnalog.Softphone.csproj` (repo root) |
 | Target framework | `net10.0-windows10.0.18362` |
 | Output type | `WinExe` (WPF) |
@@ -49,7 +49,7 @@ From the repo root:
 
 Defaults: `-Configuration Release`, `-Runtime win-x64`, `--self-contained true`, output:
 
-`dist\callanalog v2.2.9\`
+`dist\callanalog v2.3.0\`
 
 (uses the current `VERSION` file). Optional: `.\build.ps1 -BumpMinor` or `.\build.ps1 -BumpMajor`.
 
@@ -66,7 +66,7 @@ dotnet publish -c Release -r win-x64 --self-contained true -o <dist\callanalog v
 Run the published app:
 
 ```powershell
-.\dist\callanalog v2.2.9\CallAnalog.Softphone.exe
+.\dist\callanalog v2.3.0\CallAnalog.Softphone.exe
 ```
 
 Watchdog is copied into the same publish directory by `CopyCallAnalogWatchdogToPublish` (After `Publish`).
@@ -218,7 +218,7 @@ dotnet run --project CallAnalog.Softphone.csproj
 
 ```powershell
 .\build.ps1
-.\dist\callanalog v2.2.9\CallAnalog.Softphone.exe
+.\dist\callanalog v2.3.0\CallAnalog.Softphone.exe
 ```
 
 **Publish to the installer input folder and run:**

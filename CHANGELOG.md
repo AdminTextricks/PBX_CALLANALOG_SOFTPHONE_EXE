@@ -7,6 +7,13 @@ When starting a new version, add a section here **before** running `build.ps1 -B
 
 ---
 
+## 2.3.0
+
+### Ringtone
+- Answer no longer tears down ringtone WinMM playback on the UI thread
+
+---
+
 ## 2.2.9
 
 ### Call waiting
