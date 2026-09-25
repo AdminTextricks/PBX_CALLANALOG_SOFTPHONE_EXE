@@ -13,7 +13,6 @@ using SIPSorcery.Net;
 using SIPSorcery.SIP;
 using SIPSorcery.SIP.App;
 using SIPSorceryMedia.Abstractions;
-using SIPSorceryMedia.Windows;
 
 namespace CallAnalog.Softphone.Services;
 

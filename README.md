@@ -12,18 +12,18 @@ This README was written from the current source, project, config, and installer 
 | Product / company | CallAnalog Softphone / CallAnalog |
 | App version (`VERSION`, `appsettings.json` `App:Version`, `.csproj` `<Version>`, installer `#define MyAppVersion`) | 2.3.0 |
 | Main project | `CallAnalog.Softphone.csproj` (repo root) |
-| Target framework | `net10.0-windows10.0.18362` |
+| Target framework | `net6.0-windows` |
 | Output type | `WinExe` (WPF) |
 | Watchdog project | `tools\CallAnalog.Watchdog\CallAnalog.Watchdog.csproj` |
-| Watchdog target framework | `net10.0` (`win-x64`, self-contained, `PublishSingleFile`) |
-| Windows | TFM `windows10.0.18362`; installer `MinVersion=10.0.18362` |
+| Watchdog target framework | `net6.0` (`win-x64`, self-contained, `PublishSingleFile`) |
+| Windows | Windows 7 SP1, Windows 8.1, Windows 10, Windows 11 (64-bit). Installer `MinVersion=6.1` |
 | Installer architecture | `x64compatible` / 64-bit install mode |
 
-A .NET 10 SDK is required to `dotnet run` / `dotnet publish`. End-user installs use a self-contained publish (runtime bundled).
+A .NET SDK that can target `net6.0-windows` is required to `dotnet run` / `dotnet publish`. End-user installs use a self-contained publish (runtime bundled).
 
 ## How to run locally
 
-From the repository root (requires the .NET 10 SDK):
+From the repository root:
 
 ```powershell
 dotnet run --project CallAnalog.Softphone.csproj
@@ -31,7 +31,7 @@ dotnet run --project CallAnalog.Softphone.csproj
 
 SDK default output for this TFM (after a local build, not produced for this README):
 
-`bin\Debug\net10.0-windows10.0.18362\CallAnalog.Softphone.exe`
+`bin\Debug\net6.0-windows\CallAnalog.Softphone.exe`
 
 The main project copies `CallAnalog.Watchdog.exe` into that output folder after build (`CopyCallAnalogWatchdogToOutput`). If the watchdog EXE is missing, the app logs a warning and continues.
 
@@ -75,7 +75,7 @@ Watchdog is copied into the same publish directory by `CopyCallAnalogWatchdogToP
 
 `installer\CallAnalogSoftphone.iss` packages:
 
-`bin\Release\net10.0-windows10.0.18362\win-x64\publish`
+`bin\Release\net6.0-windows\win-x64\publish`
 
 (not the `dist\` folder). Comments in the `.iss` file describe that layout as multi-file self-contained (exe + native WPF runtime DLLs + `appsettings.json` + Assets), not `PublishSingleFile`.
 
@@ -88,7 +88,7 @@ dotnet publish -c Release -r win-x64 --self-contained true
 Then run:
 
 ```powershell
-.\bin\Release\net10.0-windows10.0.18362\win-x64\publish\CallAnalog.Softphone.exe
+.\bin\Release\net6.0-windows\win-x64\publish\CallAnalog.Softphone.exe
 ```
 
 ### Installer
@@ -101,7 +101,7 @@ Compile (from comments in that file):
 "%ProgramFiles(x86)%\Inno Setup 6\ISCC.exe" installer\CallAnalogSoftphone.iss
 ```
 
-Output (from the same file): `installer\output\CallAnalog-Setup.exe`.
+Output (from the same file): `installer\output\CallAnalog-2.3.0.exe`.
 
 The installer copies the SDK publish tree into `{autopf}\CallAnalog Softphone` (`DefaultDirName`) and also copies `tools\CallAnalog.Watchdog\bin\Release\publish-win-x64\CallAnalog.Watchdog.exe` into `{app}`. Start Menu and Desktop shortcuts launch `CallAnalog.Softphone.exe` with `WorkingDir={app}`. User data is **not** stored under `{app}`; the script states settings, logs, recordings, and credentials live under `%LOCALAPPDATA%\CallAnalog`.
 
@@ -225,7 +225,7 @@ dotnet run --project CallAnalog.Softphone.csproj
 
 ```powershell
 dotnet publish -c Release -r win-x64 --self-contained true
-.\bin\Release\net10.0-windows10.0.18362\win-x64\publish\CallAnalog.Softphone.exe
+.\bin\Release\net6.0-windows\win-x64\publish\CallAnalog.Softphone.exe
 ```
 
 **Compile installer (after that SDK publish exists, and after the watchdog Release publish path exists):**
@@ -234,7 +234,7 @@ dotnet publish -c Release -r win-x64 --self-contained true
 "%ProgramFiles(x86)%\Inno Setup 6\ISCC.exe" installer\CallAnalogSoftphone.iss
 ```
 
-Setup output: `installer\output\CallAnalog-Setup.exe`.
+Setup output: `installer\output\CallAnalog-2.3.0.exe`.
 
 **Open log/report folders:**
 

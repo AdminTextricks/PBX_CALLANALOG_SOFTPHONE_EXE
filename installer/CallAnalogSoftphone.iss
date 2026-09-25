@@ -5,7 +5,7 @@
 ; Compile (after publishing):
 ;   "%ProgramFiles(x86)%\Inno Setup 6\ISCC.exe" installer\CallAnalogSoftphone.iss
 ; Output:
-;   installer\output\CallAnalog-Setup.exe
+;   installer\output\CallAnalog-2.3.0.exe
 ;
 ; Signing: uncomment SignTool / SignedUninstaller after a code-signing
 ; certificate is installed. See docs/CODE_SIGNING.md.
@@ -16,10 +16,10 @@
 #define MyAppExeName "CallAnalog.Softphone.exe"
 #define MyAppMutex "Global\CallAnalog.Softphone.SingleInstance"
 
-; SDK publish folder for TargetFramework net10.0-windows10.0.18362, RID win-x64.
+; SDK publish folder for TargetFramework net6.0-windows, RID win-x64.
 ; Multi-file self-contained layout: CallAnalog.Softphone.exe plus runtime DLLs,
 ; appsettings.json, Assets, and CallAnalog.Watchdog.exe.
-#define PublishDir "..\bin\Release\net10.0-windows10.0.18362\win-x64\publish"
+#define PublishDir "..\bin\Release\net6.0-windows\win-x64\publish"
 ; Same watchdog binary the publish step copies into PublishDir. Listed again so
 ; the installer still includes it if that copy is missing from the publish folder.
 #define WatchdogExe "..\tools\CallAnalog.Watchdog\bin\Release\publish-win-x64\CallAnalog.Watchdog.exe"
@@ -46,10 +46,10 @@ DisableProgramGroupPage=yes
 PrivilegesRequired=admin
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
-MinVersion=10.0.18362
+MinVersion=6.1
 
 OutputDir=output
-OutputBaseFilename=CallAnalog-Setup
+OutputBaseFilename=CallAnalog-{#MyAppVersion}
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern

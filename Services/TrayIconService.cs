@@ -32,6 +32,9 @@ public sealed class TrayIconService : IDisposable
         };
 
         _icon.TrayMouseDoubleClick += (_, _) => ShowMainWindow();
+        _icon.TrayBalloonTipClicked += (_, _) => _incomingCallToast.NotifyBalloonClicked();
+        _incomingCallToast.BalloonRequested += ShowIncomingBalloon;
+        _incomingCallToast.BalloonDismissRequested += () => _icon.HideBalloonTip();
         _incomingCallToast.Initialize();
     }
 
@@ -105,8 +108,12 @@ public sealed class TrayIconService : IDisposable
     public void ShowMissedCallNotification(IncomingCallEventArgs callInfo)
     {
         var caller = MissedCallNotificationHelper.FormatCaller(callInfo);
+        _incomingCallToast.DismissAllCallNotifications();
         _icon.ShowBalloonTip("Missed call", $"Call from {caller} while you were on another call.", BalloonIcon.Warning);
     }
+
+    private void ShowIncomingBalloon(string title, string message) =>
+        _icon.ShowBalloonTip(title, message, BalloonIcon.Info);
 
     public void DismissIncomingCallNotification() =>
         _incomingCallToast.DismissIncomingCallNotification();

@@ -1,6 +1,4 @@
-using System.Windows;
 using CallAnalog.Softphone.Models;
-using CommunityToolkit.WinUI.Notifications;
 
 namespace CallAnalog.Softphone.Services;
 
@@ -33,23 +31,19 @@ public sealed class IncomingCallNotificationActionEventArgs : EventArgs
 
 public sealed class IncomingCallToastService : IDisposable
 {
-    private const string IncomingToastTag = "callanalog-incoming";
-    private const string WaitingToastTag = "callanalog-waiting";
-    private const string ToastGroup = "callanalog-calls";
-
     private bool _initialized;
     private bool _disposed;
+    private bool _balloonVisible;
+    private IncomingCallNotificationKind _activeKind = IncomingCallNotificationKind.Incoming;
 
     public event EventHandler<IncomingCallNotificationActionEventArgs>? ActionRequested;
 
+    public event Action<string, string>? BalloonRequested;
+
+    public event Action? BalloonDismissRequested;
+
     public void Initialize()
     {
-        if (_initialized)
-        {
-            return;
-        }
-
-        ToastNotificationManagerCompat.OnActivated += OnToastActivated;
         _initialized = true;
     }
 
@@ -64,87 +58,44 @@ public sealed class IncomingCallToastService : IDisposable
             IncomingCallNotificationKind.Incoming when callInfo.IsQueueCall => "Queue Call",
             _ => "Incoming Call"
         };
-        var tag = kind == IncomingCallNotificationKind.CallWaiting ? WaitingToastTag : IncomingToastTag;
-        var kindArg = kind == IncomingCallNotificationKind.CallWaiting ? "waiting" : "incoming";
 
-        new ToastContentBuilder()
-            .AddArgument("action", "open")
-            .AddArgument("kind", kindArg)
-            .AddText(title)
-            .AddText($"Call from {caller}")
-            .AddButton(new ToastButton("Accept", $"action=accept;kind={kindArg}"))
-            .AddButton(new ToastButton("Decline", $"action=decline;kind={kindArg}"))
-            .SetToastScenario(ToastScenario.IncomingCall)
-            .Show(toast =>
-            {
-                toast.Tag = tag;
-                toast.Group = ToastGroup;
-            });
+        _activeKind = kind;
+        _balloonVisible = true;
+        BalloonRequested?.Invoke(title, $"Call from {caller}");
 
         App.SipLog.Info(
             SipLogTag.Toast,
-            $"Showing {title.ToLowerInvariant()} toast for {caller} (Accept / Decline available).");
+            $"Showing {title.ToLowerInvariant()} tray notification for {caller}.");
     }
 
-    public void DismissIncomingCallNotification()
-    {
-        if (!_initialized)
-        {
-            return;
-        }
+    public void DismissIncomingCallNotification() => DismissIf(IncomingCallNotificationKind.Incoming);
 
-        ToastNotificationManagerCompat.History.Remove(IncomingToastTag, ToastGroup);
-    }
-
-    public void DismissCallWaitingNotification()
-    {
-        if (!_initialized)
-        {
-            return;
-        }
-
-        ToastNotificationManagerCompat.History.Remove(WaitingToastTag, ToastGroup);
-    }
+    public void DismissCallWaitingNotification() => DismissIf(IncomingCallNotificationKind.CallWaiting);
 
     public void DismissAllCallNotifications()
     {
-        DismissIncomingCallNotification();
-        DismissCallWaitingNotification();
+        if (!_balloonVisible)
+        {
+            return;
+        }
+
+        _balloonVisible = false;
+        BalloonDismissRequested?.Invoke();
     }
 
-    public static bool TryParseToastActivation(
-        string? argument,
-        out IncomingCallNotificationAction action,
-        out IncomingCallNotificationKind kind)
+    public void NotifyBalloonClicked()
     {
-        action = IncomingCallNotificationAction.Open;
-        kind = IncomingCallNotificationKind.Incoming;
-
-        if (string.IsNullOrWhiteSpace(argument))
+        if (!_balloonVisible)
         {
-            return false;
+            return;
         }
 
-        var args = ToastArguments.Parse(argument);
-        if (!args.TryGetValue("action", out var actionValue))
-        {
-            return false;
-        }
-
-        action = actionValue switch
-        {
-            "accept" => IncomingCallNotificationAction.Accept,
-            "decline" => IncomingCallNotificationAction.Decline,
-            _ => IncomingCallNotificationAction.Open
-        };
-
-        if (args.TryGetValue("kind", out var kindValue)
-            && string.Equals(kindValue, "waiting", StringComparison.OrdinalIgnoreCase))
-        {
-            kind = IncomingCallNotificationKind.CallWaiting;
-        }
-
-        return true;
+        var kind = _activeKind;
+        _balloonVisible = false;
+        App.SipLog.Info(SipLogTag.Toast, $"Tray notification opened ({kind}).");
+        ActionRequested?.Invoke(
+            this,
+            new IncomingCallNotificationActionEventArgs(IncomingCallNotificationAction.Open, kind));
     }
 
     public void Dispose()
@@ -154,8 +105,19 @@ public sealed class IncomingCallToastService : IDisposable
             return;
         }
 
-        ToastNotificationManagerCompat.OnActivated -= OnToastActivated;
+        _balloonVisible = false;
         _disposed = true;
+    }
+
+    private void DismissIf(IncomingCallNotificationKind kind)
+    {
+        if (!_balloonVisible || _activeKind != kind)
+        {
+            return;
+        }
+
+        _balloonVisible = false;
+        BalloonDismissRequested?.Invoke();
     }
 
     private void EnsureInitialized()
@@ -164,28 +126,6 @@ public sealed class IncomingCallToastService : IDisposable
         {
             Initialize();
         }
-    }
-
-    private void OnToastActivated(ToastNotificationActivatedEventArgsCompat e)
-    {
-        if (!TryParseToastActivation(e.Argument, out var action, out var kind))
-        {
-            return;
-        }
-
-        var app = Application.Current;
-        if (app is null)
-        {
-            return;
-        }
-
-        app.Dispatcher.BeginInvoke(() =>
-        {
-            App.SipLog.Info(
-                SipLogTag.Toast,
-                $"Toast action: {action} ({kind})");
-            ActionRequested?.Invoke(this, new IncomingCallNotificationActionEventArgs(action, kind));
-        });
     }
 
     private static string FormatCaller(IncomingCallEventArgs callInfo) =>
