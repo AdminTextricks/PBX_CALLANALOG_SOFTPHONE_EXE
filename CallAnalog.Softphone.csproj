@@ -19,7 +19,9 @@
          treating those as extra projects races MarkupCompilePass2 and produces BG1002 missing .baml. -->
     <HotReloadEnabled>false</HotReloadEnabled>
     <WatchdogProject>$(MSBuildThisFileDirectory)tools\CallAnalog.Watchdog\CallAnalog.Watchdog.csproj</WatchdogProject>
-    <WatchdogPublishDir>$(MSBuildThisFileDirectory)tools\CallAnalog.Watchdog\bin\$(Configuration)\publish-win-x64\</WatchdogPublishDir>
+    <WatchdogRuntimeIdentifier Condition="'$(RuntimeIdentifier)' != ''">$(RuntimeIdentifier)</WatchdogRuntimeIdentifier>
+    <WatchdogRuntimeIdentifier Condition="'$(WatchdogRuntimeIdentifier)' == ''">win-x64</WatchdogRuntimeIdentifier>
+    <WatchdogPublishDir>$(MSBuildThisFileDirectory)tools\CallAnalog.Watchdog\bin\$(Configuration)\publish-$(WatchdogRuntimeIdentifier)\</WatchdogPublishDir>
     <WatchdogExeName>CallAnalog.Watchdog.exe</WatchdogExeName>
   </PropertyGroup>
 
@@ -31,7 +33,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.2" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.0" />
     <PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="2.0.1" />
     <PackageReference Include="NAudio" Version="2.3.0" />
     <PackageReference Include="SIPSorcery" Version="8.0.23" />
@@ -71,11 +73,11 @@
     <MSBuild
       Projects="$(WatchdogProject)"
       Targets="Restore"
-      Properties="Configuration=$(Configuration);RuntimeIdentifier=win-x64;SelfContained=true;PublishSingleFile=true;Version=$(Version);FileVersion=$(Version).0;InformationalVersion=$(InformationalVersion)" />
+      Properties="Configuration=$(Configuration);RuntimeIdentifier=$(WatchdogRuntimeIdentifier);SelfContained=true;PublishSingleFile=true;Version=$(Version);FileVersion=$(Version).0;InformationalVersion=$(InformationalVersion)" />
     <MSBuild
       Projects="$(WatchdogProject)"
       Targets="Publish"
-      Properties="Configuration=$(Configuration);RuntimeIdentifier=win-x64;SelfContained=true;PublishSingleFile=true;PublishDir=$(WatchdogPublishDir);Version=$(Version);FileVersion=$(Version).0;InformationalVersion=$(InformationalVersion)" />
+      Properties="Configuration=$(Configuration);RuntimeIdentifier=$(WatchdogRuntimeIdentifier);SelfContained=true;PublishSingleFile=true;PublishDir=$(WatchdogPublishDir);Version=$(Version);FileVersion=$(Version).0;InformationalVersion=$(InformationalVersion)" />
   </Target>
 
   <Target Name="CopyCallAnalogWatchdogToOutput" AfterTargets="AfterBuild" DependsOnTargets="PublishCallAnalogWatchdog" Condition="'$(MSBuildProjectName)' == 'CallAnalog.Softphone'">

@@ -1,11 +1,11 @@
-; CallAnalog Softphone — Inno Setup 6 installer
-; Packages the self-contained win-x64 publish output.
+; CallAnalog Softphone — Inno Setup 6 installer (win-x86)
+; Packages the self-contained win-x86 publish output.
 ; Keep #define MyAppVersion in sync with VERSION at the repo root.
 ;
 ; Compile (after publishing):
-;   "%ProgramFiles(x86)%\Inno Setup 6\ISCC.exe" installer\CallAnalogSoftphone.iss
+;   "%ProgramFiles(x86)%\Inno Setup 6\ISCC.exe" installer\CallAnalogSoftphone.x86.iss
 ; Output:
-;   installer\output\CallAnalog-2.3.0-64bit.exe
+;   installer\output\CallAnalog-2.3.0-32bit.exe
 ;
 ; Signing: uncomment SignTool / SignedUninstaller after a code-signing
 ; certificate is installed. See docs/CODE_SIGNING.md.
@@ -16,17 +16,17 @@
 #define MyAppExeName "CallAnalog.Softphone.exe"
 #define MyAppMutex "Global\CallAnalog.Softphone.SingleInstance"
 
-; SDK publish folder for TargetFramework net6.0-windows, RID win-x64.
+; SDK publish folder for TargetFramework net6.0-windows, RID win-x86.
 ; Multi-file self-contained layout: CallAnalog.Softphone.exe plus runtime DLLs,
 ; appsettings.json, Assets, and CallAnalog.Watchdog.exe.
-#define PublishDir "..\bin\Release\net6.0-windows\win-x64\publish"
+#define PublishDir "..\bin\Release\net6.0-windows\win-x86\publish"
 ; Same watchdog binary the publish step copies into PublishDir. Listed again so
 ; the installer still includes it if that copy is missing from the publish folder.
-#define WatchdogExe "..\tools\CallAnalog.Watchdog\bin\Release\publish-win-x64\CallAnalog.Watchdog.exe"
+#define WatchdogExe "..\tools\CallAnalog.Watchdog\bin\Release\publish-win-x86\CallAnalog.Watchdog.exe"
 
-; Stable AppId so upgrades replace the previous install instead of duplicating
-; Add/Remove Programs and Start Menu entries.
-#define MyAppId "{{8F3C1A72-6D4E-4B9A-9C21-2E7F5A91B0C4}"
+; Separate from the 64-bit installer so the two architectures do not replace
+; each other's uninstall entry.
+#define MyAppId "{{E7A91C4D-2B58-4F0E-9A63-5D1C8B7E4F20}"
 
 [Setup]
 AppId={#MyAppId}
@@ -44,12 +44,11 @@ DefaultDirName={autopf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 PrivilegesRequired=admin
-ArchitecturesAllowed=x64compatible
-ArchitecturesInstallIn64BitMode=x64compatible
+ArchitecturesAllowed=x86compatible
 MinVersion=6.1
 
 OutputDir=output
-OutputBaseFilename=CallAnalog-{#MyAppVersion}-64bit
+OutputBaseFilename=CallAnalog-{#MyAppVersion}-32bit
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern

@@ -1,8 +1,9 @@
 using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace CallAnalog.Softphone.Models;
 
-public static partial class CallRecordAnalytics
+public static class CallRecordAnalytics
 {
     public static bool IsAttended(CallRecord call) =>
         call.Disposition.Contains("ANSWER", StringComparison.OrdinalIgnoreCase);
@@ -127,11 +128,10 @@ public static partial class CallRecordAnalytics
             return true;
         }
 
-        return OffsetSuffixRegex().IsMatch(value);
+        return OffsetSuffixRegex.IsMatch(value);
     }
 
-    [System.Text.RegularExpressions.GeneratedRegex(@"[+-]\d{2}:?\d{2}$")]
-    private static partial System.Text.RegularExpressions.Regex OffsetSuffixRegex();
+    private static readonly Regex OffsetSuffixRegex = new(@"[+-]\d{2}:?\d{2}$");
 
     private static bool TryParseOffsetTimestamp(string callDate, out DateTimeOffset timestamp)
     {

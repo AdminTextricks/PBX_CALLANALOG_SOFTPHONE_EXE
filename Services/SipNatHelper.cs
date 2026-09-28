@@ -5,7 +5,7 @@ using SIPSorcery.Net;
 
 namespace CallAnalog.Softphone.Services;
 
-internal static partial class SipNatHelper
+internal static class SipNatHelper
 {
     private static readonly TimeSpan StunLookupTimeout = TimeSpan.FromSeconds(4);
 
@@ -160,7 +160,7 @@ internal static partial class SipNatHelper
             return;
         }
 
-        foreach (Match match in ReceivedViaRegex().Matches(message))
+        foreach (Match match in ReceivedViaRegex.Matches(message))
         {
             if (IPAddress.TryParse(match.Groups[1].Value, out var address) && !IsPrivateAddress(address))
             {
@@ -219,6 +219,5 @@ internal static partial class SipNatHelper
 
     private sealed record TurnSettings(string Host, int Port, string? Username, string? Password);
 
-    [GeneratedRegex(@"received=([0-9.]+)", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
-    private static partial Regex ReceivedViaRegex();
+    private static readonly Regex ReceivedViaRegex = new(@"received=([0-9.]+)", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 }
